@@ -15,15 +15,12 @@ func (server *Server) migrate(ctx context.Context) error {
 		create table if not exists subs (
 			id integer primary key autoincrement,
 			tx text not null unique check (tx <> ''),
-			chain text not null check (chain <> ''),
-			addr text not null check (addr <> ''),
-			time integer not null default (unixepoch()) check (time > 0),
-			total integer not null check (total > 0),
-			expire integer not null check (expire > 0),
-			remain integer not null
+			addr text check (tx <> ''),
+			expire integer check (expire > 0),
+			remain integer
 		);
 
-		create index if not exists idx_subs_actives on subs(addr, remain, expire) where remain > 0;
+		create index if not exists idx_subs_actives on subs(addr, remain, expire) where addr is not null and remain is not null and remain > 0 and expire is not null;
 		
 	`)
 

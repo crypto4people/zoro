@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"log/slog"
 	"math"
 	"math/big"
@@ -38,7 +37,7 @@ func (server *Server) Watch(ctx context.Context) error {
 		}
 
 		for number := localHeight + 1; number <= networkHeight; number++ {
-			changes, err := server.processBlock(ctx, number, false)
+			changes, err := server.processBlock(ctx, number)
 			if err != nil {
 				return err
 			}
@@ -53,6 +52,18 @@ func (server *Server) Watch(ctx context.Context) error {
 		}
 
 	}
+}
+
+func (server *Server) ProcessBlock(ctx context.Context, number int64) (changes int, err error) {
+	networkHeight, err := server.getNetworkHeight(ctx)
+	if err != nil {
+		return 0, err
+	}
+	if networkHeight < number {
+		return 0, errors.New("block not exists")
+	}
+
+	return server.processBlock(ctx, number)
 }
 
 func (server *Server) setLocalHeight(ctx context.Context, height int64) error {
@@ -88,7 +99,7 @@ func (server *Server) getNetworkHeight(ctx context.Context) (int64, error) {
 	return max(int64(number)-int64(server.eth.offset), 1), nil
 }
 
-func (server *Server) processBlock(ctx context.Context, number int64, strict bool) (int, error) {
+func (server *Server) processBlock(ctx context.Context, number int64) (int, error) {
 
 	block, err := server.eth.client.BlockByNumber(ctx, big.NewInt(number))
 	if err != nil {
@@ -104,20 +115,15 @@ func (server *Server) processBlock(ctx context.Context, number int64, strict boo
 	for _, tx := range block.Transactions() {
 		applied, err := server.processTx(ctx, &rate, tx)
 		if err != nil {
-			if strict {
-				return changes, err
-			}
-			slog.Warn("failed to process tx",
-				slog.String("tx", tx.Hash().Hex()),
-				slog.String("err", err.Error()),
-			)
-		} else if applied {
+			return changes, err
+		}
+		if applied {
 			changes += 1
 		}
 	}
 
-	server.logger.Debug("new block processes",
-		slog.Int64("block", number),
+	server.logger.Debug("block processes",
+		slog.Int64("number", number),
 	)
 
 	return changes, nil
@@ -135,24 +141,29 @@ func (server *Server) processTx(ctx context.Context, rate *Rate, tx *types.Trans
 		return false, err
 	}
 
-	gas, ttl := rate.Convert(value)
-	if gas <= 0 || ttl <= 0 {
-		return false, fmt.Errorf("failed to convert tx value %s", value.Text(10))
-	}
+	convertResult := rate.convert(value)
 
-	created, err := server.createSub(ctx, tx.Hash(), sender, gas, ttl)
+	created, err := server.createSub(ctx, tx.Hash(), sender, convertResult.Dur, convertResult.TTL)
 	if err != nil {
 		return false, err
 	}
 
 	if created {
-		server.logger.Info("new sub created",
-			slog.String("tx", tx.Hash().Hex()),
-			slog.String("addr", sender.Hex()),
-			slog.String("value", value.Text(10)),
-			slog.Int("gas", gas),
-			slog.Duration("ttl", ttl),
-		)
+		if convertResult.TTL == 0 {
+			server.logger.Info("sub rejected",
+				slog.String("tx", tx.Hash().Hex()),
+				slog.String("addr", sender.Hex()),
+				slog.String("value", value.Text(10)),
+			)
+		} else {
+			server.logger.Info("sub created",
+				slog.String("tx", tx.Hash().Hex()),
+				slog.String("addr", sender.Hex()),
+				slog.String("value", value.Text(10)),
+				slog.Duration("dur", convertResult.Dur),
+				slog.Duration("ttl", convertResult.TTL),
+			)
+		}
 	} else {
 		server.logger.Info("duplicate tx",
 			slog.String("tx", tx.Hash().Hex()),

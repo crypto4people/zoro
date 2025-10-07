@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"database/sql"
 	"encoding/hex"
 	"time"
 
@@ -10,7 +11,6 @@ import (
 
 type Sub struct {
 	Expire int
-	Total  int
 	Remain int
 }
 
@@ -20,7 +20,7 @@ func (server *Server) ListSubs(ctx context.Context, addr common.Address) ([]Sub,
 	}
 
 	rows, err := server.db.conn.QueryContext(ctx,
-		"select expire, total, remain  from subs where addr = ?1 and remain > 0 and expire > unixepoch()",
+		"select expire, remain  from subs where addr = ?1 and remain > 0 and expire > unixepoch() limit 20",
 		hex.EncodeToString(addr[:]),
 	)
 	if err != nil {
@@ -30,17 +30,16 @@ func (server *Server) ListSubs(ctx context.Context, addr common.Address) ([]Sub,
 
 	result := make([]Sub, 0, 4)
 
-	var values [3]int
+	var values [2]int
 
 	for rows.Next() {
-		err = rows.Scan(&values[0], &values[1], &values[2])
+		err = rows.Scan(&values[0], &values[1])
 		if err != nil {
 			return nil, err
 		}
 		result = append(result, Sub{
 			Expire: values[0],
-			Total:  values[1],
-			Remain: values[2],
+			Remain: values[1],
 		})
 
 	}
@@ -59,16 +58,23 @@ func (server *Server) countSubs(ctx context.Context) error {
 	return nil
 }
 
-func (server *Server) createSub(ctx context.Context, tx common.Hash, addr common.Address, total int, ttl time.Duration) (bool, error) {
-
-	result, err := server.db.conn.ExecContext(ctx,
-		"insert into subs (tx, addr, total, remain, expire, chain) values (?1, ?2, ?3, ?3, unixepoch() + ?4, ?5) on conflict (tx) do nothing",
-		hex.EncodeToString(tx[:]),
-		hex.EncodeToString(addr[:]),
-		total,
-		ttl.Milliseconds()/1000,
-		server.eth.chain.Text(10),
-	)
+func (server *Server) createSub(ctx context.Context, tx common.Hash, addr common.Address, dur time.Duration, ttl time.Duration) (bool, error) {
+	var err error
+	var result sql.Result
+	if ttl == 0 {
+		result, err = server.db.conn.ExecContext(ctx,
+			"insert into subs (tx) values (?1) on conflict (tx) do nothing",
+			hex.EncodeToString(tx[:]),
+		)
+	} else {
+		result, err = server.db.conn.ExecContext(ctx,
+			"insert into subs (tx, addr, remain, expire) values (?1, ?2, ?3, unixepoch() + ?4) on conflict (tx) do nothing",
+			hex.EncodeToString(tx[:]),
+			hex.EncodeToString(addr[:]),
+			dur.Milliseconds()/1000,
+			ttl.Milliseconds()/1000,
+		)
+	}
 
 	if err != nil {
 		return false, err

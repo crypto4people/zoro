@@ -22,10 +22,10 @@ func (rep *reporting) Close() error {
 	return (*sql.Stmt)(rep).Close()
 }
 
-func (rep *reporting) Report(ctx context.Context, usage int) error {
-	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
+func (rep *reporting) Report(ctx context.Context, timeout time.Duration, dur time.Duration) error {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	result, err := (*sql.Stmt)(rep).ExecContext(ctx, usage)
+	result, err := (*sql.Stmt)(rep).ExecContext(ctx, dur.Milliseconds()/1000)
 	if err != nil {
 		return err
 	}

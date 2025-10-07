@@ -40,7 +40,10 @@ func (server *Server) serveProxy(writer http.ResponseWriter, req *http.Request, 
 		return err
 	}
 
-	if err = reporting.Report(ctx, int(server.proxy.reporting.Milliseconds()/1000)); err != nil {
+	if err = reporting.Report(ctx,
+		server.proxy.reporting.timeout,
+		server.proxy.reporting.internal,
+	); err != nil {
 		_ = reporting.Close()
 		return err
 	}
@@ -92,7 +95,7 @@ func (server *Server) doProxy(ctx context.Context, writer http.ResponseWriter, r
 				reporting.Close()
 			}()
 
-			ticker := time.NewTicker(server.proxy.reporting)
+			ticker := time.NewTicker(server.proxy.reporting.internal)
 			defer ticker.Stop()
 
 			for {
@@ -100,7 +103,10 @@ func (server *Server) doProxy(ctx context.Context, writer http.ResponseWriter, r
 				case <-ctx.Done():
 					return ctx.Err()
 				case <-ticker.C:
-					if err = reporting.Report(ctx, int(server.proxy.reporting.Milliseconds()/1000)); err != nil {
+					if err = reporting.Report(ctx,
+						server.proxy.reporting.timeout,
+						server.proxy.reporting.internal,
+					); err != nil {
 						server.logger.Debug("reporing failed", slog.String("err", err.Error()))
 						return err
 					}

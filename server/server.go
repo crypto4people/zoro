@@ -32,11 +32,14 @@ type Server struct {
 	}
 
 	proxy struct {
-		reporting time.Duration
-		dialer    net.Dialer
-		upgrader  ws.HTTPUpgrader
-		conns     atomic.Int64
-		max       int
+		reporting struct {
+			internal time.Duration
+			timeout  time.Duration
+		}
+		dialer   net.Dialer
+		upgrader ws.HTTPUpgrader
+		conns    atomic.Int64
+		max      int
 	}
 
 	http struct {

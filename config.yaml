@@ -1,8 +1,9 @@
 listen: "0.0.0.0:8080"
 rate:
-    ttl: 1s
-    fee: 0
-    price: 1000000000000
+    sub: 0
+    div: 100000000000000
+    mul: 1
+    add: 0
 maxconns: 100
 blockoffset: 1
 startblock: 23525500
