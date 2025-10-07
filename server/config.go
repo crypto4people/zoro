@@ -40,7 +40,10 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 		return nil, err
 	}
 
-	app.proxy.dialer.Timeout = time.Second * 5
+	app.proxy.reporting = time.Second * 10
+	app.proxy.dialer.Timeout = time.Second * 3
+	app.proxy.dialer.KeepAlive = time.Second * 15
+	app.proxy.upgrader.Timeout = time.Second * 3
 	app.db.conn = conf.Database
 	app.proxy.max = conf.MaxConns
 	app.eth.offset = conf.BlockOffset

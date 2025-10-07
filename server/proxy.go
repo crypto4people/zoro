@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"errors"
+	"io"
+	"log/slog"
 	"net"
 	"net/http"
 	"time"
@@ -38,7 +40,7 @@ func (server *Server) serveProxy(writer http.ResponseWriter, req *http.Request, 
 		return err
 	}
 
-	if err = reporting.Report(ctx, 10); err != nil {
+	if err = reporting.Report(ctx, int(server.proxy.reporting.Milliseconds()/1000)); err != nil {
 		_ = reporting.Close()
 		return err
 	}
@@ -56,12 +58,17 @@ func (server *Server) serveProxy(writer http.ResponseWriter, req *http.Request, 
 		return err
 	}
 
+	server.logger.Debug("new conn",
+		slog.String("net", network),
+		slog.String("addr", addr),
+		slog.String("user", account.Hex()),
+	)
+
 	return server.doProxy(req.Context(), writer, req, reporting, network, addr)
 
 }
 
 func (server *Server) doProxy(ctx context.Context, writer http.ResponseWriter, req *http.Request, reporting *reporting, network, addr string) (err error) {
-
 	ioConn, err := server.proxy.dialer.DialContext(ctx, network, addr)
 	if err != nil {
 		_ = reporting.Close()
@@ -76,21 +83,25 @@ func (server *Server) doProxy(ctx context.Context, writer http.ResponseWriter, r
 	}
 
 	go func() {
-		defer reporting.Close()
-		defer wsConn.Close()
-		defer ioConn.Close()
 
-		eg, ctx := errgroup.WithContext(ctx)
+		eg, ctx := errgroup.WithContext(context.Background())
 		eg.Go(func() (err error) {
-			ticker := time.NewTicker(time.Minute)
+			defer func() {
+				ioConn.Close()
+				closeWebsocket(wsConn)
+				reporting.Close()
+			}()
+
+			ticker := time.NewTicker(server.proxy.reporting)
+			defer ticker.Stop()
+
 			for {
 				select {
 				case <-ctx.Done():
 					return ctx.Err()
 				case <-ticker.C:
-					if err = reporting.Report(ctx, 60); err != nil {
-						_ = wsConn.Close()
-						_ = ioConn.Close()
+					if err = reporting.Report(ctx, int(server.proxy.reporting.Milliseconds()/1000)); err != nil {
+						server.logger.Debug("reporing failed", slog.String("err", err.Error()))
 						return err
 					}
 				}
@@ -100,7 +111,7 @@ func (server *Server) doProxy(ctx context.Context, writer http.ResponseWriter, r
 		eg.Go(func() (err error) {
 			var data []byte
 			for {
-				data, _, err = wsutil.ReadClientData(ioConn)
+				data, _, err = wsutil.ReadClientData(wsConn)
 				if err != nil {
 					return err
 				}
@@ -112,7 +123,7 @@ func (server *Server) doProxy(ctx context.Context, writer http.ResponseWriter, r
 		})
 
 		eg.Go(func() (err error) {
-			data := make([]byte, 2048)
+			data := make([]byte, 4096)
 			var n int
 			for {
 				n, err = ioConn.Read(data)
@@ -132,4 +143,9 @@ func (server *Server) doProxy(ctx context.Context, writer http.ResponseWriter, r
 
 	return nil
 
+}
+
+func closeWebsocket(conn io.WriteCloser) {
+	wsutil.WriteServerMessage(conn, ws.OpClose, nil)
+	conn.Close()
 }

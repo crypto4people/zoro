@@ -21,7 +21,7 @@ func (server *Server) initMux() {
 		writer.Write(ge.Must(json.Marshal(info)))
 	})
 
-	server.http.mux.HandleFunc("PUT /", func(writer http.ResponseWriter, req *http.Request) {
+	server.http.mux.HandleFunc("GET /wsc", func(writer http.ResponseWriter, req *http.Request) {
 		err := server.serveProxy(writer, req, common.HexToAddress(req.URL.Query().Get("user")))
 		if err != nil {
 			httpError(writer, err)
