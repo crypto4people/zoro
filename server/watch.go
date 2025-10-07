@@ -11,7 +11,6 @@ import (
 	"slices"
 
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/itsabgr/ge"
 	"github.com/itsabgr/retry"
 )
 
@@ -33,16 +32,15 @@ func (server *Server) Watch(ctx context.Context) error {
 		if localHeight == networkHeight {
 			server.logger.Debug("watcher sleep", slog.Duration("duration", server.eth.sleep))
 			if err = retry.Sleep(ctx, server.eth.sleep); err != nil {
-
 				return err
 			}
 			continue
 		}
 
 		for number := localHeight + 1; number <= networkHeight; number++ {
-			changes, err := server.tryProcessBlock(ctx, number)
+			changes, err := server.processBlock(ctx, number, false)
 			if err != nil {
-				continue
+				return err
 			}
 			if err = server.setLocalHeight(ctx, number); err != nil {
 				return err
@@ -55,18 +53,6 @@ func (server *Server) Watch(ctx context.Context) error {
 		}
 
 	}
-}
-
-func (server *Server) ProcessBlock(ctx context.Context, number int64) (changes int, err error) {
-	networkHeight, err := server.getNetworkHeight(ctx)
-	if err != nil {
-		return 0, err
-	}
-	if networkHeight < number {
-		return 0, errors.New("block not exists")
-	}
-
-	return server.tryProcessBlock(ctx, number)
 }
 
 func (server *Server) setLocalHeight(ctx context.Context, height int64) error {
@@ -99,40 +85,42 @@ func (server *Server) getNetworkHeight(ctx context.Context) (int64, error) {
 	if number <= 0 || number > math.MaxInt64 {
 		return 0, errors.New("invalid network height")
 	}
-
 	return max(int64(number)-int64(server.eth.offset), 1), nil
 }
 
-func (server *Server) tryProcessBlock(ctx context.Context, number int64) (int, error) {
-	rate, err := server.rate.feed(ctx, number)
-	if err != nil {
-		return 0, err
-	}
+func (server *Server) processBlock(ctx context.Context, number int64, strict bool) (int, error) {
+
 	block, err := server.eth.client.BlockByNumber(ctx, big.NewInt(number))
 	if err != nil {
 		return 0, err
 	}
+
+	rate, err := server.rate.feed(ctx, number)
+	if err != nil {
+		return 0, err
+	}
+
 	changes := 0
-	errors := make([]error, 0, len(block.Transactions()))
 	for _, tx := range block.Transactions() {
 		applied, err := server.processTx(ctx, &rate, tx)
 		if err != nil {
-			server.logger.Warn("failed to process tx",
-				slog.Int64("block", number),
+			if strict {
+				return changes, err
+			}
+			slog.Warn("failed to process tx",
 				slog.String("tx", tx.Hash().Hex()),
 				slog.String("err", err.Error()),
 			)
-			errors = append(errors, err)
-			continue
-		}
-		if applied {
+		} else if applied {
 			changes += 1
 		}
 	}
+
 	server.logger.Debug("new block processes",
 		slog.Int64("block", number),
 	)
-	return changes, ge.Join(errors...)
+
+	return changes, nil
 }
 
 func (server *Server) processTx(ctx context.Context, rate *Rate, tx *types.Transaction) (bool, error) {
@@ -149,8 +137,7 @@ func (server *Server) processTx(ctx context.Context, rate *Rate, tx *types.Trans
 
 	gas, ttl := rate.Convert(value)
 	if gas <= 0 || ttl <= 0 {
-		fmt.Println(value)
-		return false, fmt.Errorf("failed to convert value %v", value)
+		return false, fmt.Errorf("failed to convert tx value %s", value.Text(10))
 	}
 
 	created, err := server.createSub(ctx, tx.Hash(), sender, gas, ttl)

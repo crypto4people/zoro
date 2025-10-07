@@ -84,12 +84,16 @@ func main() {
 		return err
 	})
 
-	eg.Go(func() error {
-		err := app.Watch(ctx)
-		if ctx.Err() != nil {
-			return nil
+	eg.Go(func() (err error) {
+		for {
+			err = app.Watch(ctx)
+			if ctx.Err() != nil {
+				return nil
+			}
+			if err != nil {
+				slog.Warn("logger failed", slog.String("err", err.Error()))
+			}
 		}
-		return err
 	})
 
 	ge.Throw(eg.Wait())
