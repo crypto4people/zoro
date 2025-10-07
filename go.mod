@@ -6,7 +6,6 @@ require (
 	github.com/ethereum/go-ethereum v1.16.4
 	github.com/gobwas/ws v1.4.0
 	github.com/itsabgr/ge v0.0.0-20241202140951-7f5c5d99dde6
-	github.com/itsabgr/retry v0.0.0-20250503143232-077ac44149d3
 	github.com/mattn/go-sqlite3 v1.14.32
 	golang.org/x/sync v0.12.0
 	gopkg.in/yaml.v3 v3.0.1

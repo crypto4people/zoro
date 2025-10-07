@@ -8,9 +8,9 @@ import (
 	"math"
 	"math/big"
 	"slices"
+	"time"
 
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/itsabgr/retry"
 )
 
 func (server *Server) Watch(ctx context.Context) error {
@@ -30,10 +30,12 @@ func (server *Server) Watch(ctx context.Context) error {
 
 		if localHeight == networkHeight {
 			server.logger.Debug("watcher sleep", slog.Duration("duration", server.eth.sleep))
-			if err = retry.Sleep(ctx, server.eth.sleep); err != nil {
-				return err
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(server.eth.sleep):
+				continue
 			}
-			continue
 		}
 
 		for number := localHeight + 1; number <= networkHeight; number++ {
