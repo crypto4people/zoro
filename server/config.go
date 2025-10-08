@@ -31,7 +31,7 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 
 	app.eth.client = conf.EthClient
 
-	app.eth.chain, err = app.eth.client.ChainID(ctx)
+	chain, err := app.eth.client.ChainID(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -42,9 +42,11 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 	app.proxy.dialer.KeepAlive = time.Second * 15
 	app.proxy.upgrader.Timeout = time.Second * 3
 	app.db.conn = conf.Database
+	app.eth.sleep = time.Second
+	app.db.vaccum.interval = time.Hour
 	app.proxy.max = 2000
 	app.eth.addrs = slices.Clone(conf.Accounts)
-	app.eth.signer = types.LatestSignerForChainID(app.eth.chain)
+	app.eth.signer = types.LatestSignerForChainID(chain)
 
 	err = app.init(ctx)
 

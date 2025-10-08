@@ -4,9 +4,6 @@ rate:
     div: 100000000000000
     mul: 1
     add: 0
-maxconns: 100
-startblock: 23525500
-blocktime: 5s
 accounts: [0xe688b84b23f322a994A53dbF8E15FA82CDB71127]
 database: "file:db.sqlite?_sync=full&cache=shared&_journal_mode=wal&_auto_vacuum=incremental"
 node: "https://0xrpc.io/eth"

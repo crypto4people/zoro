@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"net"
 	"net/http"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -15,6 +16,8 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gobwas/ws"
 )
+
+const version = "beta"
 
 type Server struct {
 	uptime time.Time
@@ -29,6 +32,11 @@ type Server struct {
 		conn   *sql.DB
 		height atomic.Int64
 		subs   atomic.Int64
+		vaccum struct {
+			interval time.Duration
+			mutex    sync.Mutex
+			last     time.Time
+		}
 	}
 
 	proxy struct {
@@ -50,10 +58,12 @@ type Server struct {
 		addrs  []common.Address
 		signer types.Signer
 		client *ethclient.Client
+		sleep  time.Duration
 	}
 }
 
 type Info struct {
+	Version string
 	Uptime  int
 	Conns   int
 	Subs    int
@@ -64,6 +74,7 @@ type Info struct {
 
 func (server *Server) Info() Info {
 	return Info{
+		Version: version,
 		Conns:   int(server.proxy.conns.Load()),
 		Subs:    int(server.db.subs.Load()),
 		Chain:   new(big.Int).Set(server.eth.signer.ChainID()),

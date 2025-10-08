@@ -20,14 +20,11 @@ import (
 )
 
 var config struct {
-	Listen     string
-	Rate       server.Rate
-	MaxConns   int
-	StartBlock int64
-	Accounts   []common.Address
-	Database   string
-	BlockTime  time.Duration
-	Node       string
+	Listen   string
+	Rate     server.Rate
+	Accounts []common.Address
+	Database string
+	Node     string
 }
 
 var flagC = flag.String("c", "config.yaml", "")
@@ -48,7 +45,6 @@ func main() {
 
 	app := ge.Must(server.New(ctx, server.Config{
 		Accounts:  config.Accounts,
-		BlockTime: config.BlockTime,
 		Database:  db,
 		EthClient: ethClient,
 		RateFeed: func(ctx context.Context, block int64) (server.Rate, error) {
@@ -88,6 +84,12 @@ func main() {
 			}
 			if err != nil {
 				slog.Warn("logger failed", slog.String("err", err.Error()))
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case <-time.After(time.Second * 5):
+					continue
+				}
 			}
 		}
 	})

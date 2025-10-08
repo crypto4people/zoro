@@ -14,8 +14,10 @@ import (
 )
 
 func (server *Server) Watch(ctx context.Context) error {
-	for {
+	timer := time.NewTimer(time.Second)
+	defer timer.Stop()
 
+	for {
 		networkHeight, err := server.getNetworkHeight(ctx)
 		if err != nil {
 			return err
@@ -28,12 +30,20 @@ func (server *Server) Watch(ctx context.Context) error {
 			return errors.New("old network height")
 		}
 
-		if localHeight == networkHeight {
+		if localHeight <= networkHeight {
+
 			server.logger.Debug("watcher sleep", slog.Duration("duration", server.eth.sleep))
+
+			timer.Reset(time.Second)
+
+			if err := server.vaccum(ctx); err != nil {
+				return err
+			}
+
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
-			case <-time.After(server.eth.sleep):
+			case <-timer.C:
 				continue
 			}
 		}
@@ -62,14 +72,14 @@ func (server *Server) ProcessBlock(ctx context.Context, number int64) (changes i
 		return 0, err
 	}
 	if networkHeight < number {
-		return 0, errors.New("block not exists")
+		return 0, errors.New("block not finalized")
 	}
 
 	return server.processBlock(ctx, number)
 }
 
 func (server *Server) setLocalHeight(ctx context.Context, height int64) error {
-	_, err := server.db.conn.ExecContext(ctx, "insert into heights(chain,height) values(?1,?2) on conflict(chain) do update set height = ?2 where height < ?2", server.eth.chain.Text(10), height)
+	_, err := server.db.conn.ExecContext(ctx, "insert into heights(chain,height) values(?1,?2) on conflict(chain) do update set height = ?2 where height < ?2", server.eth.signer.ChainID().Text(10), height)
 	if err == nil {
 		server.db.height.Store(height)
 	}
@@ -78,7 +88,7 @@ func (server *Server) setLocalHeight(ctx context.Context, height int64) error {
 
 func (server *Server) getLocalHeight(ctx context.Context) (int64, error) {
 	var height int64
-	err := server.db.conn.QueryRowContext(ctx, "select height from heights where chain = ?1", server.eth.chain.Text(10)).Scan(&height)
+	err := server.db.conn.QueryRowContext(ctx, "select height from heights where chain = ?1", server.eth.signer.ChainID().Text(10)).Scan(&height)
 	if err == nil {
 		server.db.height.Store(height)
 	}
@@ -89,7 +99,7 @@ func (server *Server) getLocalHeight(ctx context.Context) (int64, error) {
 }
 
 func (server *Server) getNetworkHeight(ctx context.Context) (int64, error) {
-	header, err := server.eth.client.HeaderByNumber(ctx, big.NewInt(rpc.SafeBlockNumber.Int64()))
+	header, err := server.eth.client.HeaderByNumber(ctx, big.NewInt(rpc.FinalizedBlockNumber.Int64()))
 	if err != nil {
 		return 0, err
 	}

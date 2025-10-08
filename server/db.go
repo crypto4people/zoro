@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"time"
 )
 
 func (server *Server) migrate(ctx context.Context) error {
@@ -28,10 +29,22 @@ func (server *Server) migrate(ctx context.Context) error {
 }
 
 func (server *Server) vaccum(ctx context.Context) error {
-	_, err := server.db.conn.ExecContext(ctx, `
-		
-	VACUUM;
-	
-	`)
+	if !server.db.vaccum.mutex.TryLock() {
+		return nil
+	}
+	defer server.db.vaccum.mutex.Unlock()
+
+	if time.Since(server.db.vaccum.last) < server.db.vaccum.interval {
+		return nil
+	}
+
+	server.logger.Debug("vaccum database")
+
+	_, err := server.db.conn.ExecContext(ctx, "VACUUM;")
+
+	if err == nil {
+		server.db.vaccum.last = time.Now()
+	}
+
 	return err
 }
