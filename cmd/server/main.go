@@ -20,15 +20,14 @@ import (
 )
 
 var config struct {
-	Listen      string
-	Rate        server.Rate
-	MaxConns    int
-	BlockOffset uint8
-	StartBlock  int64
-	Accounts    []common.Address
-	Database    string
-	BlockTime   time.Duration
-	Node        string
+	Listen     string
+	Rate       server.Rate
+	MaxConns   int
+	StartBlock int64
+	Accounts   []common.Address
+	Database   string
+	BlockTime  time.Duration
+	Node       string
 }
 
 var flagC = flag.String("c", "config.yaml", "")
@@ -48,13 +47,10 @@ func main() {
 	ctx, _ := signal.NotifyContext(context.Background(), os.Kill, os.Interrupt)
 
 	app := ge.Must(server.New(ctx, server.Config{
-		MaxConns:    config.MaxConns,
-		BlockOffset: config.BlockOffset,
-		StartBlock:  config.StartBlock,
-		Accounts:    config.Accounts,
-		BlockTime:   config.BlockTime,
-		Database:    db,
-		EthClient:   ethClient,
+		Accounts:  config.Accounts,
+		BlockTime: config.BlockTime,
+		Database:  db,
+		EthClient: ethClient,
 		RateFeed: func(ctx context.Context, block int64) (server.Rate, error) {
 			return config.Rate, nil
 		},

@@ -5,12 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"log/slog"
-	"math"
 	"math/big"
 	"slices"
 	"time"
 
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rpc"
 )
 
 func (server *Server) Watch(ctx context.Context) error {
@@ -79,26 +79,26 @@ func (server *Server) setLocalHeight(ctx context.Context, height int64) error {
 func (server *Server) getLocalHeight(ctx context.Context) (int64, error) {
 	var height int64
 	err := server.db.conn.QueryRowContext(ctx, "select height from heights where chain = ?1", server.eth.chain.Text(10)).Scan(&height)
-	if err == sql.ErrNoRows {
-		err = nil
-		height = 0
-	}
 	if err == nil {
 		server.db.height.Store(height)
 	}
-
-	return max(height, server.eth.start), err
+	if err == sql.ErrNoRows {
+		return 0, nil
+	}
+	return height, err
 }
 
 func (server *Server) getNetworkHeight(ctx context.Context) (int64, error) {
-	number, err := server.eth.client.BlockNumber(ctx)
+	header, err := server.eth.client.HeaderByNumber(ctx, big.NewInt(rpc.SafeBlockNumber.Int64()))
 	if err != nil {
 		return 0, err
 	}
-	if number <= 0 || number > math.MaxInt64 {
+	number := header.Number
+
+	if number.Sign() <= 0 || !number.IsInt64() {
 		return 0, errors.New("invalid network height")
 	}
-	return max(int64(number)-int64(server.eth.offset), 1), nil
+	return number.Int64(), nil
 }
 
 func (server *Server) processBlock(ctx context.Context, number int64) (int, error) {

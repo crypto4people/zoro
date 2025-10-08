@@ -13,15 +13,11 @@ import (
 )
 
 type Config struct {
-	MaxConns    int
-	BlockOffset uint8
-	StartBlock  int64
-	BlockTime   time.Duration
-	Accounts    []common.Address
-	Database    *sql.DB
-	EthClient   *ethclient.Client
-	Logger      *slog.Logger
-	RateFeed    func(ctx context.Context, block int64) (Rate, error)
+	Accounts  []common.Address
+	Database  *sql.DB
+	EthClient *ethclient.Client
+	Logger    *slog.Logger
+	RateFeed  func(ctx context.Context, block int64) (Rate, error)
 }
 
 func New(ctx context.Context, conf Config) (app *Server, err error) {
@@ -46,12 +42,9 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 	app.proxy.dialer.KeepAlive = time.Second * 15
 	app.proxy.upgrader.Timeout = time.Second * 3
 	app.db.conn = conf.Database
-	app.proxy.max = conf.MaxConns
-	app.eth.offset = conf.BlockOffset
-	app.eth.start = conf.StartBlock
+	app.proxy.max = 2000
 	app.eth.addrs = slices.Clone(conf.Accounts)
 	app.eth.signer = types.LatestSignerForChainID(app.eth.chain)
-	app.eth.sleep = conf.BlockTime
 
 	err = app.init(ctx)
 

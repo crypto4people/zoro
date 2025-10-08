@@ -5,7 +5,6 @@ rate:
     mul: 1
     add: 0
 maxconns: 100
-blockoffset: 1
 startblock: 23525500
 blocktime: 5s
 accounts: [0xe688b84b23f322a994A53dbF8E15FA82CDB71127]

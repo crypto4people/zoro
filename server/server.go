@@ -47,13 +47,9 @@ type Server struct {
 	}
 
 	eth struct {
-		offset uint8
-		start  int64
 		addrs  []common.Address
 		signer types.Signer
-		chain  *big.Int
 		client *ethclient.Client
-		sleep  time.Duration
 	}
 }
 
@@ -70,7 +66,7 @@ func (server *Server) Info() Info {
 	return Info{
 		Conns:   int(server.proxy.conns.Load()),
 		Subs:    int(server.db.subs.Load()),
-		Chain:   new(big.Int).Set(server.eth.chain),
+		Chain:   new(big.Int).Set(server.eth.signer.ChainID()),
 		Uptime:  int(time.Since(server.uptime).Milliseconds()) / 1000,
 		Account: server.eth.addrs[0],
 		Height:  server.db.height.Load(),
