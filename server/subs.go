@@ -20,7 +20,7 @@ func (server *Server) ListSubs(ctx context.Context, addr common.Address) ([]Sub,
 	}
 
 	rows, err := server.db.conn.QueryContext(ctx,
-		"select expire, remain  from subs where addr = ?1 and remain > 0 and expire > unixepoch() limit 20",
+		"select expire, remain from subs where addr = ?1 and remain > 0 and expire > unixepoch() limit 20",
 		hex.EncodeToString(addr[:]),
 	)
 	if err != nil {

@@ -12,7 +12,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
-	"github.com/itsabgr/ge"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -23,20 +22,17 @@ func validateAddr(addr string) (string, error) {
 
 func (server *Server) serveProxy(writer http.ResponseWriter, req *http.Request, account common.Address) error {
 
-	{
-		if server.proxy.conns.Add(1) > int64(server.proxy.max) {
-			ge.Assert(server.proxy.conns.Add(-1) >= 0)
-			return errors.New("too may connections")
-		}
-		defer func() {
-			ge.Assert(server.proxy.conns.Add(-1) >= 0)
-		}()
+	congestionCtx, cancelCongestion := server.proxy.congestion.Push(account)
+
+	if congestionCtx == nil {
+		return errors.New("congestion")
 	}
 
 	ctx := req.Context()
 
 	reporting, err := server.prepareReport(ctx, account)
 	if err != nil {
+		cancelCongestion()
 		return err
 	}
 
@@ -44,6 +40,7 @@ func (server *Server) serveProxy(writer http.ResponseWriter, req *http.Request, 
 		server.proxy.reporting.timeout,
 		server.proxy.reporting.internal,
 	); err != nil {
+		cancelCongestion()
 		_ = reporting.Close()
 		return err
 	}
@@ -52,11 +49,13 @@ func (server *Server) serveProxy(writer http.ResponseWriter, req *http.Request, 
 	switch network {
 	case "tcp", "udp":
 	default:
+		cancelCongestion()
 		_ = reporting.Close()
 		return errors.New("invalid network")
 	}
 	addr, err := validateAddr(req.URL.Query().Get("addr"))
 	if err != nil {
+		cancelCongestion()
 		_ = reporting.Close()
 		return err
 	}
@@ -67,19 +66,21 @@ func (server *Server) serveProxy(writer http.ResponseWriter, req *http.Request, 
 		slog.String("user", account.Hex()),
 	)
 
-	return server.doProxy(req.Context(), writer, req, reporting, network, addr)
+	return server.doProxy(ctx, congestionCtx, cancelCongestion, writer, req, reporting, network, addr)
 
 }
 
-func (server *Server) doProxy(ctx context.Context, writer http.ResponseWriter, req *http.Request, reporting *reporting, network, addr string) (err error) {
+func (server *Server) doProxy(ctx context.Context, congestionCtx context.Context, cancelCongestion context.CancelFunc, writer http.ResponseWriter, req *http.Request, reporting *reporting, network, addr string) (err error) {
 	ioConn, err := server.proxy.dialer.DialContext(ctx, network, addr)
 	if err != nil {
+		cancelCongestion()
 		_ = reporting.Close()
 		return err
 	}
 
 	wsConn, _, _, err := server.proxy.upgrader.Upgrade(req, writer)
 	if err != nil {
+		cancelCongestion()
 		_ = reporting.Close()
 		_ = ioConn.Close()
 		return err
@@ -87,12 +88,13 @@ func (server *Server) doProxy(ctx context.Context, writer http.ResponseWriter, r
 
 	go func() {
 
-		eg, ctx := errgroup.WithContext(context.Background())
+		eg, ctx := errgroup.WithContext(congestionCtx)
 		eg.Go(func() (err error) {
 			defer func() {
 				ioConn.Close()
 				closeWebsocket(wsConn)
 				reporting.Close()
+				cancelCongestion()
 			}()
 
 			ticker := time.NewTicker(server.proxy.reporting.internal)

@@ -44,10 +44,9 @@ type Server struct {
 			internal time.Duration
 			timeout  time.Duration
 		}
-		dialer   net.Dialer
-		upgrader ws.HTTPUpgrader
-		conns    atomic.Int64
-		max      int
+		dialer     net.Dialer
+		upgrader   ws.HTTPUpgrader
+		congestion congestionMap
 	}
 
 	http struct {
@@ -75,7 +74,7 @@ type Info struct {
 func (server *Server) Info() Info {
 	return Info{
 		Version: version,
-		Conns:   int(server.proxy.conns.Load()),
+		Conns:   int(server.proxy.congestion.Count()),
 		Subs:    int(server.db.subs.Load()),
 		Chain:   new(big.Int).Set(server.eth.signer.ChainID()),
 		Uptime:  int(time.Since(server.uptime).Milliseconds()) / 1000,
