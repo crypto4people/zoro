@@ -25,7 +25,7 @@ type Server struct {
 	logger *slog.Logger
 
 	rate struct {
-		feed func(ctx context.Context, block int64) (Rate, error)
+		feed func(ctx context.Context, block int64) (*Rate, error)
 	}
 
 	db struct {
@@ -54,10 +54,11 @@ type Server struct {
 	}
 
 	eth struct {
-		addrs  []common.Address
-		signer types.Signer
-		client *ethclient.Client
-		sleep  time.Duration
+		ratefeedContract common.Address
+		addrs            []common.Address
+		signer           types.Signer
+		client           *ethclient.Client
+		sleep            time.Duration
 	}
 }
 

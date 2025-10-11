@@ -21,14 +21,15 @@ import (
 )
 
 var config struct {
-	Listen   string
-	Rate     server.Rate
-	Accounts []common.Address
-	Database string
-	Node     string
-	DataDir  string
-	Domain   string
-	Source   *string
+	Listen           string
+	Rate             server.Rate
+	RatefeedContract common.Address
+	Accounts         []common.Address
+	Database         string
+	Node             string
+	DataDir          string
+	Domain           string
+	Source           *string
 }
 
 var flagC = flag.String("c", "config.yaml", "")
@@ -58,13 +59,11 @@ func main() {
 	}
 
 	app := ge.Must(server.New(ctx, server.Config{
-		Source:    source,
-		Accounts:  config.Accounts,
-		Database:  db,
-		EthClient: ethClient,
-		RateFeed: func(ctx context.Context, block int64) (server.Rate, error) {
-			return config.Rate, nil
-		},
+		Source:           source,
+		RatefeedContract: config.RatefeedContract,
+		Accounts:         config.Accounts,
+		Database:         db,
+		EthClient:        ethClient,
 		Logger: slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		})),

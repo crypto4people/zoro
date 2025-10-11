@@ -1,8 +1,12 @@
 package server
 
 import (
+	"context"
 	"math/big"
 	"time"
+	ratefeed "zoro/contract"
+
+	"github.com/ethereum/go-ethereum"
 )
 
 type Rate struct {
@@ -17,8 +21,30 @@ type convertResult struct {
 	TTL time.Duration
 }
 
+var ratefeedAbi = ratefeed.NewRatefeed()
 var seconds = big.NewInt(int64(time.Second))
 
+func (server *Server) NewRate(ctx context.Context, block int64) (*Rate, error) {
+	result, err := server.eth.client.CallContract(ctx, ethereum.CallMsg{
+		To:   &server.eth.ratefeedContract,
+		Data: ratefeedAbi.PackGetValues(),
+	}, big.NewInt(block))
+	if err != nil {
+		return nil, err
+	}
+
+	feeds, err := ratefeedAbi.UnpackGetValues(result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Rate{
+		Sub: feeds[0],
+		Div: feeds[1],
+		Mul: feeds[2],
+		Add: feeds[3],
+	}, nil
+}
 func (rate *Rate) convert(value *big.Int) convertResult {
 
 	//dur := (value - sub) / div

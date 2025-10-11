@@ -14,12 +14,12 @@ import (
 )
 
 type Config struct {
-	Source    string
-	Accounts  []common.Address
-	Database  *sql.DB
-	EthClient *ethclient.Client
-	Logger    *slog.Logger
-	RateFeed  func(ctx context.Context, block int64) (Rate, error)
+	Source           string
+	RatefeedContract common.Address
+	Accounts         []common.Address
+	Database         *sql.DB
+	EthClient        *ethclient.Client
+	Logger           *slog.Logger
 }
 
 func New(ctx context.Context, conf Config) (app *Server, err error) {
@@ -29,7 +29,7 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 		uptime: time.Now(),
 	}
 
-	app.rate.feed = conf.RateFeed
+	app.rate.feed = app.NewRate
 
 	app.eth.client = conf.EthClient
 
@@ -48,9 +48,10 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 	app.proxy.dialer.KeepAlive = time.Second * 15
 	app.proxy.upgrader.Timeout = time.Second * 3
 	app.db.conn = conf.Database
-	app.eth.sleep = time.Second
 	app.db.vaccum.interval = time.Hour
 	app.proxy.congestion.Init(2000, 20)
+	app.eth.sleep = time.Second
+	app.eth.ratefeedContract = conf.RatefeedContract
 	app.eth.addrs = slices.Clone(conf.Accounts)
 	app.eth.signer = types.LatestSignerForChainID(chain)
 

@@ -125,7 +125,7 @@ func (server *Server) processBlock(ctx context.Context, number int64) (int, erro
 
 	changes := 0
 	for _, tx := range block.Transactions() {
-		applied, err := server.processTx(ctx, &rate, tx)
+		applied, err := server.processTx(ctx, rate, tx)
 		if err != nil {
 			return changes, err
 		}
