@@ -25,6 +25,7 @@ var config struct {
 	Accounts []common.Address
 	Database string
 	Node     string
+	source   *string
 }
 
 var flagC = flag.String("c", "config.yaml", "")
@@ -43,7 +44,13 @@ func main() {
 
 	ctx, _ := signal.NotifyContext(context.Background(), os.Kill, os.Interrupt)
 
+	source := "0.0.0.0"
+	if config.source != nil {
+		source = *config.source
+	}
+
 	app := ge.Must(server.New(ctx, server.Config{
+		Source:    source,
 		Accounts:  config.Accounts,
 		Database:  db,
 		EthClient: ethClient,
