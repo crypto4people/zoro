@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/google/uuid"
@@ -37,9 +38,11 @@ func (server *Server) initMux() {
 	})
 
 	server.http.mux.HandleFunc("GET /subs", func(writer http.ResponseWriter, req *http.Request) {
-		server.logger.Debug("new request on /subs", slog.String("address", req.RemoteAddr))
 		ctx := req.Context()
-		subs, err := server.ListSubs(ctx, common.HexToAddress(req.URL.Query().Get("user")))
+		user := req.URL.Query().Get("user")
+
+		server.logger.Debug("new request on /subs", slog.String("address", req.RemoteAddr), slog.String("account", user))
+		subs, err := server.ListSubs(ctx, common.HexToAddress(user))
 		if err != nil {
 			httpError(writer, err)
 			return
@@ -48,6 +51,27 @@ func (server *Server) initMux() {
 		writer.Write(ge.Must(json.Marshal(subs)))
 	})
 
+	server.http.mux.HandleFunc("GET /process-block", func(writer http.ResponseWriter, req *http.Request) {
+		block, err := strconv.ParseInt(req.URL.Query().Get("block"), 10, 64)
+		if err != nil {
+			httpError(writer, err)
+			return
+		}
+
+		server.logger.Debug("new request on /subs", slog.String("address", req.RemoteAddr), slog.Int64("block", block))
+		changes, err := server.processBlock(req.Context(), block)
+		if err != nil {
+			httpError(writer, err)
+			return
+		}
+
+		writer.Header().Set("Content-Type", "application/json")
+		writer.Write(ge.Must(json.Marshal(
+			map[string]bool{
+				"applied": changes > 0,
+			},
+		)))
+	})
 }
 
 func httpError(writer http.ResponseWriter, err any) {
