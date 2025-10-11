@@ -2,9 +2,11 @@ package server
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/google/uuid"
 	"github.com/itsabgr/ge"
 )
 
@@ -16,13 +18,18 @@ func (server *Server) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 
 func (server *Server) initMux() {
 	server.http.mux.HandleFunc("GET /", func(writer http.ResponseWriter, req *http.Request) {
+		server.logger.Debug("new request on /", slog.String("address", req.RemoteAddr))
 		info := server.Info()
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Write(ge.Must(json.Marshal(info)))
 	})
 
 	server.http.mux.HandleFunc("GET /wsc", func(writer http.ResponseWriter, req *http.Request) {
-		err := server.serveProxy(writer, req, common.HexToAddress(req.URL.Query().Get("user")))
+		user := req.URL.Query().Get("user")
+		logger := server.logger.With(slog.String("account", user), slog.String("log_key", uuid.NewString()))
+		logger.Debug("new request on /wsc", slog.String("address", req.RemoteAddr))
+
+		err := server.serveProxy(writer, logger, req, common.HexToAddress(user))
 		if err != nil {
 			httpError(writer, err)
 			return
@@ -30,6 +37,7 @@ func (server *Server) initMux() {
 	})
 
 	server.http.mux.HandleFunc("GET /subs", func(writer http.ResponseWriter, req *http.Request) {
+		server.logger.Debug("new request on /subs", slog.String("address", req.RemoteAddr))
 		ctx := req.Context()
 		subs, err := server.ListSubs(ctx, common.HexToAddress(req.URL.Query().Get("user")))
 		if err != nil {

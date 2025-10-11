@@ -25,7 +25,7 @@ var config struct {
 	Accounts []common.Address
 	Database string
 	Node     string
-	source   *string
+	Source   *string
 }
 
 var flagC = flag.String("c", "config.yaml", "")
@@ -45,8 +45,8 @@ func main() {
 	ctx, _ := signal.NotifyContext(context.Background(), os.Kill, os.Interrupt)
 
 	source := "0.0.0.0"
-	if config.source != nil {
-		source = *config.source
+	if config.Source != nil {
+		source = *config.Source
 	}
 
 	app := ge.Must(server.New(ctx, server.Config{
@@ -101,6 +101,7 @@ func main() {
 		}
 	})
 
+	slog.Info("server started", slog.String("address", config.Listen))
 	ge.Throw(eg.Wait())
 
 }

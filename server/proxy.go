@@ -20,11 +20,10 @@ func validateAddr(addr string) (string, error) {
 	return net.JoinHostPort(host, port), err
 }
 
-func (server *Server) serveProxy(writer http.ResponseWriter, req *http.Request, account common.Address) error {
-
+func (server *Server) serveProxy(writer http.ResponseWriter, logger *slog.Logger, req *http.Request, account common.Address) error {
 	congestionCtx, cancelCongestion := server.proxy.congestion.Push(account)
-
 	if congestionCtx == nil {
+		logger.Info("connection dropped due to congestion")
 		return errors.New("congestion")
 	}
 
@@ -32,6 +31,7 @@ func (server *Server) serveProxy(writer http.ResponseWriter, req *http.Request, 
 
 	reporting, err := server.prepareReport(ctx, account)
 	if err != nil {
+		logger.Info("connection dropped due to error on prepareReport", slog.String("error", err.Error()))
 		cancelCongestion()
 		return err
 	}
@@ -40,6 +40,7 @@ func (server *Server) serveProxy(writer http.ResponseWriter, req *http.Request, 
 		server.proxy.reporting.timeout,
 		server.proxy.reporting.internal,
 	); err != nil {
+		logger.Info("connection dropped due to error on Report", slog.String("error", err.Error()))
 		cancelCongestion()
 		_ = reporting.Close()
 		return err
@@ -49,30 +50,32 @@ func (server *Server) serveProxy(writer http.ResponseWriter, req *http.Request, 
 	switch network {
 	case "tcp", "udp":
 	default:
+		logger.Info("connection dropped due to invalid network requested by user", slog.String("network", network))
 		cancelCongestion()
 		_ = reporting.Close()
 		return errors.New("invalid network")
 	}
 	addr, err := validateAddr(req.URL.Query().Get("addr"))
 	if err != nil {
+		logger.Info("connection dropped due to invalid address requested by user", slog.String("address", addr))
 		cancelCongestion()
 		_ = reporting.Close()
 		return err
 	}
 
-	server.logger.Debug("new conn",
-		slog.String("net", network),
-		slog.String("addr", addr),
-		slog.String("user", account.Hex()),
+	logger.Debug("new conn",
+		slog.String("network", network),
+		slog.String("address", addr),
 	)
 
-	return server.doProxy(ctx, congestionCtx, cancelCongestion, writer, req, reporting, network, addr)
+	return server.doProxy(ctx, logger, congestionCtx, cancelCongestion, writer, req, reporting, network, addr)
 
 }
 
-func (server *Server) doProxy(ctx context.Context, congestionCtx context.Context, cancelCongestion context.CancelFunc, writer http.ResponseWriter, req *http.Request, reporting *reporting, network, addr string) (err error) {
+func (server *Server) doProxy(ctx context.Context, logger *slog.Logger, congestionCtx context.Context, cancelCongestion context.CancelFunc, writer http.ResponseWriter, req *http.Request, reporting *reporting, network, addr string) (err error) {
 	ioConn, err := server.proxy.dialer.DialContext(ctx, network, addr)
 	if err != nil {
+		logger.Info("connection dropped due to failure on dialing remote", slog.String("error", err.Error()))
 		cancelCongestion()
 		_ = reporting.Close()
 		return err
@@ -80,6 +83,7 @@ func (server *Server) doProxy(ctx context.Context, congestionCtx context.Context
 
 	wsConn, _, _, err := server.proxy.upgrader.Upgrade(req, writer)
 	if err != nil {
+		logger.Info("connection dropped due to failure on upgrading remote connection", slog.String("error", err.Error()))
 		cancelCongestion()
 		_ = reporting.Close()
 		_ = ioConn.Close()
@@ -91,6 +95,7 @@ func (server *Server) doProxy(ctx context.Context, congestionCtx context.Context
 		eg, ctx := errgroup.WithContext(congestionCtx)
 		eg.Go(func() (err error) {
 			defer func() {
+				logger.Info("connection ended")
 				ioConn.Close()
 				closeWebsocket(wsConn)
 				reporting.Close()
@@ -109,7 +114,7 @@ func (server *Server) doProxy(ctx context.Context, congestionCtx context.Context
 						server.proxy.reporting.timeout,
 						server.proxy.reporting.internal,
 					); err != nil {
-						server.logger.Debug("reporing failed", slog.String("err", err.Error()))
+						logger.Info("connection dropped due to failure on Report", slog.String("error", err.Error()))
 						return err
 					}
 				}
@@ -121,9 +126,11 @@ func (server *Server) doProxy(ctx context.Context, congestionCtx context.Context
 			for {
 				data, _, err = wsutil.ReadClientData(wsConn)
 				if err != nil {
+					server.logger.Debug("connection dropped due to failure when reading client data", slog.String("err", err.Error()))
 					return err
 				}
 				_, err = ioConn.Write(data)
+				server.logger.Debug("connection dropped due to failure when writing on remote conn", slog.String("err", err.Error()))
 				if err != nil {
 					return err
 				}
@@ -136,10 +143,12 @@ func (server *Server) doProxy(ctx context.Context, congestionCtx context.Context
 			for {
 				n, err = ioConn.Read(data)
 				if err != nil {
+					server.logger.Debug("connection dropped due to failure when reading remote data", slog.String("err", err.Error()))
 					return err
 				}
 				err = wsutil.WriteServerMessage(wsConn, ws.OpBinary, data[:n])
 				if err != nil {
+					server.logger.Debug("connection dropped due to failure when writing to client", slog.String("err", err.Error()))
 					return err
 				}
 			}
