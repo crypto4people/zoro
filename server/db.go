@@ -16,7 +16,7 @@ func (server *Server) migrate(ctx context.Context) error {
 		create table if not exists subs (
 			id integer primary key autoincrement,
 			tx text not null unique check (tx <> ''),
-			addr text check (tx <> ''),
+			addr text check (addr <> ''),
 			expire integer check (expire > 0),
 			remain integer
 		);
