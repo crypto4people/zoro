@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"time"
 	"zoro/server"
 
@@ -25,6 +26,8 @@ var config struct {
 	Accounts []common.Address
 	Database string
 	Node     string
+	DataDir  string
+	Domain   string
 	Source   *string
 }
 
@@ -39,7 +42,7 @@ func main() {
 	ethClient := ge.Must(ethclient.Dial(config.Node))
 	defer ethClient.Close()
 
-	db := ge.Must(sql.Open("sqlite3", config.Database))
+	db := ge.Must(sql.Open("sqlite3", filepath.Join(config.DataDir, config.Database)))
 	defer db.Close()
 
 	ctx, _ := signal.NotifyContext(context.Background(), os.Kill, os.Interrupt)
@@ -47,6 +50,11 @@ func main() {
 	source := "0.0.0.0"
 	if config.Source != nil {
 		source = *config.Source
+	}
+
+	cert, key, err := obtainCertificateForDomain(config.Domain, config.DataDir)
+	if err != nil {
+		slog.Warn("failed to obtain certificate, fallback to http", slog.String("error", err.Error()))
 	}
 
 	app := ge.Must(server.New(ctx, server.Config{
@@ -76,7 +84,13 @@ func main() {
 	})
 
 	eg.Go(func() error {
-		err := httpServer.ListenAndServe()
+		var err error
+		if cert != "" && key != "" {
+			err = httpServer.ListenAndServeTLS(cert, key)
+		} else {
+			err = httpServer.ListenAndServe()
+		}
+
 		if ctx.Err() != nil {
 			return nil
 		}
