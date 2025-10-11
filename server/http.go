@@ -66,11 +66,9 @@ func (server *Server) initMux() {
 		}
 
 		writer.Header().Set("Content-Type", "application/json")
-		writer.Write(ge.Must(json.Marshal(
-			map[string]bool{
-				"applied": changes > 0,
-			},
-		)))
+		writer.Write(ge.Must(json.Marshal(struct {
+			Applied bool
+		}{changes > 0})))
 	})
 }
 
