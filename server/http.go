@@ -58,7 +58,7 @@ func (server *Server) initMux() {
 			return
 		}
 
-		server.logger.Debug("new request on /subs", slog.String("address", req.RemoteAddr), slog.Int64("block", block))
+		server.logger.Debug("new request on /process-block", slog.String("address", req.RemoteAddr), slog.Int64("block", block))
 		changes, err := server.processBlock(req.Context(), block)
 		if err != nil {
 			httpError(writer, err)
