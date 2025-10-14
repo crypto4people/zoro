@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -26,7 +27,7 @@ var config struct {
 	RatefeedContract common.Address
 	Accounts         []common.Address
 	Database         string
-	Node             string
+	Nodes            []string
 	DataDir          string
 	Domain           string
 	Source           *string
@@ -34,19 +35,34 @@ var config struct {
 
 var flagC = flag.String("c", "config.yaml", "")
 
+func getWorkingEthClient(ctx context.Context, nodes []string) (*ethclient.Client, error) {
+	for _, node := range nodes {
+		client, err := ethclient.Dial(node)
+		if err != nil {
+			continue
+		}
+		if _, err := client.BlockNumber(ctx); err != nil {
+			client.Close()
+			continue
+		}
+		return client, nil
+	}
+	return nil, fmt.Errorf("no working Ethereum node found")
+}
+
 func main() {
 
 	flag.Parse()
 
 	ge.Throw(yaml.Unmarshal(ge.Must(os.ReadFile(*flagC)), &config))
 
-	ethClient := ge.Must(ethclient.Dial(config.Node))
-	defer ethClient.Close()
-
 	db := ge.Must(sql.Open("sqlite3", filepath.Join(config.DataDir, config.Database)))
 	defer db.Close()
 
 	ctx, _ := signal.NotifyContext(context.Background(), os.Kill, os.Interrupt)
+
+	ethClient := ge.Must(getWorkingEthClient(ctx, config.Nodes))
+	defer ethClient.Close()
 
 	source := "0.0.0.0"
 	if config.Source != nil {
