@@ -30,7 +30,7 @@ func New(ctx context.Context, nodes []string) (*EthPool, error) {
 	for _, node := range nodes {
 		client, err := ethclient.Dial(node)
 		if err != nil {
-			continue
+			return nil, err
 		}
 		pool.clients = append(pool.clients, client)
 	}

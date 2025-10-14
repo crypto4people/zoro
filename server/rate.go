@@ -24,25 +24,25 @@ type convertResult struct {
 var ratefeedAbi = ratefeed.NewRatefeed()
 var seconds = big.NewInt(int64(time.Second))
 
-func (server *Server) NewRate(ctx context.Context, block int64) (*Rate, error) {
+func (server *Server) ReadRate(ctx context.Context, block int64) (*Rate, error) {
 	result, err := server.eth.client.CallContract(ctx, ethereum.CallMsg{
 		To:   &server.eth.ratefeedContract,
-		Data: ratefeedAbi.PackGetValues(),
+		Data: ratefeedAbi.PackGetRate(),
 	}, big.NewInt(block))
 	if err != nil {
 		return nil, err
 	}
 
-	feeds, err := ratefeedAbi.UnpackGetValues(result)
+	rate, err := ratefeedAbi.UnpackGetRate(result)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Rate{
-		Sub: feeds[0],
-		Div: feeds[1],
-		Mul: feeds[2],
-		Add: feeds[3],
+		Sub: rate.Sub,
+		Div: rate.Div,
+		Mul: rate.Mul,
+		Add: rate.Sub,
 	}, nil
 }
 func (rate *Rate) convert(value *big.Int) convertResult {

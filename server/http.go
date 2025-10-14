@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/google/uuid"
@@ -51,26 +50,6 @@ func (server *Server) initMux() {
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Write(ge.Must(json.Marshal(subs)))
-	})
-
-	server.http.mux.HandleFunc("GET /process-block", func(writer http.ResponseWriter, req *http.Request) {
-		block, err := strconv.ParseInt(req.URL.Query().Get("block"), 10, 64)
-		if err != nil {
-			httpError(writer, err)
-			return
-		}
-
-		server.logger.Debug("new request on /process-block", slog.String("address", req.RemoteAddr), slog.Int64("block", block))
-		changes, err := server.processBlock(req.Context(), block)
-		if err != nil {
-			httpError(writer, err)
-			return
-		}
-
-		writer.Header().Set("Content-Type", "application/json")
-		writer.Write(ge.Must(json.Marshal(struct {
-			Applied bool
-		}{changes > 0})))
 	})
 }
 

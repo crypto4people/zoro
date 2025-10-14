@@ -7,6 +7,7 @@ import (
 
 func (server *Server) migrate(ctx context.Context) error {
 	_, err := server.db.conn.ExecContext(ctx, `
+	
 		create table if not exists heights (
 			chain text not null unique check (chain <> ''),
 			height bigint not null check (height > 0)

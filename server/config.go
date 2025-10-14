@@ -28,7 +28,7 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 		uptime: time.Now(),
 	}
 
-	app.rate.feed = app.NewRate
+	app.rate.feed = app.ReadRate
 
 	app.eth.client = conf.EthClientPool
 	app.eth.sleep = time.Second

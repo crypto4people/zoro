@@ -26,7 +26,7 @@ var (
 
 // RatefeedMetaData contains all meta data concerning the Ratefeed contract.
 var RatefeedMetaData = bind.MetaData{
-	ABI: "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnerAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"sub\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"div\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"mul\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"add\",\"type\":\"uint256\"}],\"name\":\"ValuesUpdated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"addOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getValues\",\"outputs\":[{\"internalType\":\"uint256[4]\",\"name\":\"\",\"type\":\"uint256[4]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_addr\",\"type\":\"address\"}],\"name\":\"isOwner\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"sub\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"div\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"mul\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"add\",\"type\":\"uint256\"}],\"name\":\"setFeed\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnerChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"sub\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"div\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"mul\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"add\",\"type\":\"uint256\"}],\"name\":\"RateUpdated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"add\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"div\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRate\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"_sub\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_div\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_mul\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_add\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"mul\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_addr\",\"type\":\"address\"}],\"name\":\"setOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_sub\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_div\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_mul\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_add\",\"type\":\"uint256\"}],\"name\":\"setRate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"sub\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 	ID:  "Ratefeed",
 }
 
@@ -50,143 +50,297 @@ func (c *Ratefeed) Instance(backend bind.ContractBackend, addr common.Address) *
 	return bind.NewBoundContract(addr, c.abi, backend, backend, backend)
 }
 
-// PackAddOwner is the Go binding used to pack the parameters required for calling
-// the contract method with ID 0x7065cb48.  This method will panic if any
+// PackAdd is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x4f2be91f.  This method will panic if any
 // invalid/nil inputs are passed.
 //
-// Solidity: function addOwner(address _newOwner) returns()
-func (ratefeed *Ratefeed) PackAddOwner(newOwner common.Address) []byte {
-	enc, err := ratefeed.abi.Pack("addOwner", newOwner)
+// Solidity: function add() view returns(uint256)
+func (ratefeed *Ratefeed) PackAdd() []byte {
+	enc, err := ratefeed.abi.Pack("add")
 	if err != nil {
 		panic(err)
 	}
 	return enc
 }
 
-// TryPackAddOwner is the Go binding used to pack the parameters required for calling
-// the contract method with ID 0x7065cb48.  This method will return an error
+// TryPackAdd is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x4f2be91f.  This method will return an error
 // if any inputs are invalid/nil.
 //
-// Solidity: function addOwner(address _newOwner) returns()
-func (ratefeed *Ratefeed) TryPackAddOwner(newOwner common.Address) ([]byte, error) {
-	return ratefeed.abi.Pack("addOwner", newOwner)
+// Solidity: function add() view returns(uint256)
+func (ratefeed *Ratefeed) TryPackAdd() ([]byte, error) {
+	return ratefeed.abi.Pack("add")
 }
 
-// PackGetValues is the Go binding used to pack the parameters required for calling
-// the contract method with ID 0x19eb4a90.  This method will panic if any
-// invalid/nil inputs are passed.
+// UnpackAdd is the Go binding that unpacks the parameters returned
+// from invoking the contract method with ID 0x4f2be91f.
 //
-// Solidity: function getValues() view returns(uint256[4])
-func (ratefeed *Ratefeed) PackGetValues() []byte {
-	enc, err := ratefeed.abi.Pack("getValues")
+// Solidity: function add() view returns(uint256)
+func (ratefeed *Ratefeed) UnpackAdd(data []byte) (*big.Int, error) {
+	out, err := ratefeed.abi.Unpack("add", data)
 	if err != nil {
-		panic(err)
+		return new(big.Int), err
 	}
-	return enc
-}
-
-// TryPackGetValues is the Go binding used to pack the parameters required for calling
-// the contract method with ID 0x19eb4a90.  This method will return an error
-// if any inputs are invalid/nil.
-//
-// Solidity: function getValues() view returns(uint256[4])
-func (ratefeed *Ratefeed) TryPackGetValues() ([]byte, error) {
-	return ratefeed.abi.Pack("getValues")
-}
-
-// UnpackGetValues is the Go binding that unpacks the parameters returned
-// from invoking the contract method with ID 0x19eb4a90.
-//
-// Solidity: function getValues() view returns(uint256[4])
-func (ratefeed *Ratefeed) UnpackGetValues(data []byte) ([4]*big.Int, error) {
-	out, err := ratefeed.abi.Unpack("getValues", data)
-	if err != nil {
-		return *new([4]*big.Int), err
-	}
-	out0 := *abi.ConvertType(out[0], new([4]*big.Int)).(*[4]*big.Int)
+	out0 := abi.ConvertType(out[0], new(big.Int)).(*big.Int)
 	return out0, nil
 }
 
-// PackIsOwner is the Go binding used to pack the parameters required for calling
-// the contract method with ID 0x2f54bf6e.  This method will panic if any
+// PackDiv is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0xf9fa48c3.  This method will panic if any
 // invalid/nil inputs are passed.
 //
-// Solidity: function isOwner(address _addr) view returns(bool)
-func (ratefeed *Ratefeed) PackIsOwner(addr common.Address) []byte {
-	enc, err := ratefeed.abi.Pack("isOwner", addr)
+// Solidity: function div() view returns(uint256)
+func (ratefeed *Ratefeed) PackDiv() []byte {
+	enc, err := ratefeed.abi.Pack("div")
 	if err != nil {
 		panic(err)
 	}
 	return enc
 }
 
-// TryPackIsOwner is the Go binding used to pack the parameters required for calling
-// the contract method with ID 0x2f54bf6e.  This method will return an error
+// TryPackDiv is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0xf9fa48c3.  This method will return an error
 // if any inputs are invalid/nil.
 //
-// Solidity: function isOwner(address _addr) view returns(bool)
-func (ratefeed *Ratefeed) TryPackIsOwner(addr common.Address) ([]byte, error) {
-	return ratefeed.abi.Pack("isOwner", addr)
+// Solidity: function div() view returns(uint256)
+func (ratefeed *Ratefeed) TryPackDiv() ([]byte, error) {
+	return ratefeed.abi.Pack("div")
 }
 
-// UnpackIsOwner is the Go binding that unpacks the parameters returned
-// from invoking the contract method with ID 0x2f54bf6e.
+// UnpackDiv is the Go binding that unpacks the parameters returned
+// from invoking the contract method with ID 0xf9fa48c3.
 //
-// Solidity: function isOwner(address _addr) view returns(bool)
-func (ratefeed *Ratefeed) UnpackIsOwner(data []byte) (bool, error) {
-	out, err := ratefeed.abi.Unpack("isOwner", data)
+// Solidity: function div() view returns(uint256)
+func (ratefeed *Ratefeed) UnpackDiv(data []byte) (*big.Int, error) {
+	out, err := ratefeed.abi.Unpack("div", data)
 	if err != nil {
-		return *new(bool), err
+		return new(big.Int), err
 	}
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+	out0 := abi.ConvertType(out[0], new(big.Int)).(*big.Int)
 	return out0, nil
 }
 
-// PackSetFeed is the Go binding used to pack the parameters required for calling
-// the contract method with ID 0xd3302ffb.  This method will panic if any
+// PackGetRate is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x679aefce.  This method will panic if any
 // invalid/nil inputs are passed.
 //
-// Solidity: function setFeed(uint256 sub, uint256 div, uint256 mul, uint256 add) returns()
-func (ratefeed *Ratefeed) PackSetFeed(sub *big.Int, div *big.Int, mul *big.Int, add *big.Int) []byte {
-	enc, err := ratefeed.abi.Pack("setFeed", sub, div, mul, add)
+// Solidity: function getRate() view returns(uint256 _sub, uint256 _div, uint256 _mul, uint256 _add)
+func (ratefeed *Ratefeed) PackGetRate() []byte {
+	enc, err := ratefeed.abi.Pack("getRate")
 	if err != nil {
 		panic(err)
 	}
 	return enc
 }
 
-// TryPackSetFeed is the Go binding used to pack the parameters required for calling
-// the contract method with ID 0xd3302ffb.  This method will return an error
+// TryPackGetRate is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x679aefce.  This method will return an error
 // if any inputs are invalid/nil.
 //
-// Solidity: function setFeed(uint256 sub, uint256 div, uint256 mul, uint256 add) returns()
-func (ratefeed *Ratefeed) TryPackSetFeed(sub *big.Int, div *big.Int, mul *big.Int, add *big.Int) ([]byte, error) {
-	return ratefeed.abi.Pack("setFeed", sub, div, mul, add)
+// Solidity: function getRate() view returns(uint256 _sub, uint256 _div, uint256 _mul, uint256 _add)
+func (ratefeed *Ratefeed) TryPackGetRate() ([]byte, error) {
+	return ratefeed.abi.Pack("getRate")
 }
 
-// RatefeedOwnerAdded represents a OwnerAdded event raised by the Ratefeed contract.
-type RatefeedOwnerAdded struct {
+// GetRateOutput serves as a container for the return parameters of contract
+// method GetRate.
+type GetRateOutput struct {
+	Sub *big.Int
+	Div *big.Int
+	Mul *big.Int
+	Add *big.Int
+}
+
+// UnpackGetRate is the Go binding that unpacks the parameters returned
+// from invoking the contract method with ID 0x679aefce.
+//
+// Solidity: function getRate() view returns(uint256 _sub, uint256 _div, uint256 _mul, uint256 _add)
+func (ratefeed *Ratefeed) UnpackGetRate(data []byte) (GetRateOutput, error) {
+	out, err := ratefeed.abi.Unpack("getRate", data)
+	outstruct := new(GetRateOutput)
+	if err != nil {
+		return *outstruct, err
+	}
+	outstruct.Sub = abi.ConvertType(out[0], new(big.Int)).(*big.Int)
+	outstruct.Div = abi.ConvertType(out[1], new(big.Int)).(*big.Int)
+	outstruct.Mul = abi.ConvertType(out[2], new(big.Int)).(*big.Int)
+	outstruct.Add = abi.ConvertType(out[3], new(big.Int)).(*big.Int)
+	return *outstruct, nil
+}
+
+// PackMul is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x58931c46.  This method will panic if any
+// invalid/nil inputs are passed.
+//
+// Solidity: function mul() view returns(uint256)
+func (ratefeed *Ratefeed) PackMul() []byte {
+	enc, err := ratefeed.abi.Pack("mul")
+	if err != nil {
+		panic(err)
+	}
+	return enc
+}
+
+// TryPackMul is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x58931c46.  This method will return an error
+// if any inputs are invalid/nil.
+//
+// Solidity: function mul() view returns(uint256)
+func (ratefeed *Ratefeed) TryPackMul() ([]byte, error) {
+	return ratefeed.abi.Pack("mul")
+}
+
+// UnpackMul is the Go binding that unpacks the parameters returned
+// from invoking the contract method with ID 0x58931c46.
+//
+// Solidity: function mul() view returns(uint256)
+func (ratefeed *Ratefeed) UnpackMul(data []byte) (*big.Int, error) {
+	out, err := ratefeed.abi.Unpack("mul", data)
+	if err != nil {
+		return new(big.Int), err
+	}
+	out0 := abi.ConvertType(out[0], new(big.Int)).(*big.Int)
+	return out0, nil
+}
+
+// PackOwner is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x8da5cb5b.  This method will panic if any
+// invalid/nil inputs are passed.
+//
+// Solidity: function owner() view returns(address)
+func (ratefeed *Ratefeed) PackOwner() []byte {
+	enc, err := ratefeed.abi.Pack("owner")
+	if err != nil {
+		panic(err)
+	}
+	return enc
+}
+
+// TryPackOwner is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x8da5cb5b.  This method will return an error
+// if any inputs are invalid/nil.
+//
+// Solidity: function owner() view returns(address)
+func (ratefeed *Ratefeed) TryPackOwner() ([]byte, error) {
+	return ratefeed.abi.Pack("owner")
+}
+
+// UnpackOwner is the Go binding that unpacks the parameters returned
+// from invoking the contract method with ID 0x8da5cb5b.
+//
+// Solidity: function owner() view returns(address)
+func (ratefeed *Ratefeed) UnpackOwner(data []byte) (common.Address, error) {
+	out, err := ratefeed.abi.Unpack("owner", data)
+	if err != nil {
+		return *new(common.Address), err
+	}
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+	return out0, nil
+}
+
+// PackSetOwner is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x13af4035.  This method will panic if any
+// invalid/nil inputs are passed.
+//
+// Solidity: function setOwner(address _addr) returns()
+func (ratefeed *Ratefeed) PackSetOwner(addr common.Address) []byte {
+	enc, err := ratefeed.abi.Pack("setOwner", addr)
+	if err != nil {
+		panic(err)
+	}
+	return enc
+}
+
+// TryPackSetOwner is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0x13af4035.  This method will return an error
+// if any inputs are invalid/nil.
+//
+// Solidity: function setOwner(address _addr) returns()
+func (ratefeed *Ratefeed) TryPackSetOwner(addr common.Address) ([]byte, error) {
+	return ratefeed.abi.Pack("setOwner", addr)
+}
+
+// PackSetRate is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0xa3d7a9e4.  This method will panic if any
+// invalid/nil inputs are passed.
+//
+// Solidity: function setRate(uint256 _sub, uint256 _div, uint256 _mul, uint256 _add) returns()
+func (ratefeed *Ratefeed) PackSetRate(sub *big.Int, div *big.Int, mul *big.Int, add *big.Int) []byte {
+	enc, err := ratefeed.abi.Pack("setRate", sub, div, mul, add)
+	if err != nil {
+		panic(err)
+	}
+	return enc
+}
+
+// TryPackSetRate is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0xa3d7a9e4.  This method will return an error
+// if any inputs are invalid/nil.
+//
+// Solidity: function setRate(uint256 _sub, uint256 _div, uint256 _mul, uint256 _add) returns()
+func (ratefeed *Ratefeed) TryPackSetRate(sub *big.Int, div *big.Int, mul *big.Int, add *big.Int) ([]byte, error) {
+	return ratefeed.abi.Pack("setRate", sub, div, mul, add)
+}
+
+// PackSub is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0xc54124be.  This method will panic if any
+// invalid/nil inputs are passed.
+//
+// Solidity: function sub() view returns(uint256)
+func (ratefeed *Ratefeed) PackSub() []byte {
+	enc, err := ratefeed.abi.Pack("sub")
+	if err != nil {
+		panic(err)
+	}
+	return enc
+}
+
+// TryPackSub is the Go binding used to pack the parameters required for calling
+// the contract method with ID 0xc54124be.  This method will return an error
+// if any inputs are invalid/nil.
+//
+// Solidity: function sub() view returns(uint256)
+func (ratefeed *Ratefeed) TryPackSub() ([]byte, error) {
+	return ratefeed.abi.Pack("sub")
+}
+
+// UnpackSub is the Go binding that unpacks the parameters returned
+// from invoking the contract method with ID 0xc54124be.
+//
+// Solidity: function sub() view returns(uint256)
+func (ratefeed *Ratefeed) UnpackSub(data []byte) (*big.Int, error) {
+	out, err := ratefeed.abi.Unpack("sub", data)
+	if err != nil {
+		return new(big.Int), err
+	}
+	out0 := abi.ConvertType(out[0], new(big.Int)).(*big.Int)
+	return out0, nil
+}
+
+// RatefeedOwnerChanged represents a OwnerChanged event raised by the Ratefeed contract.
+type RatefeedOwnerChanged struct {
+	OldOwner common.Address
 	NewOwner common.Address
 	Raw      *types.Log // Blockchain specific contextual infos
 }
 
-const RatefeedOwnerAddedEventName = "OwnerAdded"
+const RatefeedOwnerChangedEventName = "OwnerChanged"
 
 // ContractEventName returns the user-defined event name.
-func (RatefeedOwnerAdded) ContractEventName() string {
-	return RatefeedOwnerAddedEventName
+func (RatefeedOwnerChanged) ContractEventName() string {
+	return RatefeedOwnerChangedEventName
 }
 
-// UnpackOwnerAddedEvent is the Go binding that unpacks the event data emitted
+// UnpackOwnerChangedEvent is the Go binding that unpacks the event data emitted
 // by contract.
 //
-// Solidity: event OwnerAdded(address indexed newOwner)
-func (ratefeed *Ratefeed) UnpackOwnerAddedEvent(log *types.Log) (*RatefeedOwnerAdded, error) {
-	event := "OwnerAdded"
+// Solidity: event OwnerChanged(address indexed oldOwner, address indexed newOwner)
+func (ratefeed *Ratefeed) UnpackOwnerChangedEvent(log *types.Log) (*RatefeedOwnerChanged, error) {
+	event := "OwnerChanged"
 	if len(log.Topics) == 0 || log.Topics[0] != ratefeed.abi.Events[event].ID {
 		return nil, errors.New("event signature mismatch")
 	}
-	out := new(RatefeedOwnerAdded)
+	out := new(RatefeedOwnerChanged)
 	if len(log.Data) > 0 {
 		if err := ratefeed.abi.UnpackIntoInterface(out, event, log.Data); err != nil {
 			return nil, err
@@ -205,8 +359,8 @@ func (ratefeed *Ratefeed) UnpackOwnerAddedEvent(log *types.Log) (*RatefeedOwnerA
 	return out, nil
 }
 
-// RatefeedValuesUpdated represents a ValuesUpdated event raised by the Ratefeed contract.
-type RatefeedValuesUpdated struct {
+// RatefeedRateUpdated represents a RateUpdated event raised by the Ratefeed contract.
+type RatefeedRateUpdated struct {
 	Sub *big.Int
 	Div *big.Int
 	Mul *big.Int
@@ -214,23 +368,23 @@ type RatefeedValuesUpdated struct {
 	Raw *types.Log // Blockchain specific contextual infos
 }
 
-const RatefeedValuesUpdatedEventName = "ValuesUpdated"
+const RatefeedRateUpdatedEventName = "RateUpdated"
 
 // ContractEventName returns the user-defined event name.
-func (RatefeedValuesUpdated) ContractEventName() string {
-	return RatefeedValuesUpdatedEventName
+func (RatefeedRateUpdated) ContractEventName() string {
+	return RatefeedRateUpdatedEventName
 }
 
-// UnpackValuesUpdatedEvent is the Go binding that unpacks the event data emitted
+// UnpackRateUpdatedEvent is the Go binding that unpacks the event data emitted
 // by contract.
 //
-// Solidity: event ValuesUpdated(uint256 sub, uint256 div, uint256 mul, uint256 add)
-func (ratefeed *Ratefeed) UnpackValuesUpdatedEvent(log *types.Log) (*RatefeedValuesUpdated, error) {
-	event := "ValuesUpdated"
+// Solidity: event RateUpdated(uint256 sub, uint256 div, uint256 mul, uint256 add)
+func (ratefeed *Ratefeed) UnpackRateUpdatedEvent(log *types.Log) (*RatefeedRateUpdated, error) {
+	event := "RateUpdated"
 	if len(log.Topics) == 0 || log.Topics[0] != ratefeed.abi.Events[event].ID {
 		return nil, errors.New("event signature mismatch")
 	}
-	out := new(RatefeedValuesUpdated)
+	out := new(RatefeedRateUpdated)
 	if len(log.Data) > 0 {
 		if err := ratefeed.abi.UnpackIntoInterface(out, event, log.Data); err != nil {
 			return nil, err

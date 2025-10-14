@@ -1,3 +1,3 @@
 package ratefeed
 
-//go:generate abigen --v2 --pkg ratefeed --abi ratefeed.json --out ratefeed.go
+//go:generate go run -mod=mod github.com/ethereum/go-ethereum/cmd/abigen --v2 --pkg ratefeed --abi ratefeed.json --out ratefeed.go
