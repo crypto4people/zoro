@@ -23,7 +23,6 @@ type Config struct {
 }
 
 func New(ctx context.Context, conf Config) (app *Server, err error) {
-
 	app = &Server{
 		logger: conf.Logger,
 		uptime: time.Now(),
@@ -32,11 +31,14 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 	app.rate.feed = app.NewRate
 
 	app.eth.client = conf.EthClientPool
-
+	app.eth.sleep = time.Second
+	app.eth.ratefeedContract = conf.RatefeedContract
+	app.eth.addrs = slices.Clone(conf.Accounts)
 	chain, err := app.eth.client.ChainID(ctx)
 	if err != nil {
 		return nil, err
 	}
+	app.eth.signer = types.LatestSignerForChainID(chain)
 
 	app.proxy.reporting.internal = time.Second * 10
 	app.proxy.reporting.timeout = time.Second * 5
@@ -47,13 +49,10 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 	app.proxy.dialer.Timeout = time.Second * 3
 	app.proxy.dialer.KeepAlive = time.Second * 15
 	app.proxy.upgrader.Timeout = time.Second * 3
+	app.proxy.congestion.Init(2000, 20)
+
 	app.db.conn = conf.Database
 	app.db.vaccum.interval = time.Hour
-	app.proxy.congestion.Init(2000, 20)
-	app.eth.sleep = time.Second
-	app.eth.ratefeedContract = conf.RatefeedContract
-	app.eth.addrs = slices.Clone(conf.Accounts)
-	app.eth.signer = types.LatestSignerForChainID(chain)
 
 	err = app.init(ctx)
 
@@ -62,5 +61,4 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 	}
 
 	return app, nil
-
 }

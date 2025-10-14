@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -35,35 +36,42 @@ var config struct {
 var flagC = flag.String("c", "config.yaml", "")
 
 func main() {
-
+	// parse config
 	flag.Parse()
 
 	ge.Throw(yaml.Unmarshal(ge.Must(os.ReadFile(*flagC)), &config))
+
+	if len(config.Nodes) == 0 {
+		log.Fatal("nodes are either empty or nil")
+	}
 
 	if config.DataDir == "" {
 		config.DataDir = "./"
 	}
 
-	db := ge.Must(sql.Open("sqlite3", filepath.Join(config.DataDir, config.Database)))
+	if config.Source == nil {
+		source := "0.0.0.0"
+		config.Source = &source
+	}
+
+	// DB
+	db := ge.Must(sql.Open("sqlite3", "file:"+filepath.Join(config.DataDir, config.Database)))
 	defer db.Close()
 
 	ctx, _ := signal.NotifyContext(context.Background(), os.Kill, os.Interrupt)
 
+	// ethereum pool
 	ethClientPool := ge.Must(pool.New(ctx, config.Nodes))
 	defer ethClientPool.Close()
 
-	source := "0.0.0.0"
-	if config.Source != nil {
-		source = *config.Source
-	}
-
+	// server setup
 	cert, key, err := obtainCertificateForDomain(config.Domain, config.DataDir)
 	if err != nil {
 		slog.Warn("failed to obtain certificate, fallback to http", slog.String("error", err.Error()))
 	}
 
 	app := ge.Must(server.New(ctx, server.Config{
-		Source:           source,
+		Source:           *config.Source,
 		RatefeedContract: config.RatefeedContract,
 		Accounts:         config.Accounts,
 		Database:         db,

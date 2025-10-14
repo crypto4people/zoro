@@ -7,7 +7,6 @@ import (
 
 func (server *Server) migrate(ctx context.Context) error {
 	_, err := server.db.conn.ExecContext(ctx, `
-
 		create table if not exists heights (
 			chain text not null unique check (chain <> ''),
 			height bigint not null check (height > 0)
@@ -22,7 +21,6 @@ func (server *Server) migrate(ctx context.Context) error {
 		);
 
 		create index if not exists idx_subs_actives on subs(addr, remain, expire) where addr is not null and remain is not null and remain > 0 and expire is not null;
-		
 	`)
 
 	return err
@@ -41,7 +39,6 @@ func (server *Server) vaccum(ctx context.Context) error {
 	server.logger.Debug("vaccum database")
 
 	_, err := server.db.conn.ExecContext(ctx, "VACUUM;")
-
 	if err == nil {
 		server.db.vaccum.last = time.Now()
 	}

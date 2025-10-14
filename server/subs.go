@@ -37,11 +37,11 @@ func (server *Server) ListSubs(ctx context.Context, addr common.Address) ([]Sub,
 		if err != nil {
 			return nil, err
 		}
+
 		result = append(result, Sub{
 			Expire: values[0],
 			Remain: values[1],
 		})
-
 	}
 
 	return result, nil
@@ -52,8 +52,8 @@ func (server *Server) countSubs(ctx context.Context) error {
 	err := server.db.conn.QueryRowContext(ctx, "select count(distinct addr) from subs where remain > 0 and expire > unixepoch()").Scan(&count)
 	if err != nil {
 		return err
-
 	}
+
 	server.db.subs.Store(int64(count))
 	return nil
 }

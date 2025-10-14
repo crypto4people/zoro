@@ -20,6 +20,7 @@ func (server *Server) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 func (server *Server) initMux() {
 	server.http.mux.HandleFunc("GET /", func(writer http.ResponseWriter, req *http.Request) {
 		server.logger.Debug("new request on /", slog.String("address", req.RemoteAddr))
+
 		info := server.Info()
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Write(ge.Must(json.Marshal(info)))
@@ -47,6 +48,7 @@ func (server *Server) initMux() {
 			httpError(writer, err)
 			return
 		}
+
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Write(ge.Must(json.Marshal(subs)))
 	})

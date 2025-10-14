@@ -22,16 +22,17 @@ func (server *Server) Watch(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+
 		localHeight, err := server.getLocalHeight(ctx)
 		if err != nil {
 			return err
 		}
+
 		if localHeight > networkHeight {
 			return errors.New("old network height")
 		}
 
 		if localHeight <= networkHeight {
-
 			server.logger.Debug("watcher sleep", slog.Duration("duration", server.eth.sleep))
 
 			timer.Reset(time.Second)
@@ -53,16 +54,17 @@ func (server *Server) Watch(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
+
 			if err = server.setLocalHeight(ctx, number); err != nil {
 				return err
 			}
+
 			if changes > 0 {
 				if err = server.countSubs(ctx); err != nil {
 					return err
 				}
 			}
 		}
-
 	}
 }
 
@@ -71,6 +73,7 @@ func (server *Server) ProcessBlock(ctx context.Context, number int64) (changes i
 	if err != nil {
 		return 0, err
 	}
+
 	if networkHeight < number {
 		return 0, errors.New("block not finalized")
 	}
@@ -83,18 +86,22 @@ func (server *Server) setLocalHeight(ctx context.Context, height int64) error {
 	if err == nil {
 		server.db.height.Store(height)
 	}
+
 	return err
 }
 
 func (server *Server) getLocalHeight(ctx context.Context) (int64, error) {
 	var height int64
+
 	err := server.db.conn.QueryRowContext(ctx, "select height from heights where chain = ?1", server.eth.signer.ChainID().Text(10)).Scan(&height)
 	if err == nil {
 		server.db.height.Store(height)
 	}
+
 	if err == sql.ErrNoRows {
 		return 0, nil
 	}
+
 	return height, err
 }
 
@@ -112,7 +119,6 @@ func (server *Server) getNetworkHeight(ctx context.Context) (int64, error) {
 }
 
 func (server *Server) processBlock(ctx context.Context, number int64) (int, error) {
-
 	block, err := server.eth.client.BlockByNumber(ctx, big.NewInt(number))
 	if err != nil {
 		return 0, err

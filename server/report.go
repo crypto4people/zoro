@@ -12,6 +12,7 @@ import (
 
 type reporting sql.Stmt
 
+// todo: prepate a safe query and pass account to Report
 func (server *Server) prepareReport(ctx context.Context, account common.Address) (*reporting, error) {
 	query := "update subs set remain = remain - ?1 where id = (select id from subs where addr = '" + hex.EncodeToString(account[:]) + "' and remain > 0 and expire > unixepoch() order by expire asc limit 1)"
 	prepared, err := server.db.conn.PrepareContext(ctx, query)
@@ -29,11 +30,13 @@ func (rep *reporting) Report(ctx context.Context, timeout time.Duration, dur tim
 	if err != nil {
 		return err
 	}
-	affectd, err := result.RowsAffected()
+
+	affected, err := result.RowsAffected()
 	if err != nil {
 		return err
 	}
-	if affectd <= 0 {
+
+	if affected <= 0 {
 		return errors.New("no active subscription")
 	}
 	return nil
