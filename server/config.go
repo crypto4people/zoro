@@ -7,10 +7,10 @@ import (
 	"net"
 	"slices"
 	"time"
+	"zoro/pool"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 type Config struct {
@@ -18,7 +18,7 @@ type Config struct {
 	RatefeedContract common.Address
 	Accounts         []common.Address
 	Database         *sql.DB
-	EthClient        *ethclient.Client
+	EthClientPool    pool.EthClient
 	Logger           *slog.Logger
 }
 
@@ -31,7 +31,7 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 
 	app.rate.feed = app.NewRate
 
-	app.eth.client = conf.EthClient
+	app.eth.client = conf.EthClientPool
 
 	chain, err := app.eth.client.ChainID(ctx)
 	if err != nil {

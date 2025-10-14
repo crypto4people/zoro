@@ -10,10 +10,10 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+	"zoro/pool"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gobwas/ws"
 )
 
@@ -57,7 +57,7 @@ type Server struct {
 		ratefeedContract common.Address
 		addrs            []common.Address
 		signer           types.Signer
-		client           *ethclient.Client
+		client           pool.EthClient
 		sleep            time.Duration
 	}
 }

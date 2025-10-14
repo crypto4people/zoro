@@ -4,17 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"time"
+	"zoro/pool"
 	"zoro/server"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/itsabgr/ge"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/sync/errgroup"
@@ -35,34 +34,23 @@ var config struct {
 
 var flagC = flag.String("c", "config.yaml", "")
 
-func getWorkingEthClient(ctx context.Context, nodes []string) (*ethclient.Client, error) {
-	for _, node := range nodes {
-		client, err := ethclient.Dial(node)
-		if err != nil {
-			continue
-		}
-		if _, err := client.BlockNumber(ctx); err != nil {
-			client.Close()
-			continue
-		}
-		return client, nil
-	}
-	return nil, fmt.Errorf("no working Ethereum node found")
-}
-
 func main() {
 
 	flag.Parse()
 
 	ge.Throw(yaml.Unmarshal(ge.Must(os.ReadFile(*flagC)), &config))
 
+	if config.DataDir == "" {
+		config.DataDir = "./"
+	}
+
 	db := ge.Must(sql.Open("sqlite3", filepath.Join(config.DataDir, config.Database)))
 	defer db.Close()
 
 	ctx, _ := signal.NotifyContext(context.Background(), os.Kill, os.Interrupt)
 
-	ethClient := ge.Must(getWorkingEthClient(ctx, config.Nodes))
-	defer ethClient.Close()
+	ethClientPool := ge.Must(pool.New(ctx, config.Nodes))
+	defer ethClientPool.Close()
 
 	source := "0.0.0.0"
 	if config.Source != nil {
@@ -79,7 +67,7 @@ func main() {
 		RatefeedContract: config.RatefeedContract,
 		Accounts:         config.Accounts,
 		Database:         db,
-		EthClient:        ethClient,
+		EthClientPool:    ethClientPool,
 		Logger: slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		})),
