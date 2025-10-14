@@ -32,7 +32,7 @@ func (server *Server) Watch(ctx context.Context) error {
 			return errors.New("old network height")
 		}
 
-		if localHeight <= networkHeight {
+		if localHeight == networkHeight {
 			server.logger.Debug("watcher sleep", slog.Duration("duration", server.eth.sleep))
 
 			timer.Reset(time.Second)

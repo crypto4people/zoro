@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -23,7 +22,6 @@ import (
 
 var config struct {
 	Listen           string
-	Rate             server.Rate
 	RatefeedContract common.Address
 	Accounts         []common.Address
 	Database         string
@@ -42,16 +40,21 @@ func main() {
 	ge.Throw(yaml.Unmarshal(ge.Must(os.ReadFile(*flagC)), &config))
 
 	if len(config.Nodes) == 0 {
-		log.Fatal("nodes are either empty or nil")
+		slog.Error("nodes are either empty or nil")
+		return
 	}
 
 	if config.DataDir == "" {
 		config.DataDir = "./"
 	}
 
-	if config.Source == nil {
+	if config.Source == nil || *config.Source == "" {
 		source := "0.0.0.0"
 		config.Source = &source
+	}
+
+	if config.RatefeedContract == (common.Address{}) {
+		slog.Warn("ratefeed contract is empty")
 	}
 
 	// DB

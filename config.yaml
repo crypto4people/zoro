@@ -1,12 +1,8 @@
-listen: "0.0.0.0:8080"
-rate:
-    sub: 0
-    div: 100000000000000
-    mul: 1
-    add: 0
-accounts: [0xe688b84b23f322a994A53dbF8E15FA82CDB71127]
-database: "db.sqlite?_sync=full&cache=shared&_journal_mode=wal&_auto_vacuum=incremental"
-nodes: ["http://example.com", "https://0xrpc.io/eth"]
-source: "0.0.0.0"
-datadir: "./data"
-domain: ""
+listen: "0.0.0.0:8080" # Listen address
+RatefeedContract: ""
+accounts: [0xe688b84b23f322a994A53dbF8E15FA82CDB71127] # Account to receive coin on
+database: "db.sqlite?_sync=full&cache=shared&_journal_mode=wal&_auto_vacuum=incremental" # Database opts
+nodes: ["http://example.com", "https://0xrpc.io/eth"] # Ethereum nodes
+source: "0.0.0.0" # you can optionally specify source ip for outgoing traffic
+datadir: "./data" # directory to hold certs, acme account and sqlite db file
+domain: "" # fallback to http
