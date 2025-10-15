@@ -7,19 +7,18 @@ import (
 	"net"
 	"slices"
 	"time"
-	"zoro/pool"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
 type Config struct {
-	Source           string
-	RatefeedContract common.Address
-	Accounts         []common.Address
-	Database         *sql.DB
-	EthClientPool    pool.EthClient
-	Logger           *slog.Logger
+	LocalAddr net.IP
+	Contract  common.Address
+	Accounts  []common.Address
+	Database  *sql.DB
+	Nodes     ethClient
+	Logger    *slog.Logger
 }
 
 func New(ctx context.Context, conf Config) (app *Server, err error) {
@@ -28,11 +27,9 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 		uptime: time.Now(),
 	}
 
-	app.rate.feed = app.ReadRate
-
-	app.eth.client = conf.EthClientPool
+	app.eth.client = conf.Nodes
 	app.eth.sleep = time.Second
-	app.eth.ratefeedContract = conf.RatefeedContract
+	app.eth.contract = conf.Contract
 	app.eth.addrs = slices.Clone(conf.Accounts)
 	chain, err := app.eth.client.ChainID(ctx)
 	if err != nil {
@@ -43,7 +40,7 @@ func New(ctx context.Context, conf Config) (app *Server, err error) {
 	app.proxy.reporting.internal = time.Second * 10
 	app.proxy.reporting.timeout = time.Second * 5
 	app.proxy.dialer.LocalAddr = &net.TCPAddr{
-		IP:   net.ParseIP(conf.Source),
+		IP:   conf.LocalAddr,
 		Port: 0,
 	}
 	app.proxy.dialer.Timeout = time.Second * 3

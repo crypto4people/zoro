@@ -23,7 +23,7 @@ func validateAddr(addr string) (string, error) {
 func (server *Server) serveProxy(writer http.ResponseWriter, logger *slog.Logger, req *http.Request, account common.Address) error {
 	congestionCtx, cancelCongestion := server.proxy.congestion.Push(account)
 	if congestionCtx == nil {
-		logger.Info("connection dropped due to congestion")
+		logger.Debug("connection dropped due to congestion")
 		return errors.New("congestion")
 	}
 
@@ -31,7 +31,7 @@ func (server *Server) serveProxy(writer http.ResponseWriter, logger *slog.Logger
 
 	reporting, err := server.prepareReport(ctx, account)
 	if err != nil {
-		logger.Info("connection dropped due to error on prepareReport", slog.String("error", err.Error()))
+		logger.Debug("connection dropped due to error on prepareReport", slog.String("error", err.Error()))
 		cancelCongestion()
 		return err
 	}
@@ -40,7 +40,7 @@ func (server *Server) serveProxy(writer http.ResponseWriter, logger *slog.Logger
 		server.proxy.reporting.timeout,
 		server.proxy.reporting.internal,
 	); err != nil {
-		logger.Info("connection dropped due to error on Report", slog.String("error", err.Error()))
+		logger.Debug("connection dropped due to error on Report", slog.String("error", err.Error()))
 		cancelCongestion()
 		_ = reporting.Close()
 		return err
@@ -50,14 +50,14 @@ func (server *Server) serveProxy(writer http.ResponseWriter, logger *slog.Logger
 	switch network {
 	case "tcp", "udp":
 	default:
-		logger.Info("connection dropped due to invalid network requested by user", slog.String("network", network))
+		logger.Debug("connection dropped due to invalid network requested by user", slog.String("network", network))
 		cancelCongestion()
 		_ = reporting.Close()
 		return errors.New("invalid network")
 	}
 	addr, err := validateAddr(req.URL.Query().Get("addr"))
 	if err != nil {
-		logger.Info("connection dropped due to invalid address requested by user", slog.String("address", addr))
+		logger.Debug("connection dropped due to invalid address requested by user", slog.String("address", addr))
 		cancelCongestion()
 		_ = reporting.Close()
 		return err
@@ -75,7 +75,7 @@ func (server *Server) serveProxy(writer http.ResponseWriter, logger *slog.Logger
 func (server *Server) doProxy(ctx context.Context, logger *slog.Logger, congestionCtx context.Context, cancelCongestion context.CancelFunc, writer http.ResponseWriter, req *http.Request, reporting *reporting, network, addr string) (err error) {
 	ioConn, err := server.proxy.dialer.DialContext(ctx, network, addr)
 	if err != nil {
-		logger.Info("connection dropped due to failure on dialing remote", slog.String("error", err.Error()))
+		logger.Debug("connection dropped due to failure on dialing remote", slog.String("error", err.Error()))
 		cancelCongestion()
 		_ = reporting.Close()
 		return err
@@ -83,7 +83,7 @@ func (server *Server) doProxy(ctx context.Context, logger *slog.Logger, congesti
 
 	wsConn, _, _, err := server.proxy.upgrader.Upgrade(req, writer)
 	if err != nil {
-		logger.Info("connection dropped due to failure on upgrading remote connection", slog.String("error", err.Error()))
+		logger.Debug("connection dropped due to failure on upgrading remote connection", slog.String("error", err.Error()))
 		cancelCongestion()
 		_ = reporting.Close()
 		_ = ioConn.Close()
@@ -95,7 +95,7 @@ func (server *Server) doProxy(ctx context.Context, logger *slog.Logger, congesti
 		eg, ctx := errgroup.WithContext(congestionCtx)
 		eg.Go(func() (err error) {
 			defer func() {
-				logger.Info("connection ended")
+				logger.Debug("connection ended")
 				ioConn.Close()
 				closeWebsocket(wsConn)
 				reporting.Close()
@@ -114,7 +114,7 @@ func (server *Server) doProxy(ctx context.Context, logger *slog.Logger, congesti
 						server.proxy.reporting.timeout,
 						server.proxy.reporting.internal,
 					); err != nil {
-						logger.Info("connection dropped due to failure on Report", slog.String("error", err.Error()))
+						logger.Debug("connection dropped due to failure on Report", slog.String("error", err.Error()))
 						return err
 					}
 				}

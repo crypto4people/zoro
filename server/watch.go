@@ -124,7 +124,7 @@ func (server *Server) processBlock(ctx context.Context, number int64) (int, erro
 		return 0, err
 	}
 
-	rate, err := server.rate.feed(ctx, number)
+	rate, err := server.readRate(ctx, number)
 	if err != nil {
 		return 0, err
 	}

@@ -1,4 +1,4 @@
-package pool
+package server
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-type EthClient interface {
+type ethClient interface {
 	ChainID(ctx context.Context) (*big.Int, error)
 	CallContract(ctx context.Context, msg ethereum.CallMsg, blockNumber *big.Int) ([]byte, error)
 	HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error)
@@ -24,15 +24,15 @@ type EthPool struct {
 	clients []*ethclient.Client
 }
 
-func New(ctx context.Context, nodes []string) (*EthPool, error) {
+func NewPool(ctx context.Context, nodes []*ethclient.Client) (*EthPool, error) {
 	pool := &EthPool{}
 
 	for _, node := range nodes {
-		client, err := ethclient.Dial(node)
+		_, err := node.ChainID(ctx)
 		if err != nil {
 			return nil, err
 		}
-		pool.clients = append(pool.clients, client)
+		pool.clients = append(pool.clients, node)
 	}
 
 	if len(pool.clients) == 0 {

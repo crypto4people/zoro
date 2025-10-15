@@ -24,9 +24,9 @@ type convertResult struct {
 var ratefeedAbi = ratefeed.NewRatefeed()
 var seconds = big.NewInt(int64(time.Second))
 
-func (server *Server) ReadRate(ctx context.Context, block int64) (*Rate, error) {
+func (server *Server) readRate(ctx context.Context, block int64) (*Rate, error) {
 	result, err := server.eth.client.CallContract(ctx, ethereum.CallMsg{
-		To:   &server.eth.ratefeedContract,
+		To:   &server.eth.contract,
 		Data: ratefeedAbi.PackGetRate(),
 	}, big.NewInt(block))
 	if err != nil {

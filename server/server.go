@@ -10,7 +10,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"zoro/pool"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -23,10 +22,6 @@ type Server struct {
 	uptime time.Time
 
 	logger *slog.Logger
-
-	rate struct {
-		feed func(ctx context.Context, block int64) (*Rate, error)
-	}
 
 	db struct {
 		conn   *sql.DB
@@ -54,11 +49,11 @@ type Server struct {
 	}
 
 	eth struct {
-		ratefeedContract common.Address
-		addrs            []common.Address
-		signer           types.Signer
-		client           pool.EthClient
-		sleep            time.Duration
+		contract common.Address
+		addrs    []common.Address
+		signer   types.Signer
+		client   ethClient
+		sleep    time.Duration
 	}
 }
 
