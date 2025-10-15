@@ -3,14 +3,16 @@ module zoro
 go 1.24.6
 
 require (
+	github.com/caarlos0/env/v11 v11.3.1
 	github.com/ethereum/go-ethereum v1.16.4
 	github.com/gobwas/ws v1.4.0
 	github.com/google/uuid v1.6.0
 	github.com/itsabgr/ge v0.0.0-20241202140951-7f5c5d99dde6
+	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.32
 	github.com/mholt/acmez/v3 v3.1.4
+	github.com/samber/lo v1.52.0
 	golang.org/x/sync v0.17.0
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

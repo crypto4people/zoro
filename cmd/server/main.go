@@ -15,28 +15,30 @@ import (
 	"zoro/acme"
 	"zoro/server"
 
+	"github.com/caarlos0/env/v11"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/itsabgr/ge"
+	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/samber/lo"
 	"golang.org/x/sync/errgroup"
-	"gopkg.in/yaml.v3"
 )
 
 var config struct {
-	Listen   *string
-	Contract common.Address
-	Accounts []common.Address
-	Database string
-	Nodes    []string
-	DataDir  string
-	Domain   *string
-	Source   *net.IP
+	Listen   string   `env:"LISTEN"`
+	Contract string   `env:"CONTRACT"`
+	Accounts []string `env:"ACCOUNTS,required" envSeperator:","`
+	Database string   `env:"DATABASE,required"`
+	Nodes    []string `env:"NODES" envSeperator:","`
+	DataDir  string   `env:"DATA_DIR" envDefault:"./data"`
+	Domain   *string  `env:"DOMAIN"`
+	Source   *net.IP  `env:"SOURCE"`
 }
 
 var flagC = flag.String("c", "config.yaml", "")
 
-func getOutboundIP(ctx context.Context) (net.IP, error) {
+func getOutboundIP() (net.IP, error) {
 	conn, err := net.DialTCP("tcp", nil, ge.Must(net.ResolveTCPAddr("tcp", "example.com:80")))
 	if err != nil {
 		return nil, err
@@ -50,37 +52,15 @@ func main() {
 	ctx, _ := signal.NotifyContext(context.Background(), os.Kill, os.Interrupt)
 
 	flag.Parse()
-
-	ge.Throw(yaml.Unmarshal(ge.Must(os.ReadFile(*flagC)), &config))
-
-	if len(config.Nodes) == 0 {
-		slog.Error("nodes are either empty or nil")
-		return
-	}
-
-	if config.DataDir == "" {
-		config.DataDir = "./"
-	}
+	ge.Throw(env.Parse(&config))
 
 	if config.Source == nil {
-		source, err := getOutboundIP(ctx)
+		source, err := getOutboundIP()
 		if err != nil {
 			slog.Warn("failed to obtain outbound ip address, using 0.0.0.0", slog.String("error", err.Error()))
 			source = net.ParseIP("0.0.0.0")
 		}
 		config.Source = &source
-	}
-
-	if config.Listen == nil || *config.Listen == "" {
-		listen := "0.0.0.0:443"
-		if config.Domain == nil || *config.Domain == "" {
-			listen = "0.0.0.0:80"
-		}
-		config.Listen = &listen
-	}
-
-	if config.Contract == (common.Address{}) {
-		slog.Warn("ratefeed contract is empty")
 	}
 
 	// DB
@@ -98,18 +78,32 @@ func main() {
 	// server setup
 	var cert, key string
 	var err error
-	if config.Domain != nil || *config.Domain != "" {
-		cert, key, err = acme.ObtainCertificateForDomain(*config.Domain, config.DataDir)
+
+	domain := ""
+	if config.Domain != nil {
+		domain = *config.Domain
+	}
+
+	if domain != "" {
+		cert, key, err = acme.ObtainCertificateForDomain(domain, config.DataDir)
 		if err != nil {
-			// change listen addr?
-			slog.Warn("failed to obtain certificate, fallback to http", slog.String("error", err.Error()))
+			slog.Warn("failed to obtain certificate, fallback to HTTP", slog.String("error", err.Error()))
 		}
 	}
 
+	if config.Listen == "" {
+		if cert != "" && key != "" {
+			config.Listen = ":443"
+		} else {
+			config.Listen = ":80"
+		}
+	}
+
+	// app
 	app := ge.Must(server.New(ctx, server.Config{
 		LocalAddr: *config.Source,
-		Contract:  config.Contract,
-		Accounts:  config.Accounts,
+		Contract:  common.HexToAddress(config.Contract),
+		Accounts:  lo.Map(config.Accounts, func(addr string, _ int) common.Address { return common.HexToAddress(addr) }),
 		Database:  db,
 		Nodes:     ethClientPool,
 		Logger: slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
@@ -118,7 +112,7 @@ func main() {
 	}))
 
 	httpServer := http.Server{
-		Addr:    *config.Listen,
+		Addr:    config.Listen,
 		Handler: app,
 	}
 
@@ -151,7 +145,7 @@ func main() {
 				return nil
 			}
 			if err != nil {
-				slog.Warn("logger failed", slog.String("err", err.Error()))
+				slog.Warn("watcher failed", slog.String("err", err.Error()))
 				select {
 				case <-ctx.Done():
 					return ctx.Err()
@@ -162,7 +156,7 @@ func main() {
 		}
 	})
 
-	slog.Info("server started", slog.String("address", *config.Listen))
+	slog.Info("server started", slog.String("address", config.Listen))
 	ge.Throw(eg.Wait())
 
 }
