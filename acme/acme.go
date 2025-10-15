@@ -102,7 +102,6 @@ func loadOrCreateAccountKey(path string) (*rsa.PrivateKey, error) {
 func certLooksValid(certPath, keyPath, domain string) error {
 	now := time.Now()
 
-	// read cert
 	certPEM, err := os.ReadFile(certPath)
 	if err != nil {
 		return fmt.Errorf("read cert: %w", err)
