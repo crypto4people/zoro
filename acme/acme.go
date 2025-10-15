@@ -24,35 +24,35 @@ const (
 	renewBefore = 7 * 24 * time.Hour
 )
 
-type HTTP01Solver struct {
+type http01Solver struct {
 	mu               sync.RWMutex
 	Token            string
 	KeyAuthorization string
 }
 
-func (s *HTTP01Solver) Present(ctx context.Context, chal acme.Challenge) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.Token = chal.Token
-	s.KeyAuthorization = chal.KeyAuthorization
+func (solver *http01Solver) Present(ctx context.Context, chal acme.Challenge) error {
+	solver.mu.Lock()
+	defer solver.mu.Unlock()
+	solver.Token = chal.Token
+	solver.KeyAuthorization = chal.KeyAuthorization
 	return nil
 }
 
-func (s *HTTP01Solver) CleanUp(ctx context.Context, chal acme.Challenge) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.Token == chal.Token {
-		s.Token = ""
-		s.KeyAuthorization = ""
+func (solver *http01Solver) CleanUp(ctx context.Context, chal acme.Challenge) error {
+	solver.mu.Lock()
+	defer solver.mu.Unlock()
+	if solver.Token == chal.Token {
+		solver.Token = ""
+		solver.KeyAuthorization = ""
 	}
 	return nil
 }
 
-func (s *HTTP01Solver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	s.mu.RLock()
-	token := s.Token
-	keyAuth := s.KeyAuthorization
-	s.mu.RUnlock()
+func (solver *http01Solver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	solver.mu.RLock()
+	token := solver.Token
+	keyAuth := solver.KeyAuthorization
+	solver.mu.RUnlock()
 
 	expectedPath := "/.well-known/acme-challenge/" + token
 	if req.URL.Path != expectedPath || token == "" {
@@ -184,7 +184,31 @@ func certLooksValid(certPath, keyPath, domain string) error {
 	return nil
 }
 
-func ObtainCertificateForDomain(domain, datadir string) (certPath, keyPath string, err error) {
+func loadExistingValidCert(datadir, domain string) (string, string, bool, error) {
+	certPath := filepath.Join(datadir, fmt.Sprintf("cert-%s.pem", domain))
+	keyPath := filepath.Join(datadir, fmt.Sprintf("key-%s.pem", domain))
+
+	if _, err := os.Stat(certPath); err != nil {
+		if os.IsNotExist(err) {
+			return "", "", false, nil
+		}
+		return "", "", false, fmt.Errorf("stat cert file: %w", err)
+	}
+	if _, err := os.Stat(keyPath); err != nil {
+		if os.IsNotExist(err) {
+			return "", "", false, nil
+		}
+		return "", "", false, fmt.Errorf("stat key file: %w", err)
+	}
+
+	if err := certLooksValid(certPath, keyPath, domain); err != nil {
+		return certPath, keyPath, false, fmt.Errorf("existing cert/key not usable: %w", err)
+	}
+
+	return certPath, keyPath, true, nil
+}
+
+func ObtainCertificateForDomain(ctx context.Context, domain, datadir string) (certPath, keyPath string, err error) {
 	if datadir == "" {
 		return "", "", errors.New("datadir required")
 	}
@@ -192,24 +216,17 @@ func ObtainCertificateForDomain(domain, datadir string) (certPath, keyPath strin
 		return "", "", errors.New("domain required")
 	}
 
-	certPath = filepath.Join(datadir, "cert.pem")
-	keyPath = filepath.Join(datadir, "key.pem")
-	accountKeyPath := filepath.Join(datadir, "acme_account.pem")
-
-	if _, errStat := os.Stat(certPath); errStat == nil {
-		if _, errStat2 := os.Stat(keyPath); errStat2 == nil {
-			if err := certLooksValid(certPath, keyPath, domain); err == nil {
-				return certPath, keyPath, nil
-			} else {
-				log.Printf("existing cert/key not usable: %v (will attempt to obtain new)", err)
-			}
-		}
+	if cert, key, ok, loadErr := loadExistingValidCert(datadir, domain); loadErr != nil {
+		log.Printf("warning: error while checking existing certs: %v", loadErr)
+	} else if ok {
+		return cert, key, nil
 	}
 
 	if err := os.MkdirAll(datadir, 0700); err != nil {
 		return "", "", fmt.Errorf("mkdir datadir: %w", err)
 	}
 
+	accountKeyPath := filepath.Join(datadir, "acme_account.pem")
 	accountKey, err := loadOrCreateAccountKey(accountKeyPath)
 	if err != nil {
 		return "", "", fmt.Errorf("load/create account key: %w", err)
@@ -220,7 +237,7 @@ func ObtainCertificateForDomain(domain, datadir string) (certPath, keyPath strin
 		return "", "", fmt.Errorf("generate cert key: %w", err)
 	}
 
-	solver := &HTTP01Solver{}
+	solver := &http01Solver{}
 	server := &http.Server{
 		Addr:    ":80",
 		Handler: solver,
@@ -233,10 +250,12 @@ func ObtainCertificateForDomain(domain, datadir string) (certPath, keyPath strin
 		}
 		close(serverErrCh)
 	}()
-	defer func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		_ = server.Shutdown(ctx)
-		cancel()
+
+	go func() {
+		<-ctx.Done()
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = server.Shutdown(shutdownCtx)
 	}()
 
 	time.Sleep(200 * time.Millisecond)
@@ -250,10 +269,10 @@ func ObtainCertificateForDomain(domain, datadir string) (certPath, keyPath strin
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 6*time.Minute)
+	acmeCtx, cancel := context.WithTimeout(ctx, 6*time.Minute)
 	defer cancel()
 
-	account, err := client.NewAccount(ctx, acme.Account{
+	account, err := client.NewAccount(acmeCtx, acme.Account{
 		TermsOfServiceAgreed: true,
 		PrivateKey:           accountKey,
 	})
@@ -277,13 +296,16 @@ func ObtainCertificateForDomain(domain, datadir string) (certPath, keyPath strin
 		},
 	}
 
-	certs, err := client.ObtainCertificate(ctx, orderParams)
+	certs, err := client.ObtainCertificate(acmeCtx, orderParams)
 	if err != nil {
 		return "", "", fmt.Errorf("obtain certificate: %w", err)
 	}
 	if len(certs) == 0 || len(certs[0].ChainPEM) == 0 {
 		return "", "", errors.New("empty certificate returned")
 	}
+
+	certPath = filepath.Join(datadir, fmt.Sprintf("cert-%s.pem", domain))
+	keyPath = filepath.Join(datadir, fmt.Sprintf("key-%s.pem", domain))
 
 	if err := os.WriteFile(certPath, certs[0].ChainPEM, 0644); err != nil {
 		return "", "", fmt.Errorf("write cert file: %w", err)

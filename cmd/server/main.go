@@ -85,7 +85,7 @@ func main() {
 	}
 
 	if domain != "" {
-		cert, key, err = acme.ObtainCertificateForDomain(domain, config.DataDir)
+		cert, key, err = acme.ObtainCertificateForDomain(ctx, domain, config.DataDir)
 		if err != nil {
 			slog.Warn("failed to obtain certificate, fallback to HTTP", slog.String("error", err.Error()))
 		}
