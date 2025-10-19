@@ -2,8 +2,9 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"net"
+	"net/url"
+	"path"
 	"time"
 
 	"github.com/gobwas/ws"
@@ -15,13 +16,24 @@ type Conn struct {
 	remoteAddr net.Addr
 }
 
-func (client *Client) Dial(ctx context.Context, net, addr string) (net.Conn, error) {
-	dialAddr := fmt.Sprintf("%s/wsc?user=%s&net=%s&addr=%s", client.endpoint, client.account.Hex(), net, addr)
-	conn, _, _, err := ws.Dial(ctx, dialAddr)
+func (client *Client) Dial(ctx context.Context, network, addr string) (net.Conn, error) {
+	url, err := url.Parse(client.endpoint)
 	if err != nil {
-		return Conn{}, err
+		return nil, err
 	}
-	return Conn{conn: conn}, nil
+	url.Path = path.Join(url.Path, "wsc")
+
+	query := url.Query()
+	query.Set("user", client.account.Hex())
+	query.Set("net", network)
+	query.Set("addr", addr)
+	url.RawQuery = query.Encode()
+
+	conn, _, _, err := ws.Dial(ctx, url.String())
+	if err != nil {
+		return nil, err
+	}
+	return &Conn{conn: conn}, nil
 }
 
 func (conn Conn) Close() error {
@@ -48,16 +60,16 @@ func (conn Conn) SetWriteDeadline(t time.Time) error {
 	return conn.conn.SetWriteDeadline(t)
 }
 
-func (conn Conn) Read(b []byte) (n int, err error) {
+func (conn Conn) Read(payload []byte) (n int, err error) {
 	data, opCode, err := wsutil.ReadServerData(conn.conn)
 	if opCode != ws.OpBinary || err != nil {
 		return 0, err
 	}
 
-	copy(b, data)
+	copy(payload, data)
 	return len(data), nil
 }
 
-func (conn Conn) Write(b []byte) (n int, err error) {
-	return len(b), wsutil.WriteClientBinary(conn.conn, b)
+func (conn Conn) Write(payload []byte) (n int, err error) {
+	return len(payload), wsutil.WriteClientBinary(conn.conn, payload)
 }

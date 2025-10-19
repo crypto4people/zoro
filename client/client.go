@@ -3,56 +3,76 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"math/big"
 	"net/http"
-	"time"
+	"net/url"
+	"path"
+	"zoro/server"
 
 	"github.com/ethereum/go-ethereum/common"
 )
 
 type Client struct {
-	client   *http.Client
-	endpoint string
-	account  common.Address
+	httpClient *http.Client
+	endpoint   string
+	account    common.Address
 }
 
-func New(endpoint string, account common.Address) *Client {
+func New(client *http.Client, endpoint string, account common.Address) *Client {
 	return &Client{
-		client: &http.Client{
-			Timeout: 2 * time.Second,
-		},
-		endpoint: endpoint,
-		account:  account,
+		httpClient: client,
+		endpoint:   endpoint,
+		account:    account,
 	}
 }
 
-type Info struct {
-	Version string
-	Uptime  int
-	Conns   int
-	Subs    int
-	Chain   *big.Int
-	Height  int64
-	Account common.Address
+func (client *Client) Endpoint() string {
+	return client.endpoint
 }
 
-func (cli *Client) GetInfo(ctx context.Context) (*Info, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, cli.endpoint, http.NoBody)
+func (client *Client) Account() common.Address {
+	return client.account
+}
+
+func (client *Client) GetInfo(ctx context.Context) (*server.Info, error) {
+	return doRequest[server.Info](ctx, client.httpClient, client.endpoint)
+}
+
+func (client *Client) GetSubs(ctx context.Context) ([]server.Sub, error) {
+	url, err := url.Parse(client.endpoint)
+	if err != nil {
+		return nil, err
+	}
+	url.Path = path.Join(url.Path, "subs")
+
+	query := url.Query()
+	query.Set("user", client.account.Hex())
+	url.RawQuery = query.Encode()
+
+	result, err := doRequest[[]server.Sub](ctx, client.httpClient, url.String())
+	if err != nil || result == nil {
+		return nil, err
+	}
+
+	return *result, nil
+}
+
+func doRequest[R any](ctx context.Context, client *http.Client, endpoint string) (*R, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := cli.client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	var info Info
-	err = json.NewDecoder(resp.Body).Decode(&info)
+	var result R
+	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		return nil, err
 	}
 
-	return &info, nil
+	return &result, nil
 }
