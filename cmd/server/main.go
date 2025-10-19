@@ -27,10 +27,9 @@ import (
 
 var config struct {
 	Listen   string   `env:"LISTEN"`
-	Contract string   `env:"CONTRACT"`
+	Contract string   `env:"CONTRACT" envDefault:"0x"`
 	Accounts []string `env:"ACCOUNTS,required" envSeperator:","`
-	Database string   `env:"DATABASE,required"`
-	Nodes    []string `env:"NODES" envSeperator:","`
+	Nodes    []string `env:"NODES" envSeperator:"," envDefault:"https://0xrpc.io/eth"`
 	DataDir  string   `env:"DATA_DIR" envDefault:"./data"`
 	Domain   *string  `env:"DOMAIN"`
 	Source   *net.IP  `env:"SOURCE"`
@@ -64,7 +63,7 @@ func main() {
 	}
 
 	// DB
-	db := ge.Must(sql.Open("sqlite3", "file:"+filepath.Join(config.DataDir, config.Database)))
+	db := ge.Must(sql.Open("sqlite3", "file:"+filepath.Join(config.DataDir, "db.sqlite?_sync=full&cache=shared&_journal_mode=wal&_auto_vacuum=incremental")))
 	defer db.Close()
 
 	// ethereum pool
