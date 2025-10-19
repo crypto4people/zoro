@@ -1,4 +1,4 @@
-package server
+package proxy
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
-type Config struct {
+type ServerConfig struct {
 	LocalAddr net.IP
 	Contract  common.Address
 	Accounts  []common.Address
@@ -21,7 +21,7 @@ type Config struct {
 	Logger    *slog.Logger
 }
 
-func New(ctx context.Context, conf Config) (app *Server, err error) {
+func NewServer(ctx context.Context, conf ServerConfig) (app *Server, err error) {
 	app = &Server{
 		logger: conf.Logger,
 		uptime: time.Now(),

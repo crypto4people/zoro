@@ -1,4 +1,4 @@
-package client
+package proxy
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"zoro/server"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -17,7 +16,7 @@ type Client struct {
 	account    common.Address
 }
 
-func New(client *http.Client, endpoint string, account common.Address) *Client {
+func NewClient(client *http.Client, endpoint string, account common.Address) *Client {
 	return &Client{
 		httpClient: client,
 		endpoint:   endpoint,
@@ -33,11 +32,11 @@ func (client *Client) Account() common.Address {
 	return client.account
 }
 
-func (client *Client) GetInfo(ctx context.Context) (*server.Info, error) {
-	return doRequest[server.Info](ctx, client.httpClient, client.endpoint)
+func (client *Client) GetInfo(ctx context.Context) (*Info, error) {
+	return doRequest[Info](ctx, client.httpClient, client.endpoint)
 }
 
-func (client *Client) GetSubs(ctx context.Context) ([]server.Sub, error) {
+func (client *Client) GetSubs(ctx context.Context) ([]Sub, error) {
 	url, err := url.Parse(client.endpoint)
 	if err != nil {
 		return nil, err
@@ -48,7 +47,7 @@ func (client *Client) GetSubs(ctx context.Context) ([]server.Sub, error) {
 	query.Set("user", client.account.Hex())
 	url.RawQuery = query.Encode()
 
-	result, err := doRequest[[]server.Sub](ctx, client.httpClient, url.String())
+	result, err := doRequest[[]Sub](ctx, client.httpClient, url.String())
 	if err != nil || result == nil {
 		return nil, err
 	}

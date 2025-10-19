@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 	"zoro/acme"
-	"zoro/server"
+	"zoro/proxy"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/ethereum/go-ethereum/common"
@@ -74,7 +74,7 @@ func main() {
 	for _, node := range config.Nodes {
 		ethClients = append(ethClients, ge.Must(ethclient.Dial(node)))
 	}
-	ethClientPool := ge.Must(server.NewPool(ctx, ethClients))
+	ethClientPool := ge.Must(proxy.NewPool(ctx, ethClients))
 	defer ethClientPool.Close()
 
 	// server setup
@@ -102,7 +102,7 @@ func main() {
 	}
 
 	// app
-	app := ge.Must(server.New(ctx, server.Config{
+	app := ge.Must(proxy.NewServer(ctx, proxy.ServerConfig{
 		LocalAddr: *config.Interface,
 		Contract:  common.HexToAddress(config.Contract),
 		Accounts:  lo.Map(config.Accounts, func(addr string, _ int) common.Address { return common.HexToAddress(addr) }),
