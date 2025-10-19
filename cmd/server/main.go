@@ -19,23 +19,22 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/itsabgr/ge"
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/samber/lo"
 	"golang.org/x/sync/errgroup"
 )
 
 var config struct {
-	Listen   string   `env:"LISTEN"`
-	Contract string   `env:"CONTRACT" envDefault:"0x"`
-	Accounts []string `env:"ACCOUNTS,required" envSeperator:","`
-	Nodes    []string `env:"NODES" envSeperator:"," envDefault:"https://0xrpc.io/eth"`
-	DataDir  string   `env:"DATA_DIR" envDefault:"./data"`
-	Domain   *string  `env:"DOMAIN"`
-	Source   *net.IP  `env:"SOURCE"`
+	Listen    string   `env:"LISTEN"`
+	Contract  string   `env:"CONTRACT" envDefault:"0x"`
+	Accounts  []string `env:"ACCOUNTS,required" envSeperator:","`
+	Nodes     []string `env:"NODES" envSeperator:"," envDefault:"https://0xrpc.io/eth"`
+	Domain    *string  `env:"DOMAIN"`
+	Interface *net.IP  `env:"INTERFACE"`
 }
 
-var flagC = flag.String("c", "config.yaml", "")
+var flagDataDir = flag.String("datadir", "./zoro", "")
 
 func getOutboundIP() (net.IP, error) {
 	conn, err := net.DialTCP("tcp", nil, ge.Must(net.ResolveTCPAddr("tcp", "example.com:80")))
@@ -47,23 +46,27 @@ func getOutboundIP() (net.IP, error) {
 }
 
 func main() {
-	// parse config
 	ctx, _ := signal.NotifyContext(context.Background(), os.Kill, os.Interrupt)
 
+	// parse config
 	flag.Parse()
+
+	dataDir := *flagDataDir
+
+	godotenv.Load(filepath.Join(dataDir, "config"))
 	ge.Throw(env.Parse(&config))
 
-	if config.Source == nil {
+	if config.Interface == nil {
 		source, err := getOutboundIP()
 		if err != nil {
 			slog.Warn("failed to obtain outbound ip address, using 0.0.0.0", slog.String("error", err.Error()))
 			source = net.ParseIP("0.0.0.0")
 		}
-		config.Source = &source
+		config.Interface = &source
 	}
 
 	// DB
-	db := ge.Must(sql.Open("sqlite3", "file:"+filepath.Join(config.DataDir, "db.sqlite?_sync=full&cache=shared&_journal_mode=wal&_auto_vacuum=incremental")))
+	db := ge.Must(sql.Open("sqlite3", "file:"+filepath.Join(dataDir, "db?_sync=full&cache=shared&_journal_mode=wal&_auto_vacuum=incremental")))
 	defer db.Close()
 
 	// ethereum pool
@@ -84,7 +87,7 @@ func main() {
 	}
 
 	if domain != "" {
-		cert, key, err = acme.ObtainCertificateForDomain(ctx, domain, config.DataDir)
+		cert, key, err = acme.ObtainCertificateForDomain(ctx, domain, dataDir)
 		if err != nil {
 			slog.Warn("failed to obtain certificate, fallback to HTTP", slog.String("error", err.Error()))
 		}
@@ -100,7 +103,7 @@ func main() {
 
 	// app
 	app := ge.Must(server.New(ctx, server.Config{
-		LocalAddr: *config.Source,
+		LocalAddr: *config.Interface,
 		Contract:  common.HexToAddress(config.Contract),
 		Accounts:  lo.Map(config.Accounts, func(addr string, _ int) common.Address { return common.HexToAddress(addr) }),
 		Database:  db,
