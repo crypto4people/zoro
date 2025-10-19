@@ -7,6 +7,7 @@ import (
 	ratefeed "zoro/contract"
 
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type Rate struct {
@@ -25,25 +26,7 @@ var ratefeedAbi = ratefeed.NewRatefeed()
 var seconds = big.NewInt(int64(time.Second))
 
 func (server *Server) readRate(ctx context.Context, block int64) (*Rate, error) {
-	result, err := server.eth.client.CallContract(ctx, ethereum.CallMsg{
-		To:   &server.eth.contract,
-		Data: ratefeedAbi.PackGetRate(),
-	}, big.NewInt(block))
-	if err != nil {
-		return nil, err
-	}
-
-	rate, err := ratefeedAbi.UnpackGetRate(result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Rate{
-		Sub: rate.Sub,
-		Div: rate.Div,
-		Mul: rate.Mul,
-		Add: rate.Sub,
-	}, nil
+	return ReadRate(ctx, server.eth.client, server.eth.contract, block)
 }
 func (rate *Rate) convert(value *big.Int) convertResult {
 
@@ -65,4 +48,28 @@ func (rate *Rate) convert(value *big.Int) convertResult {
 		Dur: time.Duration(dur.Int64()),
 		TTL: time.Duration(ttl.Int64()),
 	}
+}
+
+func ReadRate(ctx context.Context, client interface {
+	CallContract(ctx context.Context, msg ethereum.CallMsg, blockNumber *big.Int) ([]byte, error)
+}, contract common.Address, block int64) (*Rate, error) {
+	result, err := client.CallContract(ctx, ethereum.CallMsg{
+		To:   &contract,
+		Data: ratefeedAbi.PackGetRate(),
+	}, big.NewInt(block))
+	if err != nil {
+		return nil, err
+	}
+
+	rate, err := ratefeedAbi.UnpackGetRate(result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Rate{
+		Sub: rate.Sub,
+		Div: rate.Div,
+		Mul: rate.Mul,
+		Add: rate.Sub,
+	}, nil
 }

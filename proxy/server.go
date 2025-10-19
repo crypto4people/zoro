@@ -58,24 +58,26 @@ type Server struct {
 }
 
 type Info struct {
-	Version string
-	Uptime  int
-	Conns   int
-	Subs    int
-	Chain   *big.Int
-	Height  int64
-	Account common.Address
+	Version  string
+	Uptime   int
+	Conns    int
+	Subs     int
+	Chain    *big.Int
+	Height   int64
+	Contract common.Address
+	Account  common.Address
 }
 
 func (server *Server) Info() Info {
 	return Info{
-		Version: version,
-		Conns:   int(server.proxy.congestion.Count()),
-		Subs:    int(server.db.subs.Load()),
-		Chain:   new(big.Int).Set(server.eth.signer.ChainID()),
-		Uptime:  int(time.Since(server.uptime).Milliseconds()) / 1000,
-		Account: server.eth.addrs[0],
-		Height:  server.db.height.Load(),
+		Version:  version,
+		Conns:    int(server.proxy.congestion.Count()),
+		Subs:     int(server.db.subs.Load()),
+		Chain:    new(big.Int).Set(server.eth.signer.ChainID()),
+		Uptime:   int(time.Since(server.uptime).Milliseconds()) / 1000,
+		Account:  server.eth.addrs[0],
+		Height:   server.db.height.Load(),
+		Contract: server.eth.contract,
 	}
 }
 

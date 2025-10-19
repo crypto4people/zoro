@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "../pb";
+
+service Service {
+    rpc Connect(ConnectParams) returns (ConnectResult);
+    rpc Disconnect(DisconnectParams) returns (DisconnectResult);
+    rpc Status(StatusParams) returns (StatusResult);
+    rpc DeleteServer(DeleteServerParams) returns (DeleteServerResult);
+    rpc ListServers(ListServersParams) returns (ListServersResult);
+    rpc GetServerInfo(GetServerInfoParams) returns (GetServerInfoResult);
+    rpc GetServerSubs(GetServerSubsParams) returns (GetServerSubsResult);
+    rpc Purchase(PurchaseParams) returns (PurchaseResult);
+}
+
+message ConnectParams {
+    string server = 1;
+}
+
+message ConnectResult {
+}
+
+message DisconnectParams {
+}
+
+message DisconnectResult {
+}
+
+message StatusParams {
+
+}
+
+message StatusResult {
+    string version = 1;
+    google.protobuf.Duration uptime = 2;
+    string address = 3;
+    string balance = 4;
+    string chain = 5;
+    string node = 6;
+    bool connected = 8;
+}
+
+
+message DeleteServerParams {
+    string server = 1;
+}
+
+message DeleteServerResult {
+    
+}
+
+message ListServersParams {   
+}
+
+message ListServersResult {
+    repeated string servers = 1;
+}
+
+
+message GetServerInfoParams {
+    string server = 1;
+}
+
+message GetServerInfoResult {
+    string version = 1;
+    google.protobuf.Duration uptime = 2;
+    int64 conns  = 3;
+    int64 subs = 4;
+    string chain = 5;
+    int64 height = 6;
+    string address = 7;
+}
+
+message GetServerSubsParams {
+    string server = 1;
+}
+
+message GetServerSubsResult {
+    message ServerSub {
+        google.protobuf.Timestamp expire = 1;
+	    google.protobuf.Duration remain = 2;
+    }
+    repeated ServerSub list = 1;
+}
+
+message PurchaseParams {
+    string server = 1;
+    string value = 2;
+}
+
+message PurchaseResult {
+   string tx = 1;
+}
+
+message ListPendingTxsParams {
+
+}
+
+message ListPendingTxsResult {
+    repeated string txs = 1;    
+}
