@@ -67,7 +67,7 @@ type Info struct {
 }
 
 func (server *Server) Info(ctx context.Context) (*Info, error) {
-	rate, err := server.eth.client.RateAt(ctx, int64(rpc.LatestBlockNumber))
+	rate, err := server.eth.client.RateAt(ctx, rpc.LatestBlockNumber.Int64())
 	if err != nil {
 		return nil, err
 	}
