@@ -13,37 +13,22 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-type EthClient interface {
-	RateAt(ctx context.Context, block int64) (*Rate, error)
-	Transactions(ctx context.Context, block int64) (iter.Seq2[common.Address, *types.Transaction], error)
-	FinalHeight(ctx context.Context) (int64, error)
-	NonceOf(ctx context.Context, account common.Address) (uint64, error)
-	BalanceOf(ctx context.Context, account common.Address) (*big.Int, error)
-	Submit(ctx context.Context, tx *types.Transaction) error
-	Receipt(ctx context.Context, hash common.Hash) (tx *types.Transaction, pend bool, err error)
-	Shutdown(ctx context.Context) error
-	Contract() common.Address
-	Chain() string
-}
-
-var _ EthClient = &directEthClient{}
-
-type directEthClient struct {
+type EthClient struct {
 	client   *ethclient.Client
 	contract common.Address
 	signer   types.Signer
 	chain    string
 }
 
-func (cli *directEthClient) Contract() common.Address {
+func (cli *EthClient) Contract() common.Address {
 	return cli.contract
 }
 
-func (cli *directEthClient) BalanceOf(ctx context.Context, account common.Address) (*big.Int, error) {
+func (cli *EthClient) BalanceOf(ctx context.Context, account common.Address) (*big.Int, error) {
 	return cli.client.BalanceAt(ctx, account, nil)
 }
 
-func (cli *directEthClient) RateAt(ctx context.Context, block int64) (*Rate, error) {
+func (cli *EthClient) RateAt(ctx context.Context, block int64) (*Rate, error) {
 	result, err := cli.client.CallContract(ctx, ethereum.CallMsg{
 		To:   &cli.contract,
 		Data: abi.PackGetRate(),
@@ -65,11 +50,11 @@ func (cli *directEthClient) RateAt(ctx context.Context, block int64) (*Rate, err
 	}, nil
 }
 
-func (cli *directEthClient) Chain() string {
+func (cli *EthClient) Chain() string {
 	return cli.chain
 }
 
-func (cli *directEthClient) FinalHeight(ctx context.Context) (int64, error) {
+func (cli *EthClient) FinalHeight(ctx context.Context) (int64, error) {
 	header, err := cli.client.HeaderByNumber(ctx, big.NewInt(int64(rpc.FinalizedBlockNumber)))
 	if err != nil {
 		return 0, err
@@ -77,11 +62,11 @@ func (cli *directEthClient) FinalHeight(ctx context.Context) (int64, error) {
 	return header.Number.Int64(), nil
 }
 
-func (cli *directEthClient) NonceOf(ctx context.Context, account common.Address) (uint64, error) {
+func (cli *EthClient) NonceOf(ctx context.Context, account common.Address) (uint64, error) {
 	return cli.client.NonceAt(ctx, account, nil)
 }
 
-func (cli *directEthClient) Receipt(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
+func (cli *EthClient) Receipt(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
 	tx, isPending, err := cli.client.TransactionByHash(ctx, hash)
 	if err != nil {
 		if errors.Is(err, ethereum.NotFound) {
@@ -92,11 +77,14 @@ func (cli *directEthClient) Receipt(ctx context.Context, hash common.Hash) (*typ
 	return tx, isPending, nil
 }
 
-func (cli *directEthClient) Submit(ctx context.Context, tx *types.Transaction) error {
+func (cli *EthClient) Submit(ctx context.Context, tx *types.Transaction) error {
+	if _, err := cli.signer.Sender(tx); err != nil {
+		return err
+	}
 	return cli.client.SendTransaction(ctx, tx)
 }
 
-func (cli *directEthClient) Transactions(ctx context.Context, number int64) (iter.Seq2[common.Address, *types.Transaction], error) {
+func (cli *EthClient) Transactions(ctx context.Context, number int64) (iter.Seq2[common.Address, *types.Transaction], error) {
 	block, err := cli.client.BlockByNumber(ctx, big.NewInt(number))
 	if err != nil {
 		return nil, err
@@ -114,12 +102,12 @@ func (cli *directEthClient) Transactions(ctx context.Context, number int64) (ite
 	}, nil
 }
 
-func (cli *directEthClient) Shutdown(ctx context.Context) error {
+func (cli *EthClient) Shutdown(ctx context.Context) error {
 	cli.client.Close()
 	return nil
 }
 
-func DialEthClient(ctx context.Context, contract common.Address, node string) (EthClient, error) {
+func DialEthClient(ctx context.Context, contract common.Address, node string) (*EthClient, error) {
 	ethClient, err := ethclient.DialContext(ctx, node)
 	if err != nil {
 		return nil, err
@@ -143,7 +131,7 @@ func DialEthClient(ctx context.Context, contract common.Address, node string) (E
 
 	keep = true
 
-	return &directEthClient{
+	return &EthClient{
 		chain:    chain,
 		client:   ethClient,
 		contract: contract,

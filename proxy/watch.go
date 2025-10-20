@@ -140,11 +140,11 @@ func (server *Server) processBlock(ctx context.Context, number int64) (int, erro
 }
 
 func (server *Server) processTx(ctx context.Context, rate *Rate, sender common.Address, tx *types.Transaction) (bool, error) {
-	to := tx.To()
-	value := tx.Value()
-	if to == nil || value.Sign() <= 0 || len(tx.Data()) > 0 || !slices.Contains(server.eth.addrs, *to) {
+	if server.filterTransaction(tx) {
 		return false, nil
 	}
+
+	value := tx.Value()
 
 	dur, ttl := rate.Apply(value)
 
@@ -176,4 +176,17 @@ func (server *Server) processTx(ctx context.Context, rate *Rate, sender common.A
 	}
 
 	return created, nil
+}
+
+func (server *Server) filterTransaction(tx *types.Transaction) bool {
+	if tx.ChainId().Text(10) != server.eth.client.Chain() {
+		return true
+	}
+	if tx.Value().Sign() <= 0 || len(tx.Data()) > 0 {
+		return true
+	}
+	if to := tx.To(); to == nil || !slices.Contains(server.eth.addrs, *to) {
+		return true
+	}
+	return false
 }

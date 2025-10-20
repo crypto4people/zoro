@@ -50,7 +50,7 @@ type Server struct {
 		rate   atomic.Pointer[Rate]
 		addrs  []common.Address
 		sleep  time.Duration
-		client EthClient
+		client *EthClient
 	}
 }
 
@@ -97,7 +97,8 @@ func (server *Server) init(ctx context.Context) error {
 		return err
 	}
 
-	//fill rate
+	//todo fill rate
+
 	server.initMux()
 
 	return nil

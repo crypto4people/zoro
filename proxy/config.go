@@ -16,7 +16,7 @@ type ServerConfig struct {
 	Contract  common.Address
 	Accounts  []common.Address
 	Database  *sql.DB
-	Client    EthClient
+	Client    *EthClient
 	Logger    *slog.Logger
 }
 
