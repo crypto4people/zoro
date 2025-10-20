@@ -12,7 +12,6 @@ import (
 
 type reporting sql.Stmt
 
-// todo: prepate a safe query and pass account to Report
 func (server *Server) prepareReport(ctx context.Context, account common.Address) (*reporting, error) {
 	query := "update subs set remain = remain - ?1 where id = (select id from subs where addr = '" + hex.EncodeToString(account[:]) + "' and remain > 0 and expire > unixepoch() order by expire asc limit 1)"
 	prepared, err := server.db.conn.PrepareContext(ctx, query)
