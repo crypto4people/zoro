@@ -36,7 +36,12 @@ func (server *Server) initMux() {
 	server.http.mux.HandleFunc("PUT /", func(writer http.ResponseWriter, req *http.Request) {
 		server.logger.Debug("new request on /", slog.String("address", req.RemoteAddr))
 
-		info := server.Info()
+		info, err := server.Info(req.Context())
+		if err != nil {
+			httpError(writer, err)
+			return
+		}
+
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Write(ge.Must(json.Marshal(info)))
 	})

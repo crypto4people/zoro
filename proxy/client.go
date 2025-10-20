@@ -41,6 +41,7 @@ func (client *Client) GetSubs(ctx context.Context) ([]Sub, error) {
 	if err != nil {
 		return nil, err
 	}
+	
 	url.Path = path.Join(url.Path, "subs")
 
 	query := url.Query()

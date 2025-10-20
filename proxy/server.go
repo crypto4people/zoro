@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/gobwas/ws"
 )
 
@@ -47,7 +48,6 @@ type Server struct {
 	}
 
 	eth struct {
-		rate   atomic.Pointer[Rate]
 		addrs  []common.Address
 		sleep  time.Duration
 		client *EthClient
@@ -66,8 +66,13 @@ type Info struct {
 	Rate     Rate
 }
 
-func (server *Server) Info() Info {
-	return Info{
+func (server *Server) Info(ctx context.Context) (*Info, error) {
+	rate, err := server.eth.client.RateAt(ctx, int64(rpc.LatestBlockNumber))
+	if err != nil {
+		return nil, err
+	}
+
+	return &Info{
 		Version:  version,
 		Conns:    int(server.proxy.congestion.Count()),
 		Subs:     int(server.db.subs.Load()),
@@ -76,8 +81,8 @@ func (server *Server) Info() Info {
 		Account:  server.eth.addrs[0],
 		Height:   server.db.height.Load(),
 		Contract: server.eth.client.Contract(),
-		Rate:     *server.eth.rate.Load(),
-	}
+		Rate:     *rate,
+	}, nil
 }
 
 func (server *Server) init(ctx context.Context) error {
@@ -96,8 +101,6 @@ func (server *Server) init(ctx context.Context) error {
 	if _, err := server.getLocalHeight(ctx); err != nil {
 		return err
 	}
-
-	//todo fill rate
 
 	server.initMux()
 

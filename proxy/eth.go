@@ -20,6 +20,38 @@ type EthClient struct {
 	chain    string
 }
 
+func NewEthClient(ctx context.Context, contract common.Address, node string) (*EthClient, error) {
+	ethClient, err := ethclient.DialContext(ctx, node)
+	if err != nil {
+		return nil, err
+	}
+
+	keep := false
+
+	defer func() {
+		if !keep {
+			ethClient.Close()
+		}
+	}()
+
+	chainId, err := ethClient.ChainID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	signer := types.LatestSignerForChainID(chainId)
+	chain := chainId.Text(10)
+
+	keep = true
+
+	return &EthClient{
+		chain:    chain,
+		client:   ethClient,
+		contract: contract,
+		signer:   signer,
+	}, nil
+}
+
 func (cli *EthClient) Contract() common.Address {
 	return cli.contract
 }
@@ -105,36 +137,4 @@ func (cli *EthClient) Transactions(ctx context.Context, number int64) (iter.Seq2
 func (cli *EthClient) Shutdown(ctx context.Context) error {
 	cli.client.Close()
 	return nil
-}
-
-func DialEthClient(ctx context.Context, contract common.Address, node string) (*EthClient, error) {
-	ethClient, err := ethclient.DialContext(ctx, node)
-	if err != nil {
-		return nil, err
-	}
-
-	keep := false
-
-	defer func() {
-		if !keep {
-			ethClient.Close()
-		}
-	}()
-
-	chainId, err := ethClient.ChainID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	signer := types.LatestSignerForChainID(chainId)
-	chain := chainId.Text(10)
-
-	keep = true
-
-	return &EthClient{
-		chain:    chain,
-		client:   ethClient,
-		contract: contract,
-		signer:   signer,
-	}, nil
 }
