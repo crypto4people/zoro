@@ -17,7 +17,7 @@ func (server *Server) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 }
 
 func (server *Server) initMux() {
-	server.http.mux.HandleFunc("GET /", func(writer http.ResponseWriter, req *http.Request) {
+	server.http.mux.HandleFunc("PUT /", func(writer http.ResponseWriter, req *http.Request) {
 		server.logger.Debug("new request on /", slog.String("address", req.RemoteAddr))
 
 		info := server.Info()
@@ -37,7 +37,7 @@ func (server *Server) initMux() {
 		}
 	})
 
-	server.http.mux.HandleFunc("GET /subs", func(writer http.ResponseWriter, req *http.Request) {
+	server.http.mux.HandleFunc("PUT /subs", func(writer http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 		user := req.URL.Query().Get("user")
 
@@ -51,6 +51,23 @@ func (server *Server) initMux() {
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Write(ge.Must(json.Marshal(subs)))
 	})
+
+	server.http.mux.HandleFunc("PUT /eth/balance", func(writer http.ResponseWriter, req *http.Request) {
+		//todo
+	})
+
+	server.http.mux.HandleFunc("PUT /eth/nonce", func(writer http.ResponseWriter, req *http.Request) {
+
+	})
+
+	server.http.mux.HandleFunc("PUT /eth/receipt", func(writer http.ResponseWriter, req *http.Request) {
+
+	})
+
+	server.http.mux.HandleFunc("PUT /eth/submit", func(writer http.ResponseWriter, req *http.Request) {
+
+	})
+
 }
 
 func httpError(writer http.ResponseWriter, err any) {

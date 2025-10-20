@@ -1,7 +1,7 @@
 // Code generated via abigen V2 - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
-package ratefeed
+package contract
 
 import (
 	"bytes"
@@ -24,29 +24,29 @@ var (
 	_ = abi.ConvertType
 )
 
-// RatefeedMetaData contains all meta data concerning the Ratefeed contract.
-var RatefeedMetaData = bind.MetaData{
+// ContractMetaData contains all meta data concerning the Contract contract.
+var ContractMetaData = bind.MetaData{
 	ABI: "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnerChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"sub\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"div\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"mul\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"add\",\"type\":\"uint256\"}],\"name\":\"RateUpdated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getRate\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"sub\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"div\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"mul\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"add\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"setOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"sub\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"div\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"mul\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"add\",\"type\":\"uint256\"}],\"name\":\"setRate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
-	ID:  "Ratefeed",
+	ID:  "Contract",
 }
 
-// Ratefeed is an auto generated Go binding around an Ethereum contract.
-type Ratefeed struct {
+// Contract is an auto generated Go binding around an Ethereum contract.
+type Contract struct {
 	abi abi.ABI
 }
 
-// NewRatefeed creates a new instance of Ratefeed.
-func NewRatefeed() *Ratefeed {
-	parsed, err := RatefeedMetaData.ParseABI()
+// NewContract creates a new instance of Contract.
+func NewContract() *Contract {
+	parsed, err := ContractMetaData.ParseABI()
 	if err != nil {
 		panic(errors.New("invalid ABI: " + err.Error()))
 	}
-	return &Ratefeed{abi: *parsed}
+	return &Contract{abi: *parsed}
 }
 
 // Instance creates a wrapper for a deployed contract instance at the given address.
 // Use this to create the instance object passed to abigen v2 library functions Call, Transact, etc.
-func (c *Ratefeed) Instance(backend bind.ContractBackend, addr common.Address) *bind.BoundContract {
+func (c *Contract) Instance(backend bind.ContractBackend, addr common.Address) *bind.BoundContract {
 	return bind.NewBoundContract(addr, c.abi, backend, backend, backend)
 }
 
@@ -55,8 +55,8 @@ func (c *Ratefeed) Instance(backend bind.ContractBackend, addr common.Address) *
 // invalid/nil inputs are passed.
 //
 // Solidity: function getRate() view returns(uint256 sub, uint256 div, uint256 mul, uint256 add)
-func (ratefeed *Ratefeed) PackGetRate() []byte {
-	enc, err := ratefeed.abi.Pack("getRate")
+func (contract *Contract) PackGetRate() []byte {
+	enc, err := contract.abi.Pack("getRate")
 	if err != nil {
 		panic(err)
 	}
@@ -68,8 +68,8 @@ func (ratefeed *Ratefeed) PackGetRate() []byte {
 // if any inputs are invalid/nil.
 //
 // Solidity: function getRate() view returns(uint256 sub, uint256 div, uint256 mul, uint256 add)
-func (ratefeed *Ratefeed) TryPackGetRate() ([]byte, error) {
-	return ratefeed.abi.Pack("getRate")
+func (contract *Contract) TryPackGetRate() ([]byte, error) {
+	return contract.abi.Pack("getRate")
 }
 
 // GetRateOutput serves as a container for the return parameters of contract
@@ -85,8 +85,8 @@ type GetRateOutput struct {
 // from invoking the contract method with ID 0x679aefce.
 //
 // Solidity: function getRate() view returns(uint256 sub, uint256 div, uint256 mul, uint256 add)
-func (ratefeed *Ratefeed) UnpackGetRate(data []byte) (GetRateOutput, error) {
-	out, err := ratefeed.abi.Unpack("getRate", data)
+func (contract *Contract) UnpackGetRate(data []byte) (GetRateOutput, error) {
+	out, err := contract.abi.Unpack("getRate", data)
 	outstruct := new(GetRateOutput)
 	if err != nil {
 		return *outstruct, err
@@ -103,8 +103,8 @@ func (ratefeed *Ratefeed) UnpackGetRate(data []byte) (GetRateOutput, error) {
 // invalid/nil inputs are passed.
 //
 // Solidity: function owner() view returns(address)
-func (ratefeed *Ratefeed) PackOwner() []byte {
-	enc, err := ratefeed.abi.Pack("owner")
+func (contract *Contract) PackOwner() []byte {
+	enc, err := contract.abi.Pack("owner")
 	if err != nil {
 		panic(err)
 	}
@@ -116,16 +116,16 @@ func (ratefeed *Ratefeed) PackOwner() []byte {
 // if any inputs are invalid/nil.
 //
 // Solidity: function owner() view returns(address)
-func (ratefeed *Ratefeed) TryPackOwner() ([]byte, error) {
-	return ratefeed.abi.Pack("owner")
+func (contract *Contract) TryPackOwner() ([]byte, error) {
+	return contract.abi.Pack("owner")
 }
 
 // UnpackOwner is the Go binding that unpacks the parameters returned
 // from invoking the contract method with ID 0x8da5cb5b.
 //
 // Solidity: function owner() view returns(address)
-func (ratefeed *Ratefeed) UnpackOwner(data []byte) (common.Address, error) {
-	out, err := ratefeed.abi.Unpack("owner", data)
+func (contract *Contract) UnpackOwner(data []byte) (common.Address, error) {
+	out, err := contract.abi.Unpack("owner", data)
 	if err != nil {
 		return *new(common.Address), err
 	}
@@ -138,8 +138,8 @@ func (ratefeed *Ratefeed) UnpackOwner(data []byte) (common.Address, error) {
 // invalid/nil inputs are passed.
 //
 // Solidity: function setOwner(address addr) returns()
-func (ratefeed *Ratefeed) PackSetOwner(addr common.Address) []byte {
-	enc, err := ratefeed.abi.Pack("setOwner", addr)
+func (contract *Contract) PackSetOwner(addr common.Address) []byte {
+	enc, err := contract.abi.Pack("setOwner", addr)
 	if err != nil {
 		panic(err)
 	}
@@ -151,8 +151,8 @@ func (ratefeed *Ratefeed) PackSetOwner(addr common.Address) []byte {
 // if any inputs are invalid/nil.
 //
 // Solidity: function setOwner(address addr) returns()
-func (ratefeed *Ratefeed) TryPackSetOwner(addr common.Address) ([]byte, error) {
-	return ratefeed.abi.Pack("setOwner", addr)
+func (contract *Contract) TryPackSetOwner(addr common.Address) ([]byte, error) {
+	return contract.abi.Pack("setOwner", addr)
 }
 
 // PackSetRate is the Go binding used to pack the parameters required for calling
@@ -160,8 +160,8 @@ func (ratefeed *Ratefeed) TryPackSetOwner(addr common.Address) ([]byte, error) {
 // invalid/nil inputs are passed.
 //
 // Solidity: function setRate(uint256 sub, uint256 div, uint256 mul, uint256 add) returns()
-func (ratefeed *Ratefeed) PackSetRate(sub *big.Int, div *big.Int, mul *big.Int, add *big.Int) []byte {
-	enc, err := ratefeed.abi.Pack("setRate", sub, div, mul, add)
+func (contract *Contract) PackSetRate(sub *big.Int, div *big.Int, mul *big.Int, add *big.Int) []byte {
+	enc, err := contract.abi.Pack("setRate", sub, div, mul, add)
 	if err != nil {
 		panic(err)
 	}
@@ -173,41 +173,41 @@ func (ratefeed *Ratefeed) PackSetRate(sub *big.Int, div *big.Int, mul *big.Int, 
 // if any inputs are invalid/nil.
 //
 // Solidity: function setRate(uint256 sub, uint256 div, uint256 mul, uint256 add) returns()
-func (ratefeed *Ratefeed) TryPackSetRate(sub *big.Int, div *big.Int, mul *big.Int, add *big.Int) ([]byte, error) {
-	return ratefeed.abi.Pack("setRate", sub, div, mul, add)
+func (contract *Contract) TryPackSetRate(sub *big.Int, div *big.Int, mul *big.Int, add *big.Int) ([]byte, error) {
+	return contract.abi.Pack("setRate", sub, div, mul, add)
 }
 
-// RatefeedOwnerChanged represents a OwnerChanged event raised by the Ratefeed contract.
-type RatefeedOwnerChanged struct {
+// ContractOwnerChanged represents a OwnerChanged event raised by the Contract contract.
+type ContractOwnerChanged struct {
 	OldOwner common.Address
 	NewOwner common.Address
 	Raw      *types.Log // Blockchain specific contextual infos
 }
 
-const RatefeedOwnerChangedEventName = "OwnerChanged"
+const ContractOwnerChangedEventName = "OwnerChanged"
 
 // ContractEventName returns the user-defined event name.
-func (RatefeedOwnerChanged) ContractEventName() string {
-	return RatefeedOwnerChangedEventName
+func (ContractOwnerChanged) ContractEventName() string {
+	return ContractOwnerChangedEventName
 }
 
 // UnpackOwnerChangedEvent is the Go binding that unpacks the event data emitted
 // by contract.
 //
 // Solidity: event OwnerChanged(address indexed oldOwner, address indexed newOwner)
-func (ratefeed *Ratefeed) UnpackOwnerChangedEvent(log *types.Log) (*RatefeedOwnerChanged, error) {
+func (contract *Contract) UnpackOwnerChangedEvent(log *types.Log) (*ContractOwnerChanged, error) {
 	event := "OwnerChanged"
-	if len(log.Topics) == 0 || log.Topics[0] != ratefeed.abi.Events[event].ID {
+	if len(log.Topics) == 0 || log.Topics[0] != contract.abi.Events[event].ID {
 		return nil, errors.New("event signature mismatch")
 	}
-	out := new(RatefeedOwnerChanged)
+	out := new(ContractOwnerChanged)
 	if len(log.Data) > 0 {
-		if err := ratefeed.abi.UnpackIntoInterface(out, event, log.Data); err != nil {
+		if err := contract.abi.UnpackIntoInterface(out, event, log.Data); err != nil {
 			return nil, err
 		}
 	}
 	var indexed abi.Arguments
-	for _, arg := range ratefeed.abi.Events[event].Inputs {
+	for _, arg := range contract.abi.Events[event].Inputs {
 		if arg.Indexed {
 			indexed = append(indexed, arg)
 		}
@@ -219,8 +219,8 @@ func (ratefeed *Ratefeed) UnpackOwnerChangedEvent(log *types.Log) (*RatefeedOwne
 	return out, nil
 }
 
-// RatefeedRateUpdated represents a RateUpdated event raised by the Ratefeed contract.
-type RatefeedRateUpdated struct {
+// ContractRateUpdated represents a RateUpdated event raised by the Contract contract.
+type ContractRateUpdated struct {
 	Sub *big.Int
 	Div *big.Int
 	Mul *big.Int
@@ -228,30 +228,30 @@ type RatefeedRateUpdated struct {
 	Raw *types.Log // Blockchain specific contextual infos
 }
 
-const RatefeedRateUpdatedEventName = "RateUpdated"
+const ContractRateUpdatedEventName = "RateUpdated"
 
 // ContractEventName returns the user-defined event name.
-func (RatefeedRateUpdated) ContractEventName() string {
-	return RatefeedRateUpdatedEventName
+func (ContractRateUpdated) ContractEventName() string {
+	return ContractRateUpdatedEventName
 }
 
 // UnpackRateUpdatedEvent is the Go binding that unpacks the event data emitted
 // by contract.
 //
 // Solidity: event RateUpdated(uint256 sub, uint256 div, uint256 mul, uint256 add)
-func (ratefeed *Ratefeed) UnpackRateUpdatedEvent(log *types.Log) (*RatefeedRateUpdated, error) {
+func (contract *Contract) UnpackRateUpdatedEvent(log *types.Log) (*ContractRateUpdated, error) {
 	event := "RateUpdated"
-	if len(log.Topics) == 0 || log.Topics[0] != ratefeed.abi.Events[event].ID {
+	if len(log.Topics) == 0 || log.Topics[0] != contract.abi.Events[event].ID {
 		return nil, errors.New("event signature mismatch")
 	}
-	out := new(RatefeedRateUpdated)
+	out := new(ContractRateUpdated)
 	if len(log.Data) > 0 {
-		if err := ratefeed.abi.UnpackIntoInterface(out, event, log.Data); err != nil {
+		if err := contract.abi.UnpackIntoInterface(out, event, log.Data); err != nil {
 			return nil, err
 		}
 	}
 	var indexed abi.Arguments
-	for _, arg := range ratefeed.abi.Events[event].Inputs {
+	for _, arg := range contract.abi.Events[event].Inputs {
 		if arg.Indexed {
 			indexed = append(indexed, arg)
 		}

@@ -56,7 +56,7 @@ func (client *Client) GetSubs(ctx context.Context) ([]Sub, error) {
 }
 
 func doRequest[R any](ctx context.Context, client *http.Client, endpoint string) (*R, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, http.NoBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, endpoint, http.NoBody)
 	if err != nil {
 		return nil, err
 	}

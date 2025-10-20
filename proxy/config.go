@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 )
 
 type ServerConfig struct {
@@ -17,7 +16,7 @@ type ServerConfig struct {
 	Contract  common.Address
 	Accounts  []common.Address
 	Database  *sql.DB
-	Nodes     ethClient
+	Client    EthClient
 	Logger    *slog.Logger
 }
 
@@ -27,15 +26,9 @@ func NewServer(ctx context.Context, conf ServerConfig) (app *Server, err error) 
 		uptime: time.Now(),
 	}
 
-	app.eth.client = conf.Nodes
+	app.eth.client = conf.Client
 	app.eth.sleep = time.Second
-	app.eth.contract = conf.Contract
 	app.eth.addrs = slices.Clone(conf.Accounts)
-	chain, err := app.eth.client.ChainID(ctx)
-	if err != nil {
-		return nil, err
-	}
-	app.eth.signer = types.LatestSignerForChainID(chain)
 
 	app.proxy.reporting.internal = time.Second * 10
 	app.proxy.reporting.timeout = time.Second * 5

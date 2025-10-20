@@ -1,14 +1,12 @@
 package proxy
 
 import (
-	"context"
 	"math/big"
 	"time"
-	ratefeed "zoro/contract"
-
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
+	"zoro/contract"
 )
+
+var abi = contract.NewContract()
 
 type Rate struct {
 	Sub *big.Int
@@ -17,59 +15,21 @@ type Rate struct {
 	Add *big.Int
 }
 
-type convertResult struct {
-	Dur time.Duration
-	TTL time.Duration
-}
+func (rate *Rate) Apply(value *big.Int) (dur time.Duration, ttl time.Duration) {
 
-var ratefeedAbi = ratefeed.NewRatefeed()
-var seconds = big.NewInt(int64(time.Second))
+	// dur := (value - sub) / div
+	// ttl := (durSeconds * mul) + add
 
-func (server *Server) readRate(ctx context.Context, block int64) (*Rate, error) {
-	return ReadRate(ctx, server.eth.client, server.eth.contract, block)
-}
-func (rate *Rate) convert(value *big.Int) convertResult {
+	durBig := new(big.Int).Div(new(big.Int).Sub(value, rate.Sub), rate.Div)
+	ttlBig := new(big.Int).Add(new(big.Int).Mul(durBig, rate.Mul), rate.Add)
 
-	//dur := (value - sub) / div
+	durBig = new(big.Int).Mul(durBig, big.NewInt(int64(time.Second)))
+	ttlBig = new(big.Int).Mul(ttlBig, big.NewInt(int64(time.Second)))
 
-	//ttl := (durSeconds * mul) + add
-
-	dur := new(big.Int).Div(new(big.Int).Sub(value, rate.Sub), rate.Div)
-	ttl := new(big.Int).Add(new(big.Int).Mul(dur, rate.Mul), rate.Add)
-
-	dur = new(big.Int).Mul(dur, seconds)
-	ttl = new(big.Int).Mul(ttl, seconds)
-
-	if dur.Sign() <= 0 || ttl.Sign() <= 0 || !dur.IsInt64() || !ttl.IsInt64() {
-		return convertResult{}
+	if durBig.Sign() <= 0 || ttlBig.Sign() <= 0 || !durBig.IsInt64() || !ttlBig.IsInt64() {
+		return 0, 0
 	}
 
-	return convertResult{
-		Dur: time.Duration(dur.Int64()),
-		TTL: time.Duration(ttl.Int64()),
-	}
-}
+	return time.Duration(durBig.Int64()), time.Duration(ttlBig.Int64())
 
-func ReadRate(ctx context.Context, client interface {
-	CallContract(ctx context.Context, msg ethereum.CallMsg, blockNumber *big.Int) ([]byte, error)
-}, contract common.Address, block int64) (*Rate, error) {
-	result, err := client.CallContract(ctx, ethereum.CallMsg{
-		To:   &contract,
-		Data: ratefeedAbi.PackGetRate(),
-	}, big.NewInt(block))
-	if err != nil {
-		return nil, err
-	}
-
-	rate, err := ratefeedAbi.UnpackGetRate(result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Rate{
-		Sub: rate.Sub,
-		Div: rate.Div,
-		Mul: rate.Mul,
-		Add: rate.Sub,
-	}, nil
 }

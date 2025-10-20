@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"log/slog"
-	"math/big"
 	"net"
 	"net/http"
 	"sync"
@@ -12,7 +11,6 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/gobwas/ws"
 )
 
@@ -49,11 +47,10 @@ type Server struct {
 	}
 
 	eth struct {
-		contract common.Address
-		addrs    []common.Address
-		signer   types.Signer
-		client   ethClient
-		sleep    time.Duration
+		rate   atomic.Pointer[Rate]
+		addrs  []common.Address
+		sleep  time.Duration
+		client EthClient
 	}
 }
 
@@ -62,10 +59,11 @@ type Info struct {
 	Uptime   int
 	Conns    int
 	Subs     int
-	Chain    *big.Int
+	Chain    string
 	Height   int64
 	Contract common.Address
 	Account  common.Address
+	Rate     Rate
 }
 
 func (server *Server) Info() Info {
@@ -73,11 +71,12 @@ func (server *Server) Info() Info {
 		Version:  version,
 		Conns:    int(server.proxy.congestion.Count()),
 		Subs:     int(server.db.subs.Load()),
-		Chain:    new(big.Int).Set(server.eth.signer.ChainID()),
+		Chain:    server.eth.client.Chain(),
 		Uptime:   int(time.Since(server.uptime).Milliseconds()) / 1000,
 		Account:  server.eth.addrs[0],
 		Height:   server.db.height.Load(),
-		Contract: server.eth.contract,
+		Contract: server.eth.client.Contract(),
+		Rate:     *server.eth.rate.Load(),
 	}
 }
 
@@ -98,6 +97,7 @@ func (server *Server) init(ctx context.Context) error {
 		return err
 	}
 
+	//fill rate
 	server.initMux()
 
 	return nil
