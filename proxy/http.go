@@ -108,11 +108,19 @@ func (server *Server) initMux() {
 
 		if tx == nil || server.filterTransaction(tx) {
 			writer.WriteHeader(http.StatusNotFound)
-		} else if pending {
+			return
+		}
+
+		writer.Header().Set("Content-Type", "application/json")
+
+		if pending {
 			writer.WriteHeader(http.StatusCreated)
 		} else {
 			writer.WriteHeader(http.StatusAccepted)
 		}
+
+		writer.Header().Set("Content-Type", "application/json")
+		writer.Write(ge.Must(json.Marshal(tx)))
 
 	})
 
@@ -135,6 +143,8 @@ func (server *Server) initMux() {
 			httpError(writer, "failed to submit tx")
 			return
 		}
+		writer.Header().Set("Content-Type", "text/plain")
+		io.WriteString(writer, tx.Hash().Hex())
 	})
 
 }

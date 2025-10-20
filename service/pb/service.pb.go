@@ -9,8 +9,6 @@ package pb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	durationpb "google.golang.org/protobuf/types/known/durationpb"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -23,16 +21,52 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type Empty struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Empty) Reset() {
+	*x = Empty{}
+	mi := &file_service_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Empty) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Empty) ProtoMessage() {}
+
+func (x *Empty) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Empty.ProtoReflect.Descriptor instead.
+func (*Empty) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{0}
+}
+
 type ConnectParams struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Server        string                 `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty"`
+	Server        int64                  `protobuf:"varint,1,opt,name=server,proto3" json:"server,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ConnectParams) Reset() {
 	*x = ConnectParams{}
-	mi := &file_service_proto_msgTypes[0]
+	mi := &file_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +78,7 @@ func (x *ConnectParams) String() string {
 func (*ConnectParams) ProtoMessage() {}
 
 func (x *ConnectParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[0]
+	mi := &file_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,164 +91,20 @@ func (x *ConnectParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectParams.ProtoReflect.Descriptor instead.
 func (*ConnectParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *ConnectParams) GetServer() string {
-	if x != nil {
-		return x.Server
-	}
-	return ""
-}
-
-type ConnectResult struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ConnectResult) Reset() {
-	*x = ConnectResult{}
-	mi := &file_service_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ConnectResult) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ConnectResult) ProtoMessage() {}
-
-func (x *ConnectResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ConnectResult.ProtoReflect.Descriptor instead.
-func (*ConnectResult) Descriptor() ([]byte, []int) {
 	return file_service_proto_rawDescGZIP(), []int{1}
 }
 
-type DisconnectParams struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DisconnectParams) Reset() {
-	*x = DisconnectParams{}
-	mi := &file_service_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DisconnectParams) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DisconnectParams) ProtoMessage() {}
-
-func (x *DisconnectParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[2]
+func (x *ConnectParams) GetServer() int64 {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+		return x.Server
 	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DisconnectParams.ProtoReflect.Descriptor instead.
-func (*DisconnectParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{2}
-}
-
-type DisconnectResult struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DisconnectResult) Reset() {
-	*x = DisconnectResult{}
-	mi := &file_service_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DisconnectResult) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DisconnectResult) ProtoMessage() {}
-
-func (x *DisconnectResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DisconnectResult.ProtoReflect.Descriptor instead.
-func (*DisconnectResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{3}
-}
-
-type StatusParams struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *StatusParams) Reset() {
-	*x = StatusParams{}
-	mi := &file_service_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *StatusParams) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*StatusParams) ProtoMessage() {}
-
-func (x *StatusParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use StatusParams.ProtoReflect.Descriptor instead.
-func (*StatusParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{4}
+	return 0
 }
 
 type StatusResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Version       string                 `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
-	Uptime        *durationpb.Duration   `protobuf:"bytes,2,opt,name=uptime,proto3" json:"uptime,omitempty"`
+	Uptime        int64                  `protobuf:"varint,2,opt,name=uptime,proto3" json:"uptime,omitempty"`
 	Address       string                 `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
 	Balance       string                 `protobuf:"bytes,4,opt,name=balance,proto3" json:"balance,omitempty"`
 	Chain         string                 `protobuf:"bytes,5,opt,name=chain,proto3" json:"chain,omitempty"`
@@ -226,7 +116,7 @@ type StatusResult struct {
 
 func (x *StatusResult) Reset() {
 	*x = StatusResult{}
-	mi := &file_service_proto_msgTypes[5]
+	mi := &file_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -238,7 +128,7 @@ func (x *StatusResult) String() string {
 func (*StatusResult) ProtoMessage() {}
 
 func (x *StatusResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[5]
+	mi := &file_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -251,7 +141,7 @@ func (x *StatusResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusResult.ProtoReflect.Descriptor instead.
 func (*StatusResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{5}
+	return file_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *StatusResult) GetVersion() string {
@@ -261,11 +151,11 @@ func (x *StatusResult) GetVersion() string {
 	return ""
 }
 
-func (x *StatusResult) GetUptime() *durationpb.Duration {
+func (x *StatusResult) GetUptime() int64 {
 	if x != nil {
 		return x.Uptime
 	}
-	return nil
+	return 0
 }
 
 func (x *StatusResult) GetAddress() string {
@@ -303,28 +193,29 @@ func (x *StatusResult) GetConnected() bool {
 	return false
 }
 
-type DeleteServerParams struct {
+type ModifyServersParams struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Server        string                 `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty"`
+	Add           bool                   `protobuf:"varint,2,opt,name=add,proto3" json:"add,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteServerParams) Reset() {
-	*x = DeleteServerParams{}
-	mi := &file_service_proto_msgTypes[6]
+func (x *ModifyServersParams) Reset() {
+	*x = ModifyServersParams{}
+	mi := &file_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteServerParams) String() string {
+func (x *ModifyServersParams) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteServerParams) ProtoMessage() {}
+func (*ModifyServersParams) ProtoMessage() {}
 
-func (x *DeleteServerParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[6]
+func (x *ModifyServersParams) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -335,100 +226,35 @@ func (x *DeleteServerParams) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteServerParams.ProtoReflect.Descriptor instead.
-func (*DeleteServerParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{6}
+// Deprecated: Use ModifyServersParams.ProtoReflect.Descriptor instead.
+func (*ModifyServersParams) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *DeleteServerParams) GetServer() string {
+func (x *ModifyServersParams) GetServer() string {
 	if x != nil {
 		return x.Server
 	}
 	return ""
 }
 
-type DeleteServerResult struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteServerResult) Reset() {
-	*x = DeleteServerResult{}
-	mi := &file_service_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteServerResult) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteServerResult) ProtoMessage() {}
-
-func (x *DeleteServerResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[7]
+func (x *ModifyServersParams) GetAdd() bool {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+		return x.Add
 	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteServerResult.ProtoReflect.Descriptor instead.
-func (*DeleteServerResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{7}
-}
-
-type ListServersParams struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListServersParams) Reset() {
-	*x = ListServersParams{}
-	mi := &file_service_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListServersParams) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListServersParams) ProtoMessage() {}
-
-func (x *ListServersParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListServersParams.ProtoReflect.Descriptor instead.
-func (*ListServersParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{8}
+	return false
 }
 
 type ListServersResult struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Servers       []string               `protobuf:"bytes,1,rep,name=servers,proto3" json:"servers,omitempty"`
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	Servers       map[int64]*ListServersResult_Info `protobuf:"bytes,1,rep,name=servers,proto3" json:"servers,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListServersResult) Reset() {
 	*x = ListServersResult{}
-	mi := &file_service_proto_msgTypes[9]
+	mi := &file_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -440,7 +266,7 @@ func (x *ListServersResult) String() string {
 func (*ListServersResult) ProtoMessage() {}
 
 func (x *ListServersResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[9]
+	mi := &file_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -453,38 +279,38 @@ func (x *ListServersResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServersResult.ProtoReflect.Descriptor instead.
 func (*ListServersResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{9}
+	return file_service_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ListServersResult) GetServers() []string {
+func (x *ListServersResult) GetServers() map[int64]*ListServersResult_Info {
 	if x != nil {
 		return x.Servers
 	}
 	return nil
 }
 
-type GetServerInfoParams struct {
+type ListTxsParams struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Server        string                 `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty"`
+	Continution   int64                  `protobuf:"varint,1,opt,name=continution,proto3" json:"continution,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetServerInfoParams) Reset() {
-	*x = GetServerInfoParams{}
-	mi := &file_service_proto_msgTypes[10]
+func (x *ListTxsParams) Reset() {
+	*x = ListTxsParams{}
+	mi := &file_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetServerInfoParams) String() string {
+func (x *ListTxsParams) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetServerInfoParams) ProtoMessage() {}
+func (*ListTxsParams) ProtoMessage() {}
 
-func (x *GetServerInfoParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[10]
+func (x *ListTxsParams) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -495,132 +321,40 @@ func (x *GetServerInfoParams) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetServerInfoParams.ProtoReflect.Descriptor instead.
-func (*GetServerInfoParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{10}
+// Deprecated: Use ListTxsParams.ProtoReflect.Descriptor instead.
+func (*ListTxsParams) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *GetServerInfoParams) GetServer() string {
+func (x *ListTxsParams) GetContinution() int64 {
 	if x != nil {
-		return x.Server
-	}
-	return ""
-}
-
-type GetServerInfoResult struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Version       string                 `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
-	Uptime        *durationpb.Duration   `protobuf:"bytes,2,opt,name=uptime,proto3" json:"uptime,omitempty"`
-	Conns         int64                  `protobuf:"varint,3,opt,name=conns,proto3" json:"conns,omitempty"`
-	Subs          int64                  `protobuf:"varint,4,opt,name=subs,proto3" json:"subs,omitempty"`
-	Chain         string                 `protobuf:"bytes,5,opt,name=chain,proto3" json:"chain,omitempty"`
-	Height        int64                  `protobuf:"varint,6,opt,name=height,proto3" json:"height,omitempty"`
-	Address       string                 `protobuf:"bytes,7,opt,name=address,proto3" json:"address,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetServerInfoResult) Reset() {
-	*x = GetServerInfoResult{}
-	mi := &file_service_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetServerInfoResult) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetServerInfoResult) ProtoMessage() {}
-
-func (x *GetServerInfoResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetServerInfoResult.ProtoReflect.Descriptor instead.
-func (*GetServerInfoResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *GetServerInfoResult) GetVersion() string {
-	if x != nil {
-		return x.Version
-	}
-	return ""
-}
-
-func (x *GetServerInfoResult) GetUptime() *durationpb.Duration {
-	if x != nil {
-		return x.Uptime
-	}
-	return nil
-}
-
-func (x *GetServerInfoResult) GetConns() int64 {
-	if x != nil {
-		return x.Conns
+		return x.Continution
 	}
 	return 0
 }
 
-func (x *GetServerInfoResult) GetSubs() int64 {
-	if x != nil {
-		return x.Subs
-	}
-	return 0
-}
-
-func (x *GetServerInfoResult) GetChain() string {
-	if x != nil {
-		return x.Chain
-	}
-	return ""
-}
-
-func (x *GetServerInfoResult) GetHeight() int64 {
-	if x != nil {
-		return x.Height
-	}
-	return 0
-}
-
-func (x *GetServerInfoResult) GetAddress() string {
-	if x != nil {
-		return x.Address
-	}
-	return ""
-}
-
-type GetServerSubsParams struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Server        string                 `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty"`
+type ListTxsResult struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Txs           map[int64]*ListTxsResult_Tx `protobuf:"bytes,1,rep,name=txs,proto3" json:"txs,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetServerSubsParams) Reset() {
-	*x = GetServerSubsParams{}
-	mi := &file_service_proto_msgTypes[12]
+func (x *ListTxsResult) Reset() {
+	*x = ListTxsResult{}
+	mi := &file_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetServerSubsParams) String() string {
+func (x *ListTxsResult) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetServerSubsParams) ProtoMessage() {}
+func (*ListTxsResult) ProtoMessage() {}
 
-func (x *GetServerSubsParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[12]
+func (x *ListTxsResult) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -631,261 +365,41 @@ func (x *GetServerSubsParams) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetServerSubsParams.ProtoReflect.Descriptor instead.
-func (*GetServerSubsParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{12}
+// Deprecated: Use ListTxsResult.ProtoReflect.Descriptor instead.
+func (*ListTxsResult) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *GetServerSubsParams) GetServer() string {
-	if x != nil {
-		return x.Server
-	}
-	return ""
-}
-
-type GetServerSubsResult struct {
-	state         protoimpl.MessageState           `protogen:"open.v1"`
-	List          []*GetServerSubsResult_ServerSub `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetServerSubsResult) Reset() {
-	*x = GetServerSubsResult{}
-	mi := &file_service_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetServerSubsResult) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetServerSubsResult) ProtoMessage() {}
-
-func (x *GetServerSubsResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetServerSubsResult.ProtoReflect.Descriptor instead.
-func (*GetServerSubsResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *GetServerSubsResult) GetList() []*GetServerSubsResult_ServerSub {
-	if x != nil {
-		return x.List
-	}
-	return nil
-}
-
-type PurchaseParams struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Server        string                 `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty"`
-	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PurchaseParams) Reset() {
-	*x = PurchaseParams{}
-	mi := &file_service_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PurchaseParams) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PurchaseParams) ProtoMessage() {}
-
-func (x *PurchaseParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PurchaseParams.ProtoReflect.Descriptor instead.
-func (*PurchaseParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *PurchaseParams) GetServer() string {
-	if x != nil {
-		return x.Server
-	}
-	return ""
-}
-
-func (x *PurchaseParams) GetValue() string {
-	if x != nil {
-		return x.Value
-	}
-	return ""
-}
-
-type PurchaseResult struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Tx            string                 `protobuf:"bytes,1,opt,name=tx,proto3" json:"tx,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PurchaseResult) Reset() {
-	*x = PurchaseResult{}
-	mi := &file_service_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PurchaseResult) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PurchaseResult) ProtoMessage() {}
-
-func (x *PurchaseResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PurchaseResult.ProtoReflect.Descriptor instead.
-func (*PurchaseResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *PurchaseResult) GetTx() string {
-	if x != nil {
-		return x.Tx
-	}
-	return ""
-}
-
-type ListPendingTxsParams struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListPendingTxsParams) Reset() {
-	*x = ListPendingTxsParams{}
-	mi := &file_service_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListPendingTxsParams) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListPendingTxsParams) ProtoMessage() {}
-
-func (x *ListPendingTxsParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListPendingTxsParams.ProtoReflect.Descriptor instead.
-func (*ListPendingTxsParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{16}
-}
-
-type ListPendingTxsResult struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Txs           []string               `protobuf:"bytes,1,rep,name=txs,proto3" json:"txs,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListPendingTxsResult) Reset() {
-	*x = ListPendingTxsResult{}
-	mi := &file_service_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListPendingTxsResult) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListPendingTxsResult) ProtoMessage() {}
-
-func (x *ListPendingTxsResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListPendingTxsResult.ProtoReflect.Descriptor instead.
-func (*ListPendingTxsResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *ListPendingTxsResult) GetTxs() []string {
+func (x *ListTxsResult) GetTxs() map[int64]*ListTxsResult_Tx {
 	if x != nil {
 		return x.Txs
 	}
 	return nil
 }
 
-type GetServerSubsResult_ServerSub struct {
+type SubmitTxParams struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Expire        *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=expire,proto3" json:"expire,omitempty"`
-	Remain        *durationpb.Duration   `protobuf:"bytes,2,opt,name=remain,proto3" json:"remain,omitempty"`
+	Server        int64                  `protobuf:"varint,1,opt,name=server,proto3" json:"server,omitempty"`
+	Tx            []byte                 `protobuf:"bytes,2,opt,name=tx,proto3" json:"tx,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetServerSubsResult_ServerSub) Reset() {
-	*x = GetServerSubsResult_ServerSub{}
-	mi := &file_service_proto_msgTypes[18]
+func (x *SubmitTxParams) Reset() {
+	*x = SubmitTxParams{}
+	mi := &file_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetServerSubsResult_ServerSub) String() string {
+func (x *SubmitTxParams) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetServerSubsResult_ServerSub) ProtoMessage() {}
+func (*SubmitTxParams) ProtoMessage() {}
 
-func (x *GetServerSubsResult_ServerSub) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[18]
+func (x *SubmitTxParams) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -896,21 +410,377 @@ func (x *GetServerSubsResult_ServerSub) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetServerSubsResult_ServerSub.ProtoReflect.Descriptor instead.
-func (*GetServerSubsResult_ServerSub) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{13, 0}
+// Deprecated: Use SubmitTxParams.ProtoReflect.Descriptor instead.
+func (*SubmitTxParams) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *GetServerSubsResult_ServerSub) GetExpire() *timestamppb.Timestamp {
+func (x *SubmitTxParams) GetServer() int64 {
 	if x != nil {
-		return x.Expire
+		return x.Server
+	}
+	return 0
+}
+
+func (x *SubmitTxParams) GetTx() []byte {
+	if x != nil {
+		return x.Tx
 	}
 	return nil
 }
 
-func (x *GetServerSubsResult_ServerSub) GetRemain() *durationpb.Duration {
+type SubmitTxResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tx            string                 `protobuf:"bytes,1,opt,name=tx,proto3" json:"tx,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubmitTxResult) Reset() {
+	*x = SubmitTxResult{}
+	mi := &file_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitTxResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitTxResult) ProtoMessage() {}
+
+func (x *SubmitTxResult) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitTxResult.ProtoReflect.Descriptor instead.
+func (*SubmitTxResult) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *SubmitTxResult) GetTx() string {
+	if x != nil {
+		return x.Tx
+	}
+	return ""
+}
+
+type ListServersResult_Info struct {
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	Version       string                        `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
+	Uptime        int64                         `protobuf:"varint,2,opt,name=uptime,proto3" json:"uptime,omitempty"`
+	Conns         int64                         `protobuf:"varint,3,opt,name=conns,proto3" json:"conns,omitempty"`
+	AllSubs       int64                         `protobuf:"varint,4,opt,name=allSubs,proto3" json:"allSubs,omitempty"`
+	Chain         string                        `protobuf:"bytes,5,opt,name=chain,proto3" json:"chain,omitempty"`
+	Height        int64                         `protobuf:"varint,6,opt,name=height,proto3" json:"height,omitempty"`
+	Address       string                        `protobuf:"bytes,7,opt,name=address,proto3" json:"address,omitempty"`
+	Rate          *ListServersResult_Info_Rate  `protobuf:"bytes,8,opt,name=rate,proto3" json:"rate,omitempty"`
+	Latency       int64                         `protobuf:"varint,9,opt,name=latency,proto3" json:"latency,omitempty"`
+	Subs          []*ListServersResult_Info_Sub `protobuf:"bytes,10,rep,name=subs,proto3" json:"subs,omitempty"`
+	Uri           string                        `protobuf:"bytes,11,opt,name=uri,proto3" json:"uri,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListServersResult_Info) Reset() {
+	*x = ListServersResult_Info{}
+	mi := &file_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListServersResult_Info) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListServersResult_Info) ProtoMessage() {}
+
+func (x *ListServersResult_Info) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListServersResult_Info.ProtoReflect.Descriptor instead.
+func (*ListServersResult_Info) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{4, 0}
+}
+
+func (x *ListServersResult_Info) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
+}
+
+func (x *ListServersResult_Info) GetUptime() int64 {
+	if x != nil {
+		return x.Uptime
+	}
+	return 0
+}
+
+func (x *ListServersResult_Info) GetConns() int64 {
+	if x != nil {
+		return x.Conns
+	}
+	return 0
+}
+
+func (x *ListServersResult_Info) GetAllSubs() int64 {
+	if x != nil {
+		return x.AllSubs
+	}
+	return 0
+}
+
+func (x *ListServersResult_Info) GetChain() string {
+	if x != nil {
+		return x.Chain
+	}
+	return ""
+}
+
+func (x *ListServersResult_Info) GetHeight() int64 {
+	if x != nil {
+		return x.Height
+	}
+	return 0
+}
+
+func (x *ListServersResult_Info) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *ListServersResult_Info) GetRate() *ListServersResult_Info_Rate {
+	if x != nil {
+		return x.Rate
+	}
+	return nil
+}
+
+func (x *ListServersResult_Info) GetLatency() int64 {
+	if x != nil {
+		return x.Latency
+	}
+	return 0
+}
+
+func (x *ListServersResult_Info) GetSubs() []*ListServersResult_Info_Sub {
+	if x != nil {
+		return x.Subs
+	}
+	return nil
+}
+
+func (x *ListServersResult_Info) GetUri() string {
+	if x != nil {
+		return x.Uri
+	}
+	return ""
+}
+
+type ListServersResult_Info_Rate struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Sub           string                 `protobuf:"bytes,1,opt,name=sub,proto3" json:"sub,omitempty"`
+	Div           string                 `protobuf:"bytes,2,opt,name=div,proto3" json:"div,omitempty"`
+	Mul           string                 `protobuf:"bytes,3,opt,name=mul,proto3" json:"mul,omitempty"`
+	Add           string                 `protobuf:"bytes,4,opt,name=add,proto3" json:"add,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListServersResult_Info_Rate) Reset() {
+	*x = ListServersResult_Info_Rate{}
+	mi := &file_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListServersResult_Info_Rate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListServersResult_Info_Rate) ProtoMessage() {}
+
+func (x *ListServersResult_Info_Rate) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListServersResult_Info_Rate.ProtoReflect.Descriptor instead.
+func (*ListServersResult_Info_Rate) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{4, 0, 0}
+}
+
+func (x *ListServersResult_Info_Rate) GetSub() string {
+	if x != nil {
+		return x.Sub
+	}
+	return ""
+}
+
+func (x *ListServersResult_Info_Rate) GetDiv() string {
+	if x != nil {
+		return x.Div
+	}
+	return ""
+}
+
+func (x *ListServersResult_Info_Rate) GetMul() string {
+	if x != nil {
+		return x.Mul
+	}
+	return ""
+}
+
+func (x *ListServersResult_Info_Rate) GetAdd() string {
+	if x != nil {
+		return x.Add
+	}
+	return ""
+}
+
+type ListServersResult_Info_Sub struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Expire        int64                  `protobuf:"varint,1,opt,name=expire,proto3" json:"expire,omitempty"`
+	Remain        int64                  `protobuf:"varint,2,opt,name=remain,proto3" json:"remain,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListServersResult_Info_Sub) Reset() {
+	*x = ListServersResult_Info_Sub{}
+	mi := &file_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListServersResult_Info_Sub) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListServersResult_Info_Sub) ProtoMessage() {}
+
+func (x *ListServersResult_Info_Sub) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListServersResult_Info_Sub.ProtoReflect.Descriptor instead.
+func (*ListServersResult_Info_Sub) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{4, 0, 1}
+}
+
+func (x *ListServersResult_Info_Sub) GetExpire() int64 {
+	if x != nil {
+		return x.Expire
+	}
+	return 0
+}
+
+func (x *ListServersResult_Info_Sub) GetRemain() int64 {
 	if x != nil {
 		return x.Remain
+	}
+	return 0
+}
+
+type ListTxsResult_Tx struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Hash          string                 `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	Server        string                 `protobuf:"bytes,2,opt,name=server,proto3" json:"server,omitempty"`
+	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	Tx            []byte                 `protobuf:"bytes,4,opt,name=tx,proto3" json:"tx,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListTxsResult_Tx) Reset() {
+	*x = ListTxsResult_Tx{}
+	mi := &file_service_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListTxsResult_Tx) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTxsResult_Tx) ProtoMessage() {}
+
+func (x *ListTxsResult_Tx) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTxsResult_Tx.ProtoReflect.Descriptor instead.
+func (*ListTxsResult_Tx) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{6, 0}
+}
+
+func (x *ListTxsResult_Tx) GetHash() string {
+	if x != nil {
+		return x.Hash
+	}
+	return ""
+}
+
+func (x *ListTxsResult_Tx) GetServer() string {
+	if x != nil {
+		return x.Server
+	}
+	return ""
+}
+
+func (x *ListTxsResult_Tx) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ListTxsResult_Tx) GetTx() []byte {
+	if x != nil {
+		return x.Tx
 	}
 	return nil
 }
@@ -919,62 +789,73 @@ var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
 	"\n" +
-	"\rservice.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"'\n" +
+	"\rservice.proto\"\a\n" +
+	"\x05Empty\"'\n" +
 	"\rConnectParams\x12\x16\n" +
-	"\x06server\x18\x01 \x01(\tR\x06server\"\x0f\n" +
-	"\rConnectResult\"\x12\n" +
-	"\x10DisconnectParams\"\x12\n" +
-	"\x10DisconnectResult\"\x0e\n" +
-	"\fStatusParams\"\xd7\x01\n" +
+	"\x06server\x18\x01 \x01(\x03R\x06server\"\xbc\x01\n" +
 	"\fStatusResult\x12\x18\n" +
-	"\aversion\x18\x01 \x01(\tR\aversion\x121\n" +
-	"\x06uptime\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x06uptime\x12\x18\n" +
+	"\aversion\x18\x01 \x01(\tR\aversion\x12\x16\n" +
+	"\x06uptime\x18\x02 \x01(\x03R\x06uptime\x12\x18\n" +
 	"\aaddress\x18\x03 \x01(\tR\aaddress\x12\x18\n" +
 	"\abalance\x18\x04 \x01(\tR\abalance\x12\x14\n" +
 	"\x05chain\x18\x05 \x01(\tR\x05chain\x12\x12\n" +
 	"\x04node\x18\x06 \x01(\tR\x04node\x12\x1c\n" +
-	"\tconnected\x18\b \x01(\bR\tconnected\",\n" +
-	"\x12DeleteServerParams\x12\x16\n" +
-	"\x06server\x18\x01 \x01(\tR\x06server\"\x14\n" +
-	"\x12DeleteServerResult\"\x13\n" +
-	"\x11ListServersParams\"-\n" +
-	"\x11ListServersResult\x12\x18\n" +
-	"\aservers\x18\x01 \x03(\tR\aservers\"-\n" +
-	"\x13GetServerInfoParams\x12\x16\n" +
-	"\x06server\x18\x01 \x01(\tR\x06server\"\xd4\x01\n" +
-	"\x13GetServerInfoResult\x12\x18\n" +
-	"\aversion\x18\x01 \x01(\tR\aversion\x121\n" +
-	"\x06uptime\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x06uptime\x12\x14\n" +
-	"\x05conns\x18\x03 \x01(\x03R\x05conns\x12\x12\n" +
-	"\x04subs\x18\x04 \x01(\x03R\x04subs\x12\x14\n" +
+	"\tconnected\x18\b \x01(\bR\tconnected\"?\n" +
+	"\x13ModifyServersParams\x12\x16\n" +
+	"\x06server\x18\x01 \x01(\tR\x06server\x12\x10\n" +
+	"\x03add\x18\x02 \x01(\bR\x03add\"\xec\x04\n" +
+	"\x11ListServersResult\x129\n" +
+	"\aservers\x18\x01 \x03(\v2\x1f.ListServersResult.ServersEntryR\aservers\x1a\xc6\x03\n" +
+	"\x04Info\x12\x18\n" +
+	"\aversion\x18\x01 \x01(\tR\aversion\x12\x16\n" +
+	"\x06uptime\x18\x02 \x01(\x03R\x06uptime\x12\x14\n" +
+	"\x05conns\x18\x03 \x01(\x03R\x05conns\x12\x18\n" +
+	"\aallSubs\x18\x04 \x01(\x03R\aallSubs\x12\x14\n" +
 	"\x05chain\x18\x05 \x01(\tR\x05chain\x12\x16\n" +
 	"\x06height\x18\x06 \x01(\x03R\x06height\x12\x18\n" +
-	"\aaddress\x18\a \x01(\tR\aaddress\"-\n" +
-	"\x13GetServerSubsParams\x12\x16\n" +
-	"\x06server\x18\x01 \x01(\tR\x06server\"\xbd\x01\n" +
-	"\x13GetServerSubsResult\x122\n" +
-	"\x04list\x18\x01 \x03(\v2\x1e.GetServerSubsResult.ServerSubR\x04list\x1ar\n" +
-	"\tServerSub\x122\n" +
-	"\x06expire\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x06expire\x121\n" +
-	"\x06remain\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x06remain\">\n" +
-	"\x0ePurchaseParams\x12\x16\n" +
-	"\x06server\x18\x01 \x01(\tR\x06server\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\" \n" +
-	"\x0ePurchaseResult\x12\x0e\n" +
-	"\x02tx\x18\x01 \x01(\tR\x02tx\"\x16\n" +
-	"\x14ListPendingTxsParams\"(\n" +
-	"\x14ListPendingTxsResult\x12\x10\n" +
-	"\x03txs\x18\x01 \x03(\tR\x03txs2\xa9\x03\n" +
-	"\aService\x12)\n" +
-	"\aConnect\x12\x0e.ConnectParams\x1a\x0e.ConnectResult\x122\n" +
+	"\aaddress\x18\a \x01(\tR\aaddress\x120\n" +
+	"\x04rate\x18\b \x01(\v2\x1c.ListServersResult.Info.RateR\x04rate\x12\x18\n" +
+	"\alatency\x18\t \x01(\x03R\alatency\x12/\n" +
+	"\x04subs\x18\n" +
+	" \x03(\v2\x1b.ListServersResult.Info.SubR\x04subs\x12\x10\n" +
+	"\x03uri\x18\v \x01(\tR\x03uri\x1aN\n" +
+	"\x04Rate\x12\x10\n" +
+	"\x03sub\x18\x01 \x01(\tR\x03sub\x12\x10\n" +
+	"\x03div\x18\x02 \x01(\tR\x03div\x12\x10\n" +
+	"\x03mul\x18\x03 \x01(\tR\x03mul\x12\x10\n" +
+	"\x03add\x18\x04 \x01(\tR\x03add\x1a5\n" +
+	"\x03Sub\x12\x16\n" +
+	"\x06expire\x18\x01 \x01(\x03R\x06expire\x12\x16\n" +
+	"\x06remain\x18\x02 \x01(\x03R\x06remain\x1aS\n" +
+	"\fServersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\x03R\x03key\x12-\n" +
+	"\x05value\x18\x02 \x01(\v2\x17.ListServersResult.InfoR\x05value:\x028\x01\"1\n" +
+	"\rListTxsParams\x12 \n" +
+	"\vcontinution\x18\x01 \x01(\x03R\vcontinution\"\xdf\x01\n" +
+	"\rListTxsResult\x12)\n" +
+	"\x03txs\x18\x01 \x03(\v2\x17.ListTxsResult.TxsEntryR\x03txs\x1aX\n" +
+	"\x02Tx\x12\x12\n" +
+	"\x04hash\x18\x01 \x01(\tR\x04hash\x12\x16\n" +
+	"\x06server\x18\x02 \x01(\tR\x06server\x12\x16\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\x12\x0e\n" +
+	"\x02tx\x18\x04 \x01(\fR\x02tx\x1aI\n" +
+	"\bTxsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\x03R\x03key\x12'\n" +
+	"\x05value\x18\x02 \x01(\v2\x11.ListTxsResult.TxR\x05value:\x028\x01\"8\n" +
+	"\x0eSubmitTxParams\x12\x16\n" +
+	"\x06server\x18\x01 \x01(\x03R\x06server\x12\x0e\n" +
+	"\x02tx\x18\x02 \x01(\fR\x02tx\" \n" +
+	"\x0eSubmitTxResult\x12\x0e\n" +
+	"\x02tx\x18\x01 \x01(\tR\x02tx2\x9e\x02\n" +
+	"\aService\x12!\n" +
+	"\aConnect\x12\x0e.ConnectParams\x1a\x06.Empty\x12\x1c\n" +
 	"\n" +
-	"Disconnect\x12\x11.DisconnectParams\x1a\x11.DisconnectResult\x12&\n" +
-	"\x06Status\x12\r.StatusParams\x1a\r.StatusResult\x128\n" +
-	"\fDeleteServer\x12\x13.DeleteServerParams\x1a\x13.DeleteServerResult\x125\n" +
-	"\vListServers\x12\x12.ListServersParams\x1a\x12.ListServersResult\x12;\n" +
-	"\rGetServerInfo\x12\x14.GetServerInfoParams\x1a\x14.GetServerInfoResult\x12;\n" +
-	"\rGetServerSubs\x12\x14.GetServerSubsParams\x1a\x14.GetServerSubsResult\x12,\n" +
-	"\bPurchase\x12\x0f.PurchaseParams\x1a\x0f.PurchaseResultB\aZ\x05../pbb\x06proto3"
+	"Disconnect\x12\x06.Empty\x1a\x06.Empty\x12\x1f\n" +
+	"\x06Status\x12\x06.Empty\x1a\r.StatusResult\x12-\n" +
+	"\rModifyServers\x12\x14.ModifyServersParams\x1a\x06.Empty\x12)\n" +
+	"\vListServers\x12\x06.Empty\x1a\x12.ListServersResult\x12)\n" +
+	"\aListTxs\x12\x0e.ListTxsParams\x1a\x0e.ListTxsResult\x12,\n" +
+	"\bSubmitTx\x12\x0f.SubmitTxParams\x1a\x0f.SubmitTxResultB\aZ\x05../pbb\x06proto3"
 
 var (
 	file_service_proto_rawDescOnce sync.Once
@@ -988,57 +869,50 @@ func file_service_proto_rawDescGZIP() []byte {
 	return file_service_proto_rawDescData
 }
 
-var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_service_proto_goTypes = []any{
-	(*ConnectParams)(nil),                 // 0: ConnectParams
-	(*ConnectResult)(nil),                 // 1: ConnectResult
-	(*DisconnectParams)(nil),              // 2: DisconnectParams
-	(*DisconnectResult)(nil),              // 3: DisconnectResult
-	(*StatusParams)(nil),                  // 4: StatusParams
-	(*StatusResult)(nil),                  // 5: StatusResult
-	(*DeleteServerParams)(nil),            // 6: DeleteServerParams
-	(*DeleteServerResult)(nil),            // 7: DeleteServerResult
-	(*ListServersParams)(nil),             // 8: ListServersParams
-	(*ListServersResult)(nil),             // 9: ListServersResult
-	(*GetServerInfoParams)(nil),           // 10: GetServerInfoParams
-	(*GetServerInfoResult)(nil),           // 11: GetServerInfoResult
-	(*GetServerSubsParams)(nil),           // 12: GetServerSubsParams
-	(*GetServerSubsResult)(nil),           // 13: GetServerSubsResult
-	(*PurchaseParams)(nil),                // 14: PurchaseParams
-	(*PurchaseResult)(nil),                // 15: PurchaseResult
-	(*ListPendingTxsParams)(nil),          // 16: ListPendingTxsParams
-	(*ListPendingTxsResult)(nil),          // 17: ListPendingTxsResult
-	(*GetServerSubsResult_ServerSub)(nil), // 18: GetServerSubsResult.ServerSub
-	(*durationpb.Duration)(nil),           // 19: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil),         // 20: google.protobuf.Timestamp
+	(*Empty)(nil),                       // 0: Empty
+	(*ConnectParams)(nil),               // 1: ConnectParams
+	(*StatusResult)(nil),                // 2: StatusResult
+	(*ModifyServersParams)(nil),         // 3: ModifyServersParams
+	(*ListServersResult)(nil),           // 4: ListServersResult
+	(*ListTxsParams)(nil),               // 5: ListTxsParams
+	(*ListTxsResult)(nil),               // 6: ListTxsResult
+	(*SubmitTxParams)(nil),              // 7: SubmitTxParams
+	(*SubmitTxResult)(nil),              // 8: SubmitTxResult
+	(*ListServersResult_Info)(nil),      // 9: ListServersResult.Info
+	nil,                                 // 10: ListServersResult.ServersEntry
+	(*ListServersResult_Info_Rate)(nil), // 11: ListServersResult.Info.Rate
+	(*ListServersResult_Info_Sub)(nil),  // 12: ListServersResult.Info.Sub
+	(*ListTxsResult_Tx)(nil),            // 13: ListTxsResult.Tx
+	nil,                                 // 14: ListTxsResult.TxsEntry
 }
 var file_service_proto_depIdxs = []int32{
-	19, // 0: StatusResult.uptime:type_name -> google.protobuf.Duration
-	19, // 1: GetServerInfoResult.uptime:type_name -> google.protobuf.Duration
-	18, // 2: GetServerSubsResult.list:type_name -> GetServerSubsResult.ServerSub
-	20, // 3: GetServerSubsResult.ServerSub.expire:type_name -> google.protobuf.Timestamp
-	19, // 4: GetServerSubsResult.ServerSub.remain:type_name -> google.protobuf.Duration
-	0,  // 5: Service.Connect:input_type -> ConnectParams
-	2,  // 6: Service.Disconnect:input_type -> DisconnectParams
-	4,  // 7: Service.Status:input_type -> StatusParams
-	6,  // 8: Service.DeleteServer:input_type -> DeleteServerParams
-	8,  // 9: Service.ListServers:input_type -> ListServersParams
-	10, // 10: Service.GetServerInfo:input_type -> GetServerInfoParams
-	12, // 11: Service.GetServerSubs:input_type -> GetServerSubsParams
-	14, // 12: Service.Purchase:input_type -> PurchaseParams
-	1,  // 13: Service.Connect:output_type -> ConnectResult
-	3,  // 14: Service.Disconnect:output_type -> DisconnectResult
-	5,  // 15: Service.Status:output_type -> StatusResult
-	7,  // 16: Service.DeleteServer:output_type -> DeleteServerResult
-	9,  // 17: Service.ListServers:output_type -> ListServersResult
-	11, // 18: Service.GetServerInfo:output_type -> GetServerInfoResult
-	13, // 19: Service.GetServerSubs:output_type -> GetServerSubsResult
-	15, // 20: Service.Purchase:output_type -> PurchaseResult
-	13, // [13:21] is the sub-list for method output_type
-	5,  // [5:13] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	10, // 0: ListServersResult.servers:type_name -> ListServersResult.ServersEntry
+	14, // 1: ListTxsResult.txs:type_name -> ListTxsResult.TxsEntry
+	11, // 2: ListServersResult.Info.rate:type_name -> ListServersResult.Info.Rate
+	12, // 3: ListServersResult.Info.subs:type_name -> ListServersResult.Info.Sub
+	9,  // 4: ListServersResult.ServersEntry.value:type_name -> ListServersResult.Info
+	13, // 5: ListTxsResult.TxsEntry.value:type_name -> ListTxsResult.Tx
+	1,  // 6: Service.Connect:input_type -> ConnectParams
+	0,  // 7: Service.Disconnect:input_type -> Empty
+	0,  // 8: Service.Status:input_type -> Empty
+	3,  // 9: Service.ModifyServers:input_type -> ModifyServersParams
+	0,  // 10: Service.ListServers:input_type -> Empty
+	5,  // 11: Service.ListTxs:input_type -> ListTxsParams
+	7,  // 12: Service.SubmitTx:input_type -> SubmitTxParams
+	0,  // 13: Service.Connect:output_type -> Empty
+	0,  // 14: Service.Disconnect:output_type -> Empty
+	2,  // 15: Service.Status:output_type -> StatusResult
+	0,  // 16: Service.ModifyServers:output_type -> Empty
+	4,  // 17: Service.ListServers:output_type -> ListServersResult
+	6,  // 18: Service.ListTxs:output_type -> ListTxsResult
+	8,  // 19: Service.SubmitTx:output_type -> SubmitTxResult
+	13, // [13:20] is the sub-list for method output_type
+	6,  // [6:13] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_service_proto_init() }
@@ -1052,7 +926,7 @@ func file_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_proto_rawDesc), len(file_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   19,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

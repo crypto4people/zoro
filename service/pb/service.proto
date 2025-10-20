@@ -1,41 +1,28 @@
 syntax = "proto3";
 
-import "google/protobuf/duration.proto";
-import "google/protobuf/timestamp.proto";
-
 option go_package = "../pb";
 
 service Service {
-    rpc Connect(ConnectParams) returns (ConnectResult);
-    rpc Disconnect(DisconnectParams) returns (DisconnectResult);
-    rpc Status(StatusParams) returns (StatusResult);
-    rpc DeleteServer(DeleteServerParams) returns (DeleteServerResult);
-    rpc ListServers(ListServersParams) returns (ListServersResult);
-    rpc GetServerInfo(GetServerInfoParams) returns (GetServerInfoResult);
-    rpc GetServerSubs(GetServerSubsParams) returns (GetServerSubsResult);
-    rpc Purchase(PurchaseParams) returns (PurchaseResult);
+    rpc Connect(ConnectParams) returns (Empty);
+    rpc Disconnect(Empty) returns (Empty);
+    rpc Status(Empty) returns (StatusResult);
+
+    rpc ModifyServers(ModifyServersParams) returns (Empty);
+    rpc ListServers(Empty) returns (ListServersResult);
+
+    rpc ListTxs(ListTxsParams) returns (ListTxsResult);
+    rpc SubmitTx(SubmitTxParams) returns (SubmitTxResult);
 }
+
+message Empty{}
 
 message ConnectParams {
-    string server = 1;
-}
-
-message ConnectResult {
-}
-
-message DisconnectParams {
-}
-
-message DisconnectResult {
-}
-
-message StatusParams {
-
+    int64 server = 1;
 }
 
 message StatusResult {
     string version = 1;
-    google.protobuf.Duration uptime = 2;
+    int64 uptime = 2;
     string address = 3;
     string balance = 4;
     string chain = 5;
@@ -44,61 +31,57 @@ message StatusResult {
 }
 
 
-message DeleteServerParams {
+message ModifyServersParams {
     string server = 1;
-}
-
-message DeleteServerResult {
-    
-}
-
-message ListServersParams {   
+    bool add = 2;
 }
 
 message ListServersResult {
-    repeated string servers = 1;
-}
-
-
-message GetServerInfoParams {
-    string server = 1;
-}
-
-message GetServerInfoResult {
-    string version = 1;
-    google.protobuf.Duration uptime = 2;
-    int64 conns  = 3;
-    int64 subs = 4;
-    string chain = 5;
-    int64 height = 6;
-    string address = 7;
-}
-
-message GetServerSubsParams {
-    string server = 1;
-}
-
-message GetServerSubsResult {
-    message ServerSub {
-        google.protobuf.Timestamp expire = 1;
-	    google.protobuf.Duration remain = 2;
+    message Info {
+        string version = 1;
+        int64 uptime = 2;
+        int64 conns  = 3;
+        int64 allSubs = 4;
+        string chain = 5;
+        int64 height = 6;
+        string address = 7;
+        message Rate {
+            string sub = 1;
+            string div = 2;
+            string mul = 3;
+            string add = 4;
+        }
+        Rate rate = 8;
+        int64 latency = 9;
+        message Sub {
+            int64 expire = 1;
+            int64 remain = 2;
+        }
+        repeated Sub subs = 10;
+        string uri = 11;
     }
-    repeated ServerSub list = 1;
+    map<int64,Info> servers = 1;
 }
 
-message PurchaseParams {
-    string server = 1;
-    string value = 2;
+message ListTxsParams {
+    int64 continution = 1;
+}   
+
+message ListTxsResult {
+    message Tx {
+        string hash = 1;
+        string server = 2;
+        string status = 3;
+        bytes tx = 4;
+    }
+    map<int64, Tx> txs = 1;    
 }
 
-message PurchaseResult {
+message SubmitTxParams {
+    int64 server = 1;
+    bytes tx = 2;
+}
+
+message SubmitTxResult {
    string tx = 1;
-}
-
-message ListPendingTxsParams {
-
-}
-
-message ListPendingTxsResult {
-    repeated string txs = 1;    
 }
