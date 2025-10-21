@@ -117,10 +117,10 @@ func (client *Client) GetNonce(ctx context.Context) (uint64, error) {
 	return strconv.ParseUint(result, 10, 32)
 }
 
-func (client *Client) GetReceipt(ctx context.Context, hash common.Hash) (*types.Transaction, error) {
+func (client *Client) GetReceipt(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
 	url, err := url.Parse(client.endpoint)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	url.Path = path.Join(url.Path, "eth/receipt")
@@ -131,32 +131,29 @@ func (client *Client) GetReceipt(ctx context.Context, hash common.Hash) (*types.
 
 	result, err := doJsonRequest[types.Transaction](ctx, client.httpClient, url.String(), http.NoBody)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
-	return result, nil
+	//todo fix get reicept
+	return result, false, nil
 }
 
-func (client *Client) SubmitTx(ctx context.Context, tx *types.Transaction) (common.Hash, error) {
-	zero := common.Hash{}
+func (client *Client) SubmitTx(ctx context.Context, tx *types.Transaction) error {
 
 	url, err := url.Parse(client.endpoint)
 	if err != nil {
-		return zero, err
+		return err
 	}
 	url.Path = path.Join(url.Path, "eth/submit")
 
 	jsonTx, err := tx.MarshalJSON()
 	if err != nil {
-		return zero, err
+		return err
 	}
 
-	result, err := doPlainRequest(ctx, client.httpClient, url.String(), bytes.NewReader(jsonTx))
-	if err != nil {
-		return zero, err
-	}
+	_, err = doPlainRequest(ctx, client.httpClient, url.String(), bytes.NewReader(jsonTx))
 
-	return common.HexToHash(result), nil
+	return err
 }
 
 func doPlainRequest(ctx context.Context, client *http.Client, endpoint string, body io.Reader) (string, error) {

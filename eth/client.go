@@ -22,5 +22,6 @@ type Client interface {
 	NonceOf(ctx context.Context, account common.Address) (uint64, error)
 	Submit(ctx context.Context, tx *types.Transaction) error
 	Receipt(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error)
+	GasPrice(ctx context.Context) (*big.Int, error)
 	Receives(ctx context.Context, block int64) (iter.Seq2[common.Address, *types.Transaction], error)
 }

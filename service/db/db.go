@@ -1,36 +1,58 @@
+//go:generate go run github.com/objectbox/objectbox-go/cmd/objectbox-gogen -byValue
+
 package db
 
 import (
-	"zoro/service/db/model"
-
-	"github.com/objectbox/objectbox-go/objectbox"
+	"time"
 )
 
-type Database struct {
-	ob            *objectbox.ObjectBox
-	TxBox         *model.TxBox
-	ServerBox     *model.ServerBox
-	ServerInfoBox *model.ServerInfoBox
-	ServerRateBox *model.ServerRateBox
-	ServerSubsBox *model.ServerSubsBox
+type TxStatus int32
+
+const (
+	TxStatusFail TxStatus = -1
+	TxStatusPend TxStatus = 0
+	TxStatusDone TxStatus = 1
+)
+
+type Setting struct {
+	ID    uint64 `objectbox:"id"`
+	Key   string `objectbox:"unique"`
+	Value string
 }
 
-func New(obPath string) (*Database, error) {
-	ob, err := objectbox.NewBuilder().Model(model.ObjectBoxModel()).Directory(obPath).Build()
-	if err != nil {
-		return nil, err
-	}
-
-	return &Database{
-		ob:            ob,
-		TxBox:         model.BoxForTx(ob),
-		ServerBox:     model.BoxForServer(ob),
-		ServerInfoBox: model.BoxForServerInfo(ob),
-		ServerRateBox: model.BoxForServerRate(ob),
-		ServerSubsBox: model.BoxForServerSubs(ob),
-	}, nil
+type Server struct {
+	ID       uint64 `objectbox:"id"`
+	URL      string `objectbox:"unique"`
+	Version  string
+	Uptime   int64
+	Conns    int64
+	Subs     int64
+	Height   int64
+	Account  []byte
+	GasPrice string
+	Balance  string
+	RateFeed []byte
+	RateSub  string
+	RateDiv  string
+	RateMul  string
+	RateAdd  string
+	Latency  int64
+	Time     time.Time `objectbox:"date-nano"`
+	MySubs   []Sub     `objectbox:"link"`
 }
 
-func (db *Database) Close() {
-	db.ob.Close()
+type Sub struct {
+	ID     uint64 `objectbox:"id"`
+	Server string `objectbox:"index"`
+	Expire int    `objectbox:"index"`
+	Remain int    `objectbox:"index"`
+	Tx     []byte `objectbox:"unique"`
+}
+
+type Tx struct {
+	ID     uint64 `objectbox:"id"`
+	Server string
+	Status TxStatus  `objectbox:"index"`
+	Hash   []byte    `objectbox:"unique"`
+	Time   time.Time `objectbox:"date-nano"`
 }

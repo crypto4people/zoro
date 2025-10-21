@@ -50,18 +50,18 @@ func NewClient(ctx context.Context, cc grpc.ClientConnInterface, config HubClien
 		return nil, err
 	}
 
-	if len(info.Ratefeed) != 20 {
+	if len(info.RateFeed) != 20 {
 		return nil, errors.New("invalid ratefeed address length")
 	}
 	if info.Chain == "" {
 		return nil, errors.New("empty chain id")
 	}
 
-	if info.Blocktime == nil {
+	if info.BlockTime == nil {
 		return nil, errors.New("missing block time")
 	}
 
-	if info.Blocktime.AsDuration() <= time.Second {
+	if info.BlockTime.AsDuration() <= time.Second {
 		return nil, errors.New("invalid block time")
 	}
 
@@ -107,11 +107,11 @@ func (client *hubClient) Chain() string {
 }
 
 func (client *hubClient) BlockTime() time.Duration {
-	return client.info.Blocktime.AsDuration()
+	return client.info.BlockTime.AsDuration()
 }
 
 func (client *hubClient) RateFeed() common.Address {
-	return common.BytesToAddress(client.info.Ratefeed)
+	return common.BytesToAddress(client.info.RateFeed)
 }
 
 func (client *hubClient) BalanceOf(ctx context.Context, account common.Address) (*big.Int, error) {
@@ -122,21 +122,37 @@ func (client *hubClient) BalanceOf(ctx context.Context, account common.Address) 
 	if err != nil {
 		return nil, err
 	}
-	return parseBigInt(res.Balance)
+	return misc.ParseBigInt(res.Balance)
+}
+
+func (client *hubClient) GasPrice(ctx context.Context) (*big.Int, error) {
+	info, err := client.getInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return misc.ParseBigInt(info.GasPrice)
 }
 
 func (client *hubClient) FinalHeight(ctx context.Context) (int64, error) {
-	info, err := client.client.Info(ctx, nil)
+	info, err := client.getInfo(ctx)
 	if err != nil {
 		return 0, err
 	}
-	if info.Chain != client.info.Chain || bytes.Equal(info.Ratefeed, client.info.Ratefeed) {
-		return 0, errors.New("inconsistent indexer info")
+	return info.Height, nil
+}
+
+func (client *hubClient) getInfo(ctx context.Context) (*pb.InfoResult, error) {
+	info, err := client.client.Info(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	if info.Chain != client.info.Chain || bytes.Equal(info.RateFeed, client.info.RateFeed) {
+		return nil, errors.New("inconsistent indexer info")
 	}
 	if info.Height <= 0 {
-		return 0, errors.New("invalid height")
+		return nil, errors.New("invalid height")
 	}
-	return info.Height, nil
+	return info, nil
 }
 
 func (client *hubClient) NonceOf(ctx context.Context, account common.Address) (uint64, error) {
@@ -154,7 +170,7 @@ func (client *hubClient) RateAt(ctx context.Context, block int64) (*rate.Rate, e
 	res, err := client.client.RateAt(ctx, &pb.RateAtParams{
 		Block:    block,
 		Chain:    client.info.Chain,
-		Ratefeed: client.info.Ratefeed,
+		Ratefeed: client.info.RateFeed,
 	})
 	if err != nil {
 		return nil, err
@@ -237,33 +253,25 @@ func (client *hubClient) Submit(ctx context.Context, tx *types.Transaction) (err
 	return err
 }
 
-func parseBigInt(str string) (*big.Int, error) {
-	bi, ok := new(big.Int).SetString(str, 10)
-	if !ok {
-		return nil, fmt.Errorf("failed to parse big int %q", str)
-	}
-	return bi, nil
-}
-
 func parseRatePb(res *pb.RateAtResult) (r *rate.Rate, err error) {
 	r = &rate.Rate{}
 
-	r.Sub, err = parseBigInt(res.Sub)
+	r.Sub, err = misc.ParseBigInt(res.Sub)
 	if err != nil {
 		return nil, err
 	}
 
-	r.Div, err = parseBigInt(res.Div)
+	r.Div, err = misc.ParseBigInt(res.Div)
 	if err != nil {
 		return nil, err
 	}
 
-	r.Mul, err = parseBigInt(res.Mul)
+	r.Mul, err = misc.ParseBigInt(res.Mul)
 	if err != nil {
 		return nil, err
 	}
 
-	r.Add, err = parseBigInt(res.Add)
+	r.Add, err = misc.ParseBigInt(res.Add)
 	if err != nil {
 		return nil, err
 	}

@@ -52,9 +52,9 @@ type Server struct {
 
 type Info struct {
 	Version  string
-	Uptime   int
-	Conns    int
-	Subs     int
+	Uptime   int64
+	Conns    int64
+	Subs     int64
 	Chain    string
 	Height   int64
 	RateFeed common.Address
@@ -88,10 +88,10 @@ func (server *Server) Info(ctx context.Context, user common.Address) (*Info, err
 
 	return &Info{
 		Version:  version,
-		Conns:    int(server.proxy.congestion.Count()),
-		Subs:     int(server.db.subs.Load()),
+		Conns:    int64(server.proxy.congestion.Count()),
+		Subs:     int64(server.db.subs.Load()),
 		Chain:    server.ethClient.Chain(),
-		Uptime:   int(time.Since(server.uptime).Milliseconds()) / 1000,
+		Uptime:   time.Since(server.uptime).Milliseconds() / 1000,
 		Account:  account,
 		Height:   server.db.height.Load(),
 		RateFeed: server.ethClient.RateFeed(),

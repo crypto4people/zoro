@@ -28,8 +28,9 @@ message InfoResult {
   int64 height = 2;
   google.protobuf.Duration uptime = 3;
   string chain = 4;
-  bytes ratefeed = 5;
-  google.protobuf.Duration blocktime = 6;
+  bytes rate_feed = 5;
+  google.protobuf.Duration block_time = 6;
+  string gas_price = 7;
 }
 
 message NonceOfParams {

@@ -59,7 +59,7 @@ func (*Empty) Descriptor() ([]byte, []int) {
 
 type ConnectParams struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Server        int64                  `protobuf:"varint,1,opt,name=server,proto3" json:"server,omitempty"`
+	Server        string                 `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -94,11 +94,11 @@ func (*ConnectParams) Descriptor() ([]byte, []int) {
 	return file_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ConnectParams) GetServer() int64 {
+func (x *ConnectParams) GetServer() string {
 	if x != nil {
 		return x.Server
 	}
-	return 0
+	return ""
 }
 
 type StatusResult struct {
@@ -106,10 +106,9 @@ type StatusResult struct {
 	Version       string                 `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
 	Uptime        int64                  `protobuf:"varint,2,opt,name=uptime,proto3" json:"uptime,omitempty"`
 	Address       string                 `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
-	Balance       string                 `protobuf:"bytes,4,opt,name=balance,proto3" json:"balance,omitempty"`
-	Chain         string                 `protobuf:"bytes,5,opt,name=chain,proto3" json:"chain,omitempty"`
-	Node          string                 `protobuf:"bytes,6,opt,name=node,proto3" json:"node,omitempty"`
-	Connected     bool                   `protobuf:"varint,8,opt,name=connected,proto3" json:"connected,omitempty"`
+	Chain         string                 `protobuf:"bytes,4,opt,name=chain,proto3" json:"chain,omitempty"`
+	Balance       string                 `protobuf:"bytes,5,opt,name=balance,proto3" json:"balance,omitempty"`
+	Connected     bool                   `protobuf:"varint,6,opt,name=connected,proto3" json:"connected,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -165,13 +164,6 @@ func (x *StatusResult) GetAddress() string {
 	return ""
 }
 
-func (x *StatusResult) GetBalance() string {
-	if x != nil {
-		return x.Balance
-	}
-	return ""
-}
-
 func (x *StatusResult) GetChain() string {
 	if x != nil {
 		return x.Chain
@@ -179,9 +171,9 @@ func (x *StatusResult) GetChain() string {
 	return ""
 }
 
-func (x *StatusResult) GetNode() string {
+func (x *StatusResult) GetBalance() string {
 	if x != nil {
-		return x.Node
+		return x.Balance
 	}
 	return ""
 }
@@ -246,8 +238,8 @@ func (x *ModifyServersParams) GetAdd() bool {
 }
 
 type ListServersResult struct {
-	state         protoimpl.MessageState            `protogen:"open.v1"`
-	Servers       map[int64]*ListServersResult_Info `protobuf:"bytes,1,rep,name=servers,proto3" json:"servers,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Infos         []*ListServersResult_Info `protobuf:"bytes,1,rep,name=infos,proto3" json:"infos,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -282,9 +274,9 @@ func (*ListServersResult) Descriptor() ([]byte, []int) {
 	return file_service_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ListServersResult) GetServers() map[int64]*ListServersResult_Info {
+func (x *ListServersResult) GetInfos() []*ListServersResult_Info {
 	if x != nil {
-		return x.Servers
+		return x.Infos
 	}
 	return nil
 }
@@ -609,7 +601,7 @@ type ListServersResult_Info_Rate struct {
 
 func (x *ListServersResult_Info_Rate) Reset() {
 	*x = ListServersResult_Info_Rate{}
-	mi := &file_service_proto_msgTypes[11]
+	mi := &file_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -621,7 +613,7 @@ func (x *ListServersResult_Info_Rate) String() string {
 func (*ListServersResult_Info_Rate) ProtoMessage() {}
 
 func (x *ListServersResult_Info_Rate) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[11]
+	mi := &file_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -675,7 +667,7 @@ type ListServersResult_Info_Sub struct {
 
 func (x *ListServersResult_Info_Sub) Reset() {
 	*x = ListServersResult_Info_Sub{}
-	mi := &file_service_proto_msgTypes[12]
+	mi := &file_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -687,7 +679,7 @@ func (x *ListServersResult_Info_Sub) String() string {
 func (*ListServersResult_Info_Sub) ProtoMessage() {}
 
 func (x *ListServersResult_Info_Sub) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[12]
+	mi := &file_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -729,7 +721,7 @@ type ListTxsResult_Tx struct {
 
 func (x *ListTxsResult_Tx) Reset() {
 	*x = ListTxsResult_Tx{}
-	mi := &file_service_proto_msgTypes[13]
+	mi := &file_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -741,7 +733,7 @@ func (x *ListTxsResult_Tx) String() string {
 func (*ListTxsResult_Tx) ProtoMessage() {}
 
 func (x *ListTxsResult_Tx) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[13]
+	mi := &file_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -792,20 +784,19 @@ const file_service_proto_rawDesc = "" +
 	"\rservice.proto\"\a\n" +
 	"\x05Empty\"'\n" +
 	"\rConnectParams\x12\x16\n" +
-	"\x06server\x18\x01 \x01(\x03R\x06server\"\xbc\x01\n" +
+	"\x06server\x18\x01 \x01(\tR\x06server\"\xa8\x01\n" +
 	"\fStatusResult\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12\x16\n" +
 	"\x06uptime\x18\x02 \x01(\x03R\x06uptime\x12\x18\n" +
-	"\aaddress\x18\x03 \x01(\tR\aaddress\x12\x18\n" +
-	"\abalance\x18\x04 \x01(\tR\abalance\x12\x14\n" +
-	"\x05chain\x18\x05 \x01(\tR\x05chain\x12\x12\n" +
-	"\x04node\x18\x06 \x01(\tR\x04node\x12\x1c\n" +
-	"\tconnected\x18\b \x01(\bR\tconnected\"?\n" +
+	"\aaddress\x18\x03 \x01(\tR\aaddress\x12\x14\n" +
+	"\x05chain\x18\x04 \x01(\tR\x05chain\x12\x18\n" +
+	"\abalance\x18\x05 \x01(\tR\abalance\x12\x1c\n" +
+	"\tconnected\x18\x06 \x01(\bR\tconnected\"?\n" +
 	"\x13ModifyServersParams\x12\x16\n" +
 	"\x06server\x18\x01 \x01(\tR\x06server\x12\x10\n" +
-	"\x03add\x18\x02 \x01(\bR\x03add\"\xec\x04\n" +
-	"\x11ListServersResult\x129\n" +
-	"\aservers\x18\x01 \x03(\v2\x1f.ListServersResult.ServersEntryR\aservers\x1a\xc6\x03\n" +
+	"\x03add\x18\x02 \x01(\bR\x03add\"\x8b\x04\n" +
+	"\x11ListServersResult\x12-\n" +
+	"\x05infos\x18\x01 \x03(\v2\x17.ListServersResult.InfoR\x05infos\x1a\xc6\x03\n" +
 	"\x04Info\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12\x16\n" +
 	"\x06uptime\x18\x02 \x01(\x03R\x06uptime\x12\x14\n" +
@@ -826,10 +817,7 @@ const file_service_proto_rawDesc = "" +
 	"\x03add\x18\x04 \x01(\tR\x03add\x1a5\n" +
 	"\x03Sub\x12\x16\n" +
 	"\x06expire\x18\x01 \x01(\x03R\x06expire\x12\x16\n" +
-	"\x06remain\x18\x02 \x01(\x03R\x06remain\x1aS\n" +
-	"\fServersEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\x03R\x03key\x12-\n" +
-	"\x05value\x18\x02 \x01(\v2\x17.ListServersResult.InfoR\x05value:\x028\x01\"1\n" +
+	"\x06remain\x18\x02 \x01(\x03R\x06remain\"1\n" +
 	"\rListTxsParams\x12 \n" +
 	"\vcontinution\x18\x01 \x01(\x03R\vcontinution\"\xdf\x01\n" +
 	"\rListTxsResult\x12)\n" +
@@ -869,7 +857,7 @@ func file_service_proto_rawDescGZIP() []byte {
 	return file_service_proto_rawDescData
 }
 
-var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_service_proto_goTypes = []any{
 	(*Empty)(nil),                       // 0: Empty
 	(*ConnectParams)(nil),               // 1: ConnectParams
@@ -881,38 +869,36 @@ var file_service_proto_goTypes = []any{
 	(*SubmitTxParams)(nil),              // 7: SubmitTxParams
 	(*SubmitTxResult)(nil),              // 8: SubmitTxResult
 	(*ListServersResult_Info)(nil),      // 9: ListServersResult.Info
-	nil,                                 // 10: ListServersResult.ServersEntry
-	(*ListServersResult_Info_Rate)(nil), // 11: ListServersResult.Info.Rate
-	(*ListServersResult_Info_Sub)(nil),  // 12: ListServersResult.Info.Sub
-	(*ListTxsResult_Tx)(nil),            // 13: ListTxsResult.Tx
-	nil,                                 // 14: ListTxsResult.TxsEntry
+	(*ListServersResult_Info_Rate)(nil), // 10: ListServersResult.Info.Rate
+	(*ListServersResult_Info_Sub)(nil),  // 11: ListServersResult.Info.Sub
+	(*ListTxsResult_Tx)(nil),            // 12: ListTxsResult.Tx
+	nil,                                 // 13: ListTxsResult.TxsEntry
 }
 var file_service_proto_depIdxs = []int32{
-	10, // 0: ListServersResult.servers:type_name -> ListServersResult.ServersEntry
-	14, // 1: ListTxsResult.txs:type_name -> ListTxsResult.TxsEntry
-	11, // 2: ListServersResult.Info.rate:type_name -> ListServersResult.Info.Rate
-	12, // 3: ListServersResult.Info.subs:type_name -> ListServersResult.Info.Sub
-	9,  // 4: ListServersResult.ServersEntry.value:type_name -> ListServersResult.Info
-	13, // 5: ListTxsResult.TxsEntry.value:type_name -> ListTxsResult.Tx
-	1,  // 6: Service.Connect:input_type -> ConnectParams
-	0,  // 7: Service.Disconnect:input_type -> Empty
-	0,  // 8: Service.Status:input_type -> Empty
-	3,  // 9: Service.ModifyServers:input_type -> ModifyServersParams
-	0,  // 10: Service.ListServers:input_type -> Empty
-	5,  // 11: Service.ListTxs:input_type -> ListTxsParams
-	7,  // 12: Service.SubmitTx:input_type -> SubmitTxParams
-	0,  // 13: Service.Connect:output_type -> Empty
-	0,  // 14: Service.Disconnect:output_type -> Empty
-	2,  // 15: Service.Status:output_type -> StatusResult
-	0,  // 16: Service.ModifyServers:output_type -> Empty
-	4,  // 17: Service.ListServers:output_type -> ListServersResult
-	6,  // 18: Service.ListTxs:output_type -> ListTxsResult
-	8,  // 19: Service.SubmitTx:output_type -> SubmitTxResult
-	13, // [13:20] is the sub-list for method output_type
-	6,  // [6:13] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	9,  // 0: ListServersResult.infos:type_name -> ListServersResult.Info
+	13, // 1: ListTxsResult.txs:type_name -> ListTxsResult.TxsEntry
+	10, // 2: ListServersResult.Info.rate:type_name -> ListServersResult.Info.Rate
+	11, // 3: ListServersResult.Info.subs:type_name -> ListServersResult.Info.Sub
+	12, // 4: ListTxsResult.TxsEntry.value:type_name -> ListTxsResult.Tx
+	1,  // 5: Service.Connect:input_type -> ConnectParams
+	0,  // 6: Service.Disconnect:input_type -> Empty
+	0,  // 7: Service.Status:input_type -> Empty
+	3,  // 8: Service.ModifyServers:input_type -> ModifyServersParams
+	0,  // 9: Service.ListServers:input_type -> Empty
+	5,  // 10: Service.ListTxs:input_type -> ListTxsParams
+	7,  // 11: Service.SubmitTx:input_type -> SubmitTxParams
+	0,  // 12: Service.Connect:output_type -> Empty
+	0,  // 13: Service.Disconnect:output_type -> Empty
+	2,  // 14: Service.Status:output_type -> StatusResult
+	0,  // 15: Service.ModifyServers:output_type -> Empty
+	4,  // 16: Service.ListServers:output_type -> ListServersResult
+	6,  // 17: Service.ListTxs:output_type -> ListTxsResult
+	8,  // 18: Service.SubmitTx:output_type -> SubmitTxResult
+	12, // [12:19] is the sub-list for method output_type
+	5,  // [5:12] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_service_proto_init() }
@@ -926,7 +912,7 @@ func file_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_proto_rawDesc), len(file_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

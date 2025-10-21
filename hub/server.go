@@ -59,6 +59,13 @@ func (ser *server) Submit(ctx context.Context, params *pb.SubmitParams) (*emptyp
 	if err != nil {
 		return nil, err
 	}
+	txBytes, err := ser.indexer.GetTx(ctx, tx.Hash())
+	if err != nil {
+		return nil, err
+	}
+	if len(txBytes) > 0 {
+		return nil, nil
+	}
 	return nil, ser.client.Submit(ctx, tx)
 }
 
@@ -73,8 +80,8 @@ func (ser *server) Info(ctx context.Context, _ *emptypb.Empty) (*pb.InfoResult, 
 		Uptime:    durationpb.New(time.Since(ser.uptime)),
 		Height:    info.Height,
 		Chain:     info.Chain,
-		Ratefeed:  info.Ratefeed[:],
-		Blocktime: durationpb.New(info.BlockTime),
+		RateFeed:  info.Ratefeed[:],
+		BlockTime: durationpb.New(info.BlockTime),
 	}, nil
 }
 
@@ -108,7 +115,7 @@ func (ser *server) Receipt(ctx context.Context, params *pb.ReceiptParams) (*pb.R
 		return nil, err
 	}
 	if tx == nil {
-		return status.Error(codes.NotFound, "tx nto found")
+		return nil, status.Error(codes.NotFound, "tx not found")
 	}
 	txBytes, err = tx.MarshalBinary()
 	if err != nil {

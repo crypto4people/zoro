@@ -81,6 +81,10 @@ func (client *directEthClient) BalanceOf(ctx context.Context, account common.Add
 	return client.client.BalanceAt(ctx, account, nil)
 }
 
+func (client *directEthClient) GasPrice(ctx context.Context) (*big.Int, error) {
+	return client.client.SuggestGasPrice(ctx)
+}
+
 func (client *directEthClient) RateAt(ctx context.Context, block int64) (*rate.Rate, error) {
 	out, err := contract.CallGetRate(ctx, client.client, block, client.ratefeed)
 	if err != nil {

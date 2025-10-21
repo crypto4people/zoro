@@ -125,8 +125,9 @@ type InfoResult struct {
 	Height        int64                  `protobuf:"varint,2,opt,name=height,proto3" json:"height,omitempty"`
 	Uptime        *durationpb.Duration   `protobuf:"bytes,3,opt,name=uptime,proto3" json:"uptime,omitempty"`
 	Chain         string                 `protobuf:"bytes,4,opt,name=chain,proto3" json:"chain,omitempty"`
-	Ratefeed      []byte                 `protobuf:"bytes,5,opt,name=ratefeed,proto3" json:"ratefeed,omitempty"`
-	Blocktime     *durationpb.Duration   `protobuf:"bytes,6,opt,name=blocktime,proto3" json:"blocktime,omitempty"`
+	RateFeed      []byte                 `protobuf:"bytes,5,opt,name=rate_feed,json=rateFeed,proto3" json:"rate_feed,omitempty"`
+	BlockTime     *durationpb.Duration   `protobuf:"bytes,6,opt,name=block_time,json=blockTime,proto3" json:"block_time,omitempty"`
+	GasPrice      string                 `protobuf:"bytes,7,opt,name=gas_price,json=gasPrice,proto3" json:"gas_price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -189,18 +190,25 @@ func (x *InfoResult) GetChain() string {
 	return ""
 }
 
-func (x *InfoResult) GetRatefeed() []byte {
+func (x *InfoResult) GetRateFeed() []byte {
 	if x != nil {
-		return x.Ratefeed
+		return x.RateFeed
 	}
 	return nil
 }
 
-func (x *InfoResult) GetBlocktime() *durationpb.Duration {
+func (x *InfoResult) GetBlockTime() *durationpb.Duration {
 	if x != nil {
-		return x.Blocktime
+		return x.BlockTime
 	}
 	return nil
+}
+
+func (x *InfoResult) GetGasPrice() string {
+	if x != nil {
+		return x.GasPrice
+	}
+	return ""
 }
 
 type NonceOfParams struct {
@@ -724,15 +732,17 @@ const file_hub_proto_rawDesc = "" +
 	"\aaccount\x18\x01 \x01(\fR\aaccount\x12\x14\n" +
 	"\x05chain\x18\x02 \x01(\tR\x05chain\"+\n" +
 	"\x0fBalanceOfResult\x12\x18\n" +
-	"\abalance\x18\x01 \x01(\tR\abalance\"\xdc\x01\n" +
+	"\abalance\x18\x01 \x01(\tR\abalance\"\xfb\x01\n" +
 	"\n" +
 	"InfoResult\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12\x16\n" +
 	"\x06height\x18\x02 \x01(\x03R\x06height\x121\n" +
 	"\x06uptime\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x06uptime\x12\x14\n" +
-	"\x05chain\x18\x04 \x01(\tR\x05chain\x12\x1a\n" +
-	"\bratefeed\x18\x05 \x01(\fR\bratefeed\x127\n" +
-	"\tblocktime\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\tblocktime\"?\n" +
+	"\x05chain\x18\x04 \x01(\tR\x05chain\x12\x1b\n" +
+	"\trate_feed\x18\x05 \x01(\fR\brateFeed\x128\n" +
+	"\n" +
+	"block_time\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\tblockTime\x12\x1b\n" +
+	"\tgas_price\x18\a \x01(\tR\bgasPrice\"?\n" +
 	"\rNonceOfParams\x12\x18\n" +
 	"\aaccount\x18\x01 \x01(\fR\aaccount\x12\x14\n" +
 	"\x05chain\x18\x02 \x01(\tR\x05chain\"%\n" +
@@ -803,7 +813,7 @@ var file_hub_proto_goTypes = []any{
 }
 var file_hub_proto_depIdxs = []int32{
 	13, // 0: InfoResult.uptime:type_name -> google.protobuf.Duration
-	13, // 1: InfoResult.blocktime:type_name -> google.protobuf.Duration
+	13, // 1: InfoResult.block_time:type_name -> google.protobuf.Duration
 	14, // 2: Hub.Info:input_type -> google.protobuf.Empty
 	0,  // 3: Hub.BalanceOf:input_type -> BalanceOfParams
 	3,  // 4: Hub.NonceOf:input_type -> NonceOfParams
