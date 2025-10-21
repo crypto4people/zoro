@@ -10,9 +10,14 @@ import (
 )
 
 var contractABI = NewContract()
+var rateChangedId = contractABI.abi.Events["RateUpdated"].ID
 
 func ABI() *Contract {
 	return contractABI
+}
+
+func RateChangedID() common.Hash {
+	return rateChangedId
 }
 
 func CallGetRate(ctx context.Context, client *ethclient.Client, block int64, contract common.Address) (*GetRateOutput, error) {

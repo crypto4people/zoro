@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 	"zoro/eth"
+	"zoro/hub/indexer"
 	"zoro/hub/pb"
 	"zoro/misc"
 
@@ -21,11 +22,11 @@ var _ pb.HubServer = &server{}
 type server struct {
 	uptime  time.Time
 	client  eth.Client
-	indexer *Indexer
+	indexer *indexer.Indexer
 	pb.UnimplementedHubServer
 }
 
-func NewServer(client eth.Client, indexer *Indexer) pb.HubServer {
+func NewServer(client eth.Client, indexer *indexer.Indexer) pb.HubServer {
 	return &server{
 		uptime:  time.Now(),
 		client:  client,
@@ -72,7 +73,7 @@ func (ser *server) Info(ctx context.Context, _ *emptypb.Empty) (*pb.InfoResult, 
 		Uptime:    durationpb.New(time.Since(ser.uptime)),
 		Height:    info.Height,
 		Chain:     info.Chain,
-		Ratefeed:  info.RateFeed[:],
+		Ratefeed:  info.Ratefeed[:],
 		Blocktime: durationpb.New(info.BlockTime),
 	}, nil
 }
