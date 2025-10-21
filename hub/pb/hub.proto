@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "../pb";
+
+service Hub {
+  rpc Info(google.protobuf.Empty) returns (InfoResult);
+  rpc BalanceOf(BalanceOfParams) returns (BalanceOfResult);
+  rpc NonceOf(NonceOfParams) returns (NonceOfResult);
+  rpc RateAt(RateAtParams) returns (RateAtResult);
+  rpc Receipt(ReceiptParams) returns (ReceiptResult);
+  rpc Receives(ReceivesParams) returns (ReceivesResult);
+  rpc Submit(SubmitParams) returns (google.protobuf.Empty);
+}
+
+message BalanceOfParams {
+  bytes account = 1;
+  string chain = 2;
+}
+message BalanceOfResult {
+  string balance = 1;
+}
+
+message InfoResult {
+  string version = 1;
+  int64 height = 2;
+  google.protobuf.Duration uptime = 3;
+  string chain = 4;
+  bytes ratefeed = 5;
+  google.protobuf.Duration blocktime = 6;
+}
+
+message NonceOfParams {
+  bytes account = 1;
+  string chain = 2;
+}
+message NonceOfResult {
+  uint64 nonce = 1;
+}
+
+message RateAtParams {
+  int64 block = 1;
+  string chain = 2;
+  bytes ratefeed = 3;
+}
+
+message RateAtResult {
+  string sub = 1;
+  string div = 2;
+  string mul = 3;
+  string add = 4;
+}
+
+message ReceiptParams {
+  bytes hash = 1;
+}
+
+message ReceiptResult {
+  bytes tx = 1;
+  bool pend = 2;
+}
+
+message ReceivesParams {
+  int64 block = 1;
+  string chain = 2;
+  repeated bytes accounts = 3;
+}
+
+message ReceivesResult {
+  repeated bytes txs = 1;
+}
+
+message SubmitParams {
+  bytes tx = 1;
+}
+message SubmitResult {
+  bool hash = 1;
+}

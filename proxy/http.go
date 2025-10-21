@@ -7,9 +7,9 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"zoro/misc"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/google/uuid"
 	"github.com/itsabgr/ge"
 )
@@ -62,7 +62,7 @@ func (server *Server) initMux() {
 	}))
 
 	server.httpMux.HandleFunc("PUT /eth/balance", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
-		addr, err := parseEthAddress(req.URL.Query().Get("address"))
+		addr, err := misc.ParseEthAddress(req.URL.Query().Get("address"))
 		if err != nil {
 			return http.StatusBadRequest, "failed to parse address"
 		}
@@ -78,7 +78,7 @@ func (server *Server) initMux() {
 	}))
 
 	server.httpMux.HandleFunc("PUT /eth/nonce", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
-		addr, err := parseEthAddress(req.URL.Query().Get("address"))
+		addr, err := misc.ParseEthAddress(req.URL.Query().Get("address"))
 		if err != nil {
 			return http.StatusBadRequest, "failed to parse address"
 		}
@@ -94,7 +94,7 @@ func (server *Server) initMux() {
 	}))
 
 	server.httpMux.HandleFunc("PUT /eth/receipt", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
-		hash, err := parseEthHash(req.URL.Query().Get("hash"))
+		hash, err := misc.ParseEthHash(req.URL.Query().Get("hash"))
 		if err != nil {
 			return http.StatusBadRequest, "failed to parse hash"
 		}
@@ -126,7 +126,7 @@ func (server *Server) initMux() {
 			return http.StatusBadRequest, "failed to read body"
 		}
 
-		tx, err := parseEthTransaction(data)
+		tx, err := misc.ParseEthTransaction(data)
 		if err != nil {
 			return http.StatusBadRequest, "failed to parse tx"
 		}
@@ -140,22 +140,6 @@ func (server *Server) initMux() {
 		return 200, nil
 	}))
 
-}
-
-func parseEthAddress(str string) (addr common.Address, err error) {
-	err = addr.UnmarshalText([]byte(str))
-	return addr, err
-}
-
-func parseEthHash(str string) (hash common.Hash, err error) {
-	err = hash.UnmarshalText([]byte(str))
-	return hash, err
-}
-
-func parseEthTransaction(b []byte) (*types.Transaction, error) {
-	tx := &types.Transaction{}
-	err := tx.UnmarshalBinary(b)
-	return tx, err
 }
 
 func handlerFuncWithError(fn func(writer http.ResponseWriter, req *http.Request) (int, any)) func(writer http.ResponseWriter, req *http.Request) {

@@ -8,6 +8,7 @@ import (
 	"slices"
 	"time"
 	"zoro/contract"
+	"zoro/misc"
 	"zoro/rate"
 
 	"github.com/ethereum/go-ethereum"
@@ -17,7 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-type directClient struct {
+type directEthClient struct {
 	client   *ethclient.Client
 	ratefeed common.Address
 	accounts struct {
@@ -47,52 +48,53 @@ func NewDirectClient(ctx context.Context, ethClient *ethclient.Client, config Di
 		return nil, err
 	}
 
-	signer := types.LatestSignerForChainID(chainId)
-	chain := chainId.Text(10)
-
-	dc := &directClient{
-		chain:    chain,
+	dc := &directEthClient{
+		chain:    chainId.Text(10),
 		client:   ethClient,
 		ratefeed: config.RateFeed,
-		signer:   signer,
+		signer:   types.LatestSignerForChainID(chainId),
 	}
 
-	dc.accounts.set = sliceToSet(config.Accounts)
+	dc.accounts.set = misc.SliceToSet(config.Accounts)
 	dc.accounts.list = slices.Clone(config.Accounts)
 
 	return dc, nil
 }
 
-func (client *directClient) RateFeed() common.Address {
+func (client *directEthClient) RateFeed() common.Address {
 	return client.ratefeed
 }
 
-func (client *directClient) Accounts() iter.Seq[common.Address] {
+func (client *directEthClient) Accounts() iter.Seq[common.Address] {
 	return slices.Values(client.accounts.list)
 }
 
-func (client *directClient) BlockTime() time.Duration {
+func (client *directEthClient) BlockTime() time.Duration {
 	return client.blockTime
 }
 
-func (client *directClient) Chain() string {
+func (client *directEthClient) Chain() string {
 	return client.chain
 }
 
-func (client *directClient) BalanceOf(ctx context.Context, account common.Address) (*big.Int, error) {
+func (client *directEthClient) BalanceOf(ctx context.Context, account common.Address) (*big.Int, error) {
 	return client.client.BalanceAt(ctx, account, nil)
 }
 
-func (client *directClient) RateAt(ctx context.Context, block int64) (*rate.Rate, error) {
+func (client *directEthClient) RateAt(ctx context.Context, block int64) (*rate.Rate, error) {
 	out, err := contract.CallGetRate(ctx, client.client, block, client.ratefeed)
 	if err != nil {
 		return nil, err
 	}
-	rate := rate.FromGetRateOutput(*out)
-	return &rate, nil
+	return &rate.Rate{
+		Sub: out.Sub,
+		Div: out.Div,
+		Mul: out.Mul,
+		Add: out.Sub,
+	}, nil
 }
 
-func (client *directClient) FinalHeight(ctx context.Context) (int64, error) {
+func (client *directEthClient) FinalHeight(ctx context.Context) (int64, error) {
 	header, err := client.client.HeaderByNumber(ctx, big.NewInt(FinalBlock))
 	if err != nil {
 		return 0, err
@@ -100,11 +102,11 @@ func (client *directClient) FinalHeight(ctx context.Context) (int64, error) {
 	return header.Number.Int64(), nil
 }
 
-func (client *directClient) NonceOf(ctx context.Context, account common.Address) (uint64, error) {
+func (client *directEthClient) NonceOf(ctx context.Context, account common.Address) (uint64, error) {
 	return client.client.NonceAt(ctx, account, nil)
 }
 
-func (client *directClient) Receipt(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
+func (client *directEthClient) Receipt(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
 	tx, isPending, err := client.client.TransactionByHash(ctx, hash)
 	if err != nil {
 		if errors.Is(err, ethereum.NotFound) {
@@ -112,30 +114,30 @@ func (client *directClient) Receipt(ctx context.Context, hash common.Hash) (*typ
 		}
 		return nil, false, err
 	}
-	if filterReceives(tx, client.chain, client.accounts.set) {
+	if misc.FilterNonReceive(tx, client.chain, client.accounts.set) {
 		return nil, false, nil
 	}
 	return tx, isPending, nil
 }
 
-func (client *directClient) Submit(ctx context.Context, tx *types.Transaction) error {
+func (client *directEthClient) Submit(ctx context.Context, tx *types.Transaction) error {
 	if _, err := client.signer.Sender(tx); err != nil {
 		return err
 	}
-	if filterReceives(tx, client.chain, client.accounts.set) {
+	if misc.FilterNonReceive(tx, client.chain, client.accounts.set) {
 		return errors.New("tx is filtered")
 	}
 	return client.client.SendTransaction(ctx, tx)
 }
 
-func (client *directClient) Receives(ctx context.Context, number int64) (iter.Seq2[common.Address, *types.Transaction], error) {
+func (client *directEthClient) Receives(ctx context.Context, number int64) (iter.Seq2[common.Address, *types.Transaction], error) {
 	block, err := client.client.BlockByNumber(ctx, big.NewInt(number))
 	if err != nil {
 		return nil, err
 	}
 	return func(yield func(common.Address, *types.Transaction) bool) {
 		for _, tx := range block.Transactions() {
-			if filterReceives(tx, client.chain, client.accounts.set) {
+			if misc.FilterNonReceive(tx, client.chain, client.accounts.set) {
 				continue
 			}
 			sender, err := client.signer.Sender(tx)

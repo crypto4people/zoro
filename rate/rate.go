@@ -3,7 +3,6 @@ package rate
 import (
 	"math/big"
 	"time"
-	"zoro/contract"
 )
 
 type Rate struct {
@@ -11,15 +10,6 @@ type Rate struct {
 	Div *big.Int
 	Mul *big.Int
 	Add *big.Int
-}
-
-func FromGetRateOutput(out contract.GetRateOutput) Rate {
-	return Rate{
-		Sub: out.Sub,
-		Div: out.Div,
-		Mul: out.Mul,
-		Add: out.Sub,
-	}
 }
 
 func (rate *Rate) Apply(value *big.Int) (dur time.Duration, ttl time.Duration) {
