@@ -52,10 +52,10 @@ type rateDoc struct {
 	Block    int64          `bson:"block"`
 	Ratefeed common.Address `bson:"ratefeed"`
 	Chain    string         `bson:"chain"`
-	Sub      string         `bson:"sub"`
-	Div      string         `bson:"div"`
-	Mul      string         `bson:"mul"`
-	Add      string         `bson:"add"`
+	Sub      []byte         `bson:"sub"`
+	Div      []byte         `bson:"div"`
+	Mul      []byte         `bson:"mul"`
+	Add      []byte         `bson:"add"`
 }
 
 func (indexer *Indexer) Info(ctx context.Context) (*IndexerInfo, error) {
@@ -63,7 +63,26 @@ func (indexer *Indexer) Info(ctx context.Context) (*IndexerInfo, error) {
 }
 
 func (indexer *Indexer) RateAt(ctx context.Context, chain string, block int64, ratefeed common.Address) (*rate.Rate, error) {
-	panic("todo")
+	var record rateDoc
+
+	err := indexer.db.Collection("rates").FindOne(
+		ctx,
+		bson.D{
+			{Key: "block", Value: block},
+			{Key: "chain", Value: chain},
+			{Key: "ratefeed", Value: ratefeed},
+		},
+	).Decode(&record)
+	if err != nil {
+		return nil, err
+	}
+
+	return &rate.Rate{
+		Sub: new(big.Int).SetBytes(record.Sub),
+		Div: new(big.Int).SetBytes(record.Div),
+		Mul: new(big.Int).SetBytes(record.Mul),
+		Add: new(big.Int).SetBytes(record.Add),
+	}, nil
 }
 
 func (indexer *Indexer) Receipt(ctx context.Context, hash common.Hash) ([]byte, bool, error) {
@@ -237,10 +256,10 @@ func (indexer *Indexer) appendRate(ctx context.Context, block int64, rate *rate.
 		Block:    block,
 		Ratefeed: indexer.ratefeed,
 		Chain:    indexer.chain,
-		Sub:      rate.Sub.String(),
-		Div:      rate.Div.String(),
-		Mul:      rate.Mul.String(),
-		Add:      rate.Add.String(),
+		Sub:      rate.Sub.Bytes(),
+		Div:      rate.Div.Bytes(),
+		Mul:      rate.Mul.Bytes(),
+		Add:      rate.Add.Bytes(),
 	}
 
 	_, err := indexer.db.Collection("rates").ReplaceOne(
