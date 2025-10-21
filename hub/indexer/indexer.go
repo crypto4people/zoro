@@ -85,8 +85,20 @@ func (indexer *Indexer) RateAt(ctx context.Context, chain string, block int64, r
 	}, nil
 }
 
-func (indexer *Indexer) Receipt(ctx context.Context, hash common.Hash) ([]byte, bool, error) {
-	panic("todo")
+func (indexer *Indexer) GetTx(ctx context.Context, hash common.Hash) ([]byte, error) {
+	var transfer transfersDoc
+
+	err := indexer.db.Collection("transfers").FindOne(
+		ctx,
+		bson.D{
+			{Key: "hash", Value: hash},
+		},
+	).Decode(&transfer)
+	if err != nil {
+		return nil, err
+	}
+
+	return transfer.Tx, nil
 }
 
 func (indexer *Indexer) Receives(ctx context.Context, chain string, block int64, accounts map[common.Address]struct{}) ([][]byte, error) {
@@ -107,6 +119,7 @@ func (indexer *Indexer) Routine(ctx context.Context) error {
 			}
 
 			for _, tx := range blockData.Txs {
+				// todo filter
 				if err := indexer.appendTransfer(ctx, number, tx); err != nil {
 					// todo log
 					return err
