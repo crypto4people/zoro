@@ -15,8 +15,8 @@ type Database struct {
 	ServerSubsBox *model.ServerSubsBox
 }
 
-func New() (*Database, error) {
-	ob, err := objectbox.NewBuilder().Model(model.ObjectBoxModel()).Build()
+func New(obPath string) (*Database, error) {
+	ob, err := objectbox.NewBuilder().Model(model.ObjectBoxModel()).Directory(obPath).Build()
 	if err != nil {
 		return nil, err
 	}
