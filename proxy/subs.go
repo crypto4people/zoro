@@ -10,6 +10,7 @@ import (
 )
 
 type Sub struct {
+	Tx     common.Hash
 	Expire int
 	Remain int
 }
@@ -20,7 +21,7 @@ func (server *Server) ListSubs(ctx context.Context, addr common.Address) ([]Sub,
 	}
 
 	rows, err := server.db.conn.QueryContext(ctx,
-		"select expire, remain from subs where addr = ?1 and remain > 0 and expire > unixepoch() limit 20",
+		"select tx, expire, remain from subs where addr = ?1 and remain > 0 and expire > unixepoch() limit 20",
 		hex.EncodeToString(addr[:]),
 	)
 	if err != nil {
@@ -30,15 +31,17 @@ func (server *Server) ListSubs(ctx context.Context, addr common.Address) ([]Sub,
 
 	result := make([]Sub, 0, 4)
 
+	var tx string
 	var values [2]int
 
 	for rows.Next() {
-		err = rows.Scan(&values[0], &values[1])
+		err = rows.Scan(&tx, &values[0], &values[1])
 		if err != nil {
 			return nil, err
 		}
 
 		result = append(result, Sub{
+			Tx:     common.HexToHash(tx),
 			Expire: values[0],
 			Remain: values[1],
 		})
