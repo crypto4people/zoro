@@ -92,15 +92,30 @@ func (ser *server) RateAt(ctx context.Context, params *pb.RateAtParams) (*pb.Rat
 }
 
 func (ser *server) Receipt(ctx context.Context, params *pb.ReceiptParams) (*pb.ReceiptResult, error) {
-	tx, pend, err := ser.indexer.Receipt(ctx, common.BytesToHash(params.Hash))
+	hash := common.BytesToHash(params.Hash)
+	txBytes, err := ser.indexer.GetTx(ctx, hash)
+	if err != nil {
+		return nil, err
+	}
+	if len(txBytes) > 0 {
+		return &pb.ReceiptResult{
+			Tx:   txBytes,
+			Pend: false,
+		}, nil
+	}
+	tx, pend, err := ser.client.Receipt(ctx, hash)
 	if err != nil {
 		return nil, err
 	}
 	if tx == nil {
-		return nil, status.Error(codes.NotFound, "tx not found")
+		return status.Error(codes.NotFound, "tx nto found")
+	}
+	txBytes, err = tx.MarshalBinary()
+	if err != nil {
+		panic(err)
 	}
 	return &pb.ReceiptResult{
-		Tx:   tx,
+		Tx:   txBytes,
 		Pend: pend,
 	}, nil
 
