@@ -17,11 +17,11 @@ import (
 var _ http.Handler = &Server{}
 
 func (server *Server) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
-	server.http.mux.ServeHTTP(writer, req)
+	server.httpMux.ServeHTTP(writer, req)
 }
 
 func (server *Server) initMux() {
-	server.http.mux.HandleFunc("GET /wsc", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
+	server.httpMux.HandleFunc("GET /wsc", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
 		user := req.URL.Query().Get("user")
 		logger := server.logger.With(slog.String("account", user), slog.String("log_key", uuid.NewString()))
 		logger.Debug("new request on /wsc", slog.String("address", req.RemoteAddr))
@@ -33,7 +33,7 @@ func (server *Server) initMux() {
 		return 200, nil
 	}))
 
-	server.http.mux.HandleFunc("PUT /", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
+	server.httpMux.HandleFunc("PUT /", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
 		server.logger.Debug("new request on /", slog.String("address", req.RemoteAddr))
 
 		info, err := server.Info(req.Context())
@@ -46,7 +46,7 @@ func (server *Server) initMux() {
 		return 200, nil
 	}))
 
-	server.http.mux.HandleFunc("PUT /subs", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
+	server.httpMux.HandleFunc("PUT /subs", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
 		ctx := req.Context()
 		user := req.URL.Query().Get("user")
 
@@ -61,13 +61,13 @@ func (server *Server) initMux() {
 		return 200, nil
 	}))
 
-	server.http.mux.HandleFunc("PUT /eth/balance", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
+	server.httpMux.HandleFunc("PUT /eth/balance", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
 		addr, err := parseEthAddress(req.URL.Query().Get("address"))
 		if err != nil {
 			return http.StatusBadRequest, "failed to parse address"
 		}
 
-		bal, err := server.eth.client.BalanceOf(req.Context(), addr)
+		bal, err := server.ethClient.BalanceOf(req.Context(), addr)
 		if err != nil {
 			return http.StatusInternalServerError, err
 		}
@@ -77,13 +77,13 @@ func (server *Server) initMux() {
 		return 200, nil
 	}))
 
-	server.http.mux.HandleFunc("PUT /eth/nonce", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
+	server.httpMux.HandleFunc("PUT /eth/nonce", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
 		addr, err := parseEthAddress(req.URL.Query().Get("address"))
 		if err != nil {
 			return http.StatusBadRequest, "failed to parse address"
 		}
 
-		non, err := server.eth.client.NonceOf(req.Context(), addr)
+		non, err := server.ethClient.NonceOf(req.Context(), addr)
 		if err != nil {
 			return http.StatusInternalServerError, err
 		}
@@ -93,19 +93,19 @@ func (server *Server) initMux() {
 		return 200, nil
 	}))
 
-	server.http.mux.HandleFunc("PUT /eth/receipt", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
+	server.httpMux.HandleFunc("PUT /eth/receipt", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
 		hash, err := parseEthHash(req.URL.Query().Get("hash"))
 		if err != nil {
 			return http.StatusBadRequest, "failed to parse hash"
 		}
 
-		tx, pending, err := server.eth.client.Receipt(req.Context(), hash)
+		tx, pending, err := server.ethClient.Receipt(req.Context(), hash)
 		if err != nil {
 			return http.StatusInternalServerError, err
 		}
 
-		if tx == nil || server.filterTransaction(tx) {
-			return http.StatusNotFound, ""
+		if tx == nil {
+			return http.StatusNotFound, "tx not found"
 		}
 
 		writer.Header().Set("Content-Type", "application/json")
@@ -120,7 +120,7 @@ func (server *Server) initMux() {
 		return 200, nil
 	}))
 
-	server.http.mux.HandleFunc("PUT /eth/submit", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
+	server.httpMux.HandleFunc("PUT /eth/submit", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
 		data, err := io.ReadAll(io.LimitReader(req.Body, 1000))
 		if err != nil {
 			return http.StatusBadRequest, "failed to read body"
@@ -131,11 +131,7 @@ func (server *Server) initMux() {
 			return http.StatusBadRequest, "failed to parse tx"
 		}
 
-		if server.filterTransaction(tx) {
-			return http.StatusNotAcceptable, "tx is filtered"
-		}
-
-		if err = server.eth.client.Submit(req.Context(), tx); err != nil {
+		if err = server.ethClient.Submit(req.Context(), tx); err != nil {
 			return http.StatusInternalServerError, err
 		}
 

@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"log/slog"
-	"slices"
 	"time"
+	"zoro/rate"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -32,9 +32,10 @@ func (server *Server) Watch(ctx context.Context) error {
 		}
 
 		if localHeight == networkHeight {
-			server.logger.Debug("watcher sleep", slog.Duration("duration", server.eth.sleep))
+			duration := server.ethClient.BlockTime()
+			server.logger.Debug("watcher sleep", slog.Duration("duration", duration))
 
-			timer.Reset(time.Second)
+			timer.Reset(duration)
 
 			if err := server.vaccum(ctx); err != nil {
 				return err
@@ -81,7 +82,7 @@ func (server *Server) ProcessBlock(ctx context.Context, number int64) (changes i
 }
 
 func (server *Server) setLocalHeight(ctx context.Context, height int64) error {
-	_, err := server.db.conn.ExecContext(ctx, "insert into heights(chain,height) values(?1,?2) on conflict(chain) do update set height = ?2 where height < ?2", server.eth.client.Chain(), height)
+	_, err := server.db.conn.ExecContext(ctx, "insert into heights(chain,height) values(?1,?2) on conflict(chain) do update set height = ?2 where height < ?2", server.ethClient.Chain(), height)
 	if err == nil {
 		server.db.height.Store(height)
 	}
@@ -92,7 +93,7 @@ func (server *Server) setLocalHeight(ctx context.Context, height int64) error {
 func (server *Server) getLocalHeight(ctx context.Context) (int64, error) {
 	var height int64
 
-	err := server.db.conn.QueryRowContext(ctx, "select height from heights where chain = ?1", server.eth.client.Chain()).Scan(&height)
+	err := server.db.conn.QueryRowContext(ctx, "select height from heights where chain = ?1", server.ethClient.Chain()).Scan(&height)
 	if err == nil {
 		server.db.height.Store(height)
 	}
@@ -105,19 +106,19 @@ func (server *Server) getLocalHeight(ctx context.Context) (int64, error) {
 }
 
 func (server *Server) getNetworkHeight(ctx context.Context) (int64, error) {
-	return server.eth.client.FinalHeight(ctx)
+	return server.ethClient.FinalHeight(ctx)
 }
 
 func (server *Server) processBlock(ctx context.Context, number int64) (int, error) {
 
-	rate, err := server.eth.client.RateAt(ctx, number)
+	rate, err := server.ethClient.RateAt(ctx, number)
 	if err != nil {
 		return 0, err
 	}
 
 	changes := 0
 
-	txs, err := server.eth.client.Transactions(ctx, number)
+	txs, err := server.ethClient.Receives(ctx, number)
 	if err != nil {
 		return 0, err
 	}
@@ -139,10 +140,7 @@ func (server *Server) processBlock(ctx context.Context, number int64) (int, erro
 	return changes, nil
 }
 
-func (server *Server) processTx(ctx context.Context, rate *Rate, sender common.Address, tx *types.Transaction) (bool, error) {
-	if server.filterTransaction(tx) {
-		return false, nil
-	}
+func (server *Server) processTx(ctx context.Context, rate *rate.Rate, sender common.Address, tx *types.Transaction) (bool, error) {
 
 	value := tx.Value()
 
@@ -176,17 +174,4 @@ func (server *Server) processTx(ctx context.Context, rate *Rate, sender common.A
 	}
 
 	return created, nil
-}
-
-func (server *Server) filterTransaction(tx *types.Transaction) bool {
-	if tx.ChainId().Text(10) != server.eth.client.Chain() {
-		return true
-	}
-	if tx.Value().Sign() <= 0 || len(tx.Data()) > 0 {
-		return true
-	}
-	if to := tx.To(); to == nil || !slices.Contains(server.eth.addrs, *to) {
-		return true
-	}
-	return false
 }

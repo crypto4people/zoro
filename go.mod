@@ -38,6 +38,7 @@ require (
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/objectbox/objectbox-generator/v4 v4.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect

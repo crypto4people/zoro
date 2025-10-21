@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"log/slog"
 	"net"
-	"slices"
 	"time"
+	"zoro/eth"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -16,7 +16,7 @@ type ServerConfig struct {
 	Contract  common.Address
 	Accounts  []common.Address
 	Database  *sql.DB
-	Client    *EthClient
+	Client    eth.Client
 	Logger    *slog.Logger
 }
 
@@ -26,9 +26,7 @@ func NewServer(ctx context.Context, conf ServerConfig) (app *Server, err error) 
 		uptime: time.Now(),
 	}
 
-	app.eth.client = conf.Client
-	app.eth.sleep = time.Second
-	app.eth.addrs = slices.Clone(conf.Accounts)
+	app.ethClient = conf.Client
 
 	app.proxy.reporting.internal = time.Second * 10
 	app.proxy.reporting.timeout = time.Second * 5

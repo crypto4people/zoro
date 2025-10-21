@@ -9,6 +9,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+	"zoro/eth"
+	"zoro/rate"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -43,15 +45,9 @@ type Server struct {
 		congestion congestionMap
 	}
 
-	http struct {
-		mux http.ServeMux
-	}
+	httpMux http.ServeMux
 
-	eth struct {
-		addrs  []common.Address
-		sleep  time.Duration
-		client *EthClient
-	}
+	ethClient eth.Client
 }
 
 type Info struct {
@@ -61,26 +57,31 @@ type Info struct {
 	Subs     int
 	Chain    string
 	Height   int64
-	Contract common.Address
+	RateFeed common.Address
 	Account  common.Address
-	Rate     Rate
+	Rate     rate.Rate
 }
 
 func (server *Server) Info(ctx context.Context) (*Info, error) {
-	rate, err := server.eth.client.RateAt(ctx, rpc.LatestBlockNumber.Int64())
+	rate, err := server.ethClient.RateAt(ctx, rpc.LatestBlockNumber.Int64())
 	if err != nil {
 		return nil, err
+	}
+
+	var account common.Address
+	for account = range server.ethClient.Accounts() {
+		break
 	}
 
 	return &Info{
 		Version:  version,
 		Conns:    int(server.proxy.congestion.Count()),
 		Subs:     int(server.db.subs.Load()),
-		Chain:    server.eth.client.Chain(),
+		Chain:    server.ethClient.Chain(),
 		Uptime:   int(time.Since(server.uptime).Milliseconds()) / 1000,
-		Account:  server.eth.addrs[0],
+		Account:  account,
 		Height:   server.db.height.Load(),
-		Contract: server.eth.client.Contract(),
+		RateFeed: server.ethClient.RateFeed(),
 		Rate:     *rate,
 	}, nil
 }

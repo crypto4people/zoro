@@ -1,4 +1,4 @@
-package proxy
+package rate
 
 import (
 	"math/big"
@@ -6,13 +6,20 @@ import (
 	"zoro/contract"
 )
 
-var abi = contract.NewContract()
-
 type Rate struct {
 	Sub *big.Int
 	Div *big.Int
 	Mul *big.Int
 	Add *big.Int
+}
+
+func FromGetRateOutput(out contract.GetRateOutput) Rate {
+	return Rate{
+		Sub: out.Sub,
+		Div: out.Div,
+		Mul: out.Mul,
+		Add: out.Sub,
+	}
 }
 
 func (rate *Rate) Apply(value *big.Int) (dur time.Duration, ttl time.Duration) {
