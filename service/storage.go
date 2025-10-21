@@ -2,36 +2,37 @@ package service
 
 import (
 	"context"
+	"zoro/service/db"
 	"zoro/service/db/model"
 
 	"github.com/samber/lo"
 )
 
 type Storage struct {
-	serverBox *model.ServerBox
+	db *db.Database
 }
 
-func NewStorage(serverBox *model.ServerBox) *Storage {
+func NewStorage(db *db.Database) *Storage {
 	return &Storage{
-		serverBox: serverBox,
+		db: db,
 	}
 }
 
 func (st *Storage) AddServers(ctx context.Context, server string) error {
-	_, err := st.serverBox.Put(&model.Server{
+	_, err := st.db.ServerBox.Put(&model.Server{
 		URL: server,
 	})
 	return err
 }
 
 func (st *Storage) DeleteServers(ctx context.Context, server string) error {
-	return st.serverBox.Remove(&model.Server{
+	return st.db.ServerBox.Remove(&model.Server{
 		URL: server,
 	})
 }
 
 func (st *Storage) ListServers(ctx context.Context) []string {
-	servers, err := st.serverBox.GetAll()
+	servers, err := st.db.ServerBox.GetAll()
 	if err != nil || len(servers) == 0 {
 		return []string{}
 	}

@@ -8,11 +8,11 @@ import (
 
 type Database struct {
 	ob            *objectbox.ObjectBox
-	txBox         *model.TxBox
-	serverBox     *model.ServerBox
-	serverInfoBox *model.ServerInfoBox
-	serverRateBox *model.ServerRateBox
-	serverSubsBox *model.ServerSubsBox
+	TxBox         *model.TxBox
+	ServerBox     *model.ServerBox
+	ServerInfoBox *model.ServerInfoBox
+	ServerRateBox *model.ServerRateBox
+	ServerSubsBox *model.ServerSubsBox
 }
 
 func New() (*Database, error) {
@@ -23,11 +23,11 @@ func New() (*Database, error) {
 
 	return &Database{
 		ob:            ob,
-		txBox:         model.BoxForTx(ob),
-		serverBox:     model.BoxForServer(ob),
-		serverInfoBox: model.BoxForServerInfo(ob),
-		serverRateBox: model.BoxForServerRate(ob),
-		serverSubsBox: model.BoxForServerSubs(ob),
+		TxBox:         model.BoxForTx(ob),
+		ServerBox:     model.BoxForServer(ob),
+		ServerInfoBox: model.BoxForServerInfo(ob),
+		ServerRateBox: model.BoxForServerRate(ob),
+		ServerSubsBox: model.BoxForServerSubs(ob),
 	}, nil
 }
 
