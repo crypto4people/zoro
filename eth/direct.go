@@ -7,9 +7,9 @@ import (
 	"math/big"
 	"slices"
 	"time"
-	"zoro/contract"
 	"zoro/misc"
 	"zoro/rate"
+	"zoro/rate/contract"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
