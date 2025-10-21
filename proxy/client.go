@@ -134,7 +134,7 @@ func (client *Client) GetReceipt(ctx context.Context, hash common.Hash) (*types.
 		return nil, false, err
 	}
 
-	//todo fix get reicept
+	//todo fix get reicept by status code
 	return result, false, nil
 }
 
