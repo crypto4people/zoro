@@ -2,6 +2,8 @@ package indexer
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/binary"
 	"errors"
 	"math/big"
 	"time"
@@ -46,6 +48,7 @@ type transfersDoc struct {
 }
 
 type rateDoc struct {
+	U        []byte         `bson:"u"`
 	Block    int64          `bson:"block"`
 	Ratefeed common.Address `bson:"ratefeed"`
 	Chain    string         `bson:"chain"`
@@ -209,7 +212,7 @@ func (indexer *Indexer) appendTransfer(ctx context.Context, block int64, tx *typ
 		return err
 	}
 
-	transfer := &transfersDoc{
+	newTransfer := &transfersDoc{
 		Block: block,
 		To:    *tx.To(),
 		Tx:    rawBytes,
@@ -220,13 +223,59 @@ func (indexer *Indexer) appendTransfer(ctx context.Context, block int64, tx *typ
 	_, err = indexer.db.Collection("transfers").ReplaceOne(
 		ctx,
 		bson.D{{Key: "hash", Value: tx.Hash()}},
-		transfer,
+		newTransfer,
 		options.Replace().SetUpsert(true),
 	)
 	return err
 }
 
-// todo
 func (indexer *Indexer) appendRate(ctx context.Context, block int64, rate *rate.Rate) error {
-	return nil
+	hash := rateUniqueHash(block, indexer.chain, indexer.ratefeed, rate)
+
+	newRate := &rateDoc{
+		U:        hash,
+		Block:    block,
+		Ratefeed: indexer.ratefeed,
+		Chain:    indexer.chain,
+		Sub:      rate.Sub.String(),
+		Div:      rate.Div.String(),
+		Mul:      rate.Mul.String(),
+		Add:      rate.Add.String(),
+	}
+
+	_, err := indexer.db.Collection("rates").ReplaceOne(
+		ctx,
+		bson.D{{Key: "u", Value: hash}},
+		newRate,
+		options.Replace().SetUpsert(true),
+	)
+	return err
+}
+
+func rateUniqueHash(block int64, chain string, ratefeed common.Address, rate *rate.Rate) []byte {
+	hash := sha256.New()
+
+	var buf [8]byte
+	binary.BigEndian.PutUint64(buf[:], uint64(block))
+	hash.Write(buf[:])
+
+	hash.Write([]byte(chain))
+	hash.Write([]byte{0})
+
+	hash.Write(ratefeed.Bytes())
+	hash.Write([]byte{0})
+
+	hash.Write(rate.Sub.Bytes())
+	hash.Write([]byte{0})
+
+	hash.Write(rate.Div.Bytes())
+	hash.Write([]byte{0})
+
+	hash.Write(rate.Mul.Bytes())
+	hash.Write([]byte{0})
+
+	hash.Write(rate.Add.Bytes())
+	hash.Write([]byte{0})
+
+	return hash.Sum(nil)
 }
