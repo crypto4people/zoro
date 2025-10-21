@@ -87,7 +87,7 @@ func (client *hubClient) FinalHeight(ctx context.Context) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	if info.Chain != client.info.Chain || info.RateFeed != info.RateFeed {
+	if info.Chain != client.info.Chain || info.RateFeed != client.info.RateFeed {
 		return 0, errors.New("inconsistent indexer info")
 	}
 	return info.Height, nil
