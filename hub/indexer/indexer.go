@@ -95,6 +95,9 @@ func (indexer *Indexer) GetTx(ctx context.Context, hash common.Hash) ([]byte, er
 		},
 	).Decode(&transfer)
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
