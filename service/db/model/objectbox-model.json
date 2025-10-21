@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:3981634357134159776",
-      "lastPropertyId": "2:5537321087932135503",
+      "lastPropertyId": "3:505754160954550319",
       "name": "Server",
       "properties": [
         {
@@ -18,12 +18,17 @@
           "id": "2:5537321087932135503",
           "name": "URL",
           "type": 9
+        },
+        {
+          "id": "3:505754160954550319",
+          "name": "CreatedAt",
+          "type": 12
         }
       ]
     },
     {
       "id": "2:8665913896578186949",
-      "lastPropertyId": "10:6367824298795601347",
+      "lastPropertyId": "11:5861713027488802899",
       "name": "ServerInfo",
       "properties": [
         {
@@ -73,15 +78,15 @@
           "type": 23
         },
         {
-          "id": "10:6367824298795601347",
-          "name": "Deadline",
+          "id": "11:5861713027488802899",
+          "name": "CreatedAt",
           "type": 12
         }
       ]
     },
     {
       "id": "3:3643815604167043361",
-      "lastPropertyId": "7:8940953312995381987",
+      "lastPropertyId": "8:4179271382926812105",
       "name": "ServerRate",
       "properties": [
         {
@@ -116,15 +121,15 @@
           "type": 9
         },
         {
-          "id": "7:8940953312995381987",
-          "name": "Deadline",
+          "id": "8:4179271382926812105",
+          "name": "CreatedAt",
           "type": 12
         }
       ]
     },
     {
       "id": "4:1796872240828385135",
-      "lastPropertyId": "4:4473828387783445400",
+      "lastPropertyId": "7:6090644599387250932",
       "name": "ServerSubs",
       "properties": [
         {
@@ -147,12 +152,27 @@
           "id": "4:4473828387783445400",
           "name": "Remain",
           "type": 12
+        },
+        {
+          "id": "5:7269875192836344139",
+          "name": "CreatedAt",
+          "type": 12
+        },
+        {
+          "id": "6:6986545900602995682",
+          "name": "URL",
+          "type": 9
+        },
+        {
+          "id": "7:6090644599387250932",
+          "name": "Addr",
+          "type": 23
         }
       ]
     },
     {
       "id": "5:8067956017491280965",
-      "lastPropertyId": "6:788242635844903069",
+      "lastPropertyId": "7:4053594798470356266",
       "name": "Tx",
       "properties": [
         {
@@ -182,8 +202,8 @@
           "type": 9
         },
         {
-          "id": "6:788242635844903069",
-          "name": "Deadline",
+          "id": "7:4053594798470356266",
+          "name": "CreatedAt",
           "type": 12
         }
       ]
@@ -196,7 +216,11 @@
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    6367824298795601347,
+    8940953312995381987,
+    788242635844903069
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

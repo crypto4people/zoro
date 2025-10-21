@@ -5,8 +5,7 @@ package model
 
 import (
 	"errors"
-
-	flatbuffers "github.com/google/flatbuffers/go"
+	"github.com/google/flatbuffers/go"
 	"github.com/objectbox/objectbox-go/objectbox"
 	"github.com/objectbox/objectbox-go/objectbox/fbutils"
 )
@@ -25,8 +24,9 @@ var ServerBinding = server_EntityInfo{
 
 // Server_ contains type-based Property helpers to facilitate some common operations such as Queries.
 var Server_ = struct {
-	Id  *objectbox.PropertyUint64
-	URL *objectbox.PropertyString
+	Id        *objectbox.PropertyUint64
+	URL       *objectbox.PropertyString
+	CreatedAt *objectbox.PropertyInt64
 }{
 	Id: &objectbox.PropertyUint64{
 		BaseProperty: &objectbox.BaseProperty{
@@ -37,6 +37,12 @@ var Server_ = struct {
 	URL: &objectbox.PropertyString{
 		BaseProperty: &objectbox.BaseProperty{
 			Id:     2,
+			Entity: &ServerBinding.Entity,
+		},
+	},
+	CreatedAt: &objectbox.PropertyInt64{
+		BaseProperty: &objectbox.BaseProperty{
+			Id:     3,
 			Entity: &ServerBinding.Entity,
 		},
 	},
@@ -53,7 +59,8 @@ func (server_EntityInfo) AddToModel(model *objectbox.Model) {
 	model.Property("Id", 6, 1, 7441834305200234404)
 	model.PropertyFlags(1)
 	model.Property("URL", 9, 2, 5537321087932135503)
-	model.EntityLastPropertyId(2, 5537321087932135503)
+	model.Property("CreatedAt", 12, 3, 505754160954550319)
+	model.EntityLastPropertyId(3, 505754160954550319)
 }
 
 // GetId is called by ObjectBox during Put operations to check for existing ID on an object
@@ -75,12 +82,22 @@ func (server_EntityInfo) PutRelated(ob *objectbox.ObjectBox, object interface{},
 // Flatten is called by ObjectBox to transform an object to a FlatBuffer
 func (server_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id uint64) error {
 	obj := object.(*Server)
+	var propCreatedAt int64
+	{
+		var err error
+		propCreatedAt, err = objectbox.NanoTimeInt64ConvertToDatabaseValue(obj.CreatedAt)
+		if err != nil {
+			return errors.New("converter objectbox.NanoTimeInt64ConvertToDatabaseValue() failed on Server.CreatedAt: " + err.Error())
+		}
+	}
+
 	var offsetURL = fbutils.CreateStringOffset(fbb, obj.URL)
 
 	// build the FlatBuffers object
-	fbb.StartObject(2)
+	fbb.StartObject(3)
 	fbutils.SetUint64Slot(fbb, 0, id)
 	fbutils.SetUOffsetTSlot(fbb, 1, offsetURL)
+	fbutils.SetInt64Slot(fbb, 2, propCreatedAt)
 	return nil
 }
 
@@ -97,9 +114,15 @@ func (server_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interface{
 
 	var propId = table.GetUint64Slot(4, 0)
 
+	propCreatedAt, err := objectbox.NanoTimeInt64ConvertToEntityProperty(fbutils.GetInt64Slot(table, 8))
+	if err != nil {
+		return nil, errors.New("converter objectbox.NanoTimeInt64ConvertToEntityProperty() failed on Server.CreatedAt: " + err.Error())
+	}
+
 	return &Server{
-		Id:  propId,
-		URL: fbutils.GetStringSlot(table, 6),
+		Id:        propId,
+		URL:       fbutils.GetStringSlot(table, 6),
+		CreatedAt: propCreatedAt,
 	}, nil
 }
 

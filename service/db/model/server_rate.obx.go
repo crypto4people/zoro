@@ -5,8 +5,7 @@ package model
 
 import (
 	"errors"
-
-	flatbuffers "github.com/google/flatbuffers/go"
+	"github.com/google/flatbuffers/go"
 	"github.com/objectbox/objectbox-go/objectbox"
 	"github.com/objectbox/objectbox-go/objectbox/fbutils"
 )
@@ -25,13 +24,13 @@ var ServerRateBinding = serverRate_EntityInfo{
 
 // ServerRate_ contains type-based Property helpers to facilitate some common operations such as Queries.
 var ServerRate_ = struct {
-	Id       *objectbox.PropertyUint64
-	URL      *objectbox.PropertyString
-	Sub      *objectbox.PropertyString
-	Div      *objectbox.PropertyString
-	Mul      *objectbox.PropertyString
-	Add      *objectbox.PropertyString
-	Deadline *objectbox.PropertyInt64
+	Id        *objectbox.PropertyUint64
+	URL       *objectbox.PropertyString
+	Sub       *objectbox.PropertyString
+	Div       *objectbox.PropertyString
+	Mul       *objectbox.PropertyString
+	Add       *objectbox.PropertyString
+	CreatedAt *objectbox.PropertyInt64
 }{
 	Id: &objectbox.PropertyUint64{
 		BaseProperty: &objectbox.BaseProperty{
@@ -69,9 +68,9 @@ var ServerRate_ = struct {
 			Entity: &ServerRateBinding.Entity,
 		},
 	},
-	Deadline: &objectbox.PropertyInt64{
+	CreatedAt: &objectbox.PropertyInt64{
 		BaseProperty: &objectbox.BaseProperty{
-			Id:     7,
+			Id:     8,
 			Entity: &ServerRateBinding.Entity,
 		},
 	},
@@ -92,8 +91,8 @@ func (serverRate_EntityInfo) AddToModel(model *objectbox.Model) {
 	model.Property("Div", 9, 4, 385638544626009548)
 	model.Property("Mul", 9, 5, 104369507793587494)
 	model.Property("Add", 9, 6, 7113707590204704889)
-	model.Property("Deadline", 12, 7, 8940953312995381987)
-	model.EntityLastPropertyId(7, 8940953312995381987)
+	model.Property("CreatedAt", 12, 8, 4179271382926812105)
+	model.EntityLastPropertyId(8, 4179271382926812105)
 }
 
 // GetId is called by ObjectBox during Put operations to check for existing ID on an object
@@ -115,12 +114,12 @@ func (serverRate_EntityInfo) PutRelated(ob *objectbox.ObjectBox, object interfac
 // Flatten is called by ObjectBox to transform an object to a FlatBuffer
 func (serverRate_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id uint64) error {
 	obj := object.(*ServerRate)
-	var propDeadline int64
+	var propCreatedAt int64
 	{
 		var err error
-		propDeadline, err = objectbox.NanoTimeInt64ConvertToDatabaseValue(obj.Deadline)
+		propCreatedAt, err = objectbox.NanoTimeInt64ConvertToDatabaseValue(obj.CreatedAt)
 		if err != nil {
-			return errors.New("converter objectbox.NanoTimeInt64ConvertToDatabaseValue() failed on ServerRate.Deadline: " + err.Error())
+			return errors.New("converter objectbox.NanoTimeInt64ConvertToDatabaseValue() failed on ServerRate.CreatedAt: " + err.Error())
 		}
 	}
 
@@ -131,14 +130,14 @@ func (serverRate_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builde
 	var offsetAdd = fbutils.CreateStringOffset(fbb, obj.Add)
 
 	// build the FlatBuffers object
-	fbb.StartObject(7)
+	fbb.StartObject(8)
 	fbutils.SetUint64Slot(fbb, 0, id)
 	fbutils.SetUOffsetTSlot(fbb, 1, offsetURL)
 	fbutils.SetUOffsetTSlot(fbb, 2, offsetSub)
 	fbutils.SetUOffsetTSlot(fbb, 3, offsetDiv)
 	fbutils.SetUOffsetTSlot(fbb, 4, offsetMul)
 	fbutils.SetUOffsetTSlot(fbb, 5, offsetAdd)
-	fbutils.SetInt64Slot(fbb, 6, propDeadline)
+	fbutils.SetInt64Slot(fbb, 7, propCreatedAt)
 	return nil
 }
 
@@ -155,19 +154,19 @@ func (serverRate_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interf
 
 	var propId = table.GetUint64Slot(4, 0)
 
-	propDeadline, err := objectbox.NanoTimeInt64ConvertToEntityProperty(fbutils.GetInt64Slot(table, 16))
+	propCreatedAt, err := objectbox.NanoTimeInt64ConvertToEntityProperty(fbutils.GetInt64Slot(table, 18))
 	if err != nil {
-		return nil, errors.New("converter objectbox.NanoTimeInt64ConvertToEntityProperty() failed on ServerRate.Deadline: " + err.Error())
+		return nil, errors.New("converter objectbox.NanoTimeInt64ConvertToEntityProperty() failed on ServerRate.CreatedAt: " + err.Error())
 	}
 
 	return &ServerRate{
-		Id:       propId,
-		URL:      fbutils.GetStringSlot(table, 6),
-		Sub:      fbutils.GetStringSlot(table, 8),
-		Div:      fbutils.GetStringSlot(table, 10),
-		Mul:      fbutils.GetStringSlot(table, 12),
-		Add:      fbutils.GetStringSlot(table, 14),
-		Deadline: propDeadline,
+		Id:        propId,
+		URL:       fbutils.GetStringSlot(table, 6),
+		Sub:       fbutils.GetStringSlot(table, 8),
+		Div:       fbutils.GetStringSlot(table, 10),
+		Mul:       fbutils.GetStringSlot(table, 12),
+		Add:       fbutils.GetStringSlot(table, 14),
+		CreatedAt: propCreatedAt,
 	}, nil
 }
 

@@ -6,11 +6,10 @@ package model
 import (
 	"encoding/json"
 	"errors"
-	"time"
-
-	flatbuffers "github.com/google/flatbuffers/go"
+	"github.com/google/flatbuffers/go"
 	"github.com/objectbox/objectbox-go/objectbox"
 	"github.com/objectbox/objectbox-go/objectbox/fbutils"
+	"time"
 )
 
 type serverSubs_EntityInfo struct {
@@ -27,10 +26,13 @@ var ServerSubsBinding = serverSubs_EntityInfo{
 
 // ServerSubs_ contains type-based Property helpers to facilitate some common operations such as Queries.
 var ServerSubs_ = struct {
-	Id     *objectbox.PropertyUint64
-	Tx     *objectbox.PropertyByteVector
-	Expire *objectbox.PropertyInt64
-	Remain *objectbox.PropertyInt64
+	Id        *objectbox.PropertyUint64
+	Tx        *objectbox.PropertyByteVector
+	Expire    *objectbox.PropertyInt64
+	Remain    *objectbox.PropertyInt64
+	CreatedAt *objectbox.PropertyInt64
+	URL       *objectbox.PropertyString
+	Addr      *objectbox.PropertyByteVector
 }{
 	Id: &objectbox.PropertyUint64{
 		BaseProperty: &objectbox.BaseProperty{
@@ -56,6 +58,24 @@ var ServerSubs_ = struct {
 			Entity: &ServerSubsBinding.Entity,
 		},
 	},
+	CreatedAt: &objectbox.PropertyInt64{
+		BaseProperty: &objectbox.BaseProperty{
+			Id:     5,
+			Entity: &ServerSubsBinding.Entity,
+		},
+	},
+	URL: &objectbox.PropertyString{
+		BaseProperty: &objectbox.BaseProperty{
+			Id:     6,
+			Entity: &ServerSubsBinding.Entity,
+		},
+	},
+	Addr: &objectbox.PropertyByteVector{
+		BaseProperty: &objectbox.BaseProperty{
+			Id:     7,
+			Entity: &ServerSubsBinding.Entity,
+		},
+	},
 }
 
 // GeneratorVersion is called by ObjectBox to verify the compatibility of the generator used to generate this code
@@ -71,7 +91,10 @@ func (serverSubs_EntityInfo) AddToModel(model *objectbox.Model) {
 	model.Property("Tx", 23, 2, 4915219201751472454)
 	model.Property("Expire", 12, 3, 4813262769564985131)
 	model.Property("Remain", 12, 4, 4473828387783445400)
-	model.EntityLastPropertyId(4, 4473828387783445400)
+	model.Property("CreatedAt", 12, 5, 7269875192836344139)
+	model.Property("URL", 9, 6, 6986545900602995682)
+	model.Property("Addr", 23, 7, 6090644599387250932)
+	model.EntityLastPropertyId(7, 6090644599387250932)
 }
 
 // GetId is called by ObjectBox during Put operations to check for existing ID on an object
@@ -102,14 +125,28 @@ func (serverSubs_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builde
 		}
 	}
 
+	var propCreatedAt int64
+	{
+		var err error
+		propCreatedAt, err = objectbox.NanoTimeInt64ConvertToDatabaseValue(obj.CreatedAt)
+		if err != nil {
+			return errors.New("converter objectbox.NanoTimeInt64ConvertToDatabaseValue() failed on ServerSubs.CreatedAt: " + err.Error())
+		}
+	}
+
 	var offsetTx = fbutils.CreateByteVectorOffset(fbb, []byte(obj.Tx))
+	var offsetURL = fbutils.CreateStringOffset(fbb, obj.URL)
+	var offsetAddr = fbutils.CreateByteVectorOffset(fbb, obj.Addr)
 
 	// build the FlatBuffers object
-	fbb.StartObject(4)
+	fbb.StartObject(7)
 	fbutils.SetUint64Slot(fbb, 0, id)
 	fbutils.SetUOffsetTSlot(fbb, 1, offsetTx)
+	fbutils.SetUOffsetTSlot(fbb, 5, offsetURL)
+	fbutils.SetUOffsetTSlot(fbb, 6, offsetAddr)
 	fbutils.SetInt64Slot(fbb, 2, propExpire)
 	fbutils.SetInt64Slot(fbb, 3, int64(obj.Remain))
+	fbutils.SetInt64Slot(fbb, 4, propCreatedAt)
 	return nil
 }
 
@@ -131,11 +168,19 @@ func (serverSubs_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interf
 		return nil, errors.New("converter objectbox.NanoTimeInt64ConvertToEntityProperty() failed on ServerSubs.Expire: " + err.Error())
 	}
 
+	propCreatedAt, err := objectbox.NanoTimeInt64ConvertToEntityProperty(fbutils.GetInt64Slot(table, 12))
+	if err != nil {
+		return nil, errors.New("converter objectbox.NanoTimeInt64ConvertToEntityProperty() failed on ServerSubs.CreatedAt: " + err.Error())
+	}
+
 	return &ServerSubs{
-		Id:     propId,
-		Tx:     json.RawMessage(fbutils.GetByteVectorSlot(table, 6)),
-		Expire: propExpire,
-		Remain: time.Duration(fbutils.GetInt64Slot(table, 10)),
+		Id:        propId,
+		Tx:        json.RawMessage(fbutils.GetByteVectorSlot(table, 6)),
+		URL:       fbutils.GetStringSlot(table, 14),
+		Addr:      fbutils.GetByteVectorSlot(table, 16),
+		Expire:    propExpire,
+		Remain:    time.Duration(fbutils.GetInt64Slot(table, 10)),
+		CreatedAt: propCreatedAt,
 	}, nil
 }
 

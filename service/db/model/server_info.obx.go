@@ -5,11 +5,10 @@ package model
 
 import (
 	"errors"
-	"time"
-
-	flatbuffers "github.com/google/flatbuffers/go"
+	"github.com/google/flatbuffers/go"
 	"github.com/objectbox/objectbox-go/objectbox"
 	"github.com/objectbox/objectbox-go/objectbox/fbutils"
+	"time"
 )
 
 type serverInfo_EntityInfo struct {
@@ -26,16 +25,16 @@ var ServerInfoBinding = serverInfo_EntityInfo{
 
 // ServerInfo_ contains type-based Property helpers to facilitate some common operations such as Queries.
 var ServerInfo_ = struct {
-	Id       *objectbox.PropertyUint64
-	URL      *objectbox.PropertyString
-	Conns    *objectbox.PropertyInt64
-	Chain    *objectbox.PropertyString
-	Uptime   *objectbox.PropertyInt64
-	Height   *objectbox.PropertyInt64
-	Latency  *objectbox.PropertyInt64
-	Version  *objectbox.PropertyString
-	Address  *objectbox.PropertyByteVector
-	Deadline *objectbox.PropertyInt64
+	Id        *objectbox.PropertyUint64
+	URL       *objectbox.PropertyString
+	Conns     *objectbox.PropertyInt64
+	Chain     *objectbox.PropertyString
+	Uptime    *objectbox.PropertyInt64
+	Height    *objectbox.PropertyInt64
+	Latency   *objectbox.PropertyInt64
+	Version   *objectbox.PropertyString
+	Address   *objectbox.PropertyByteVector
+	CreatedAt *objectbox.PropertyInt64
 }{
 	Id: &objectbox.PropertyUint64{
 		BaseProperty: &objectbox.BaseProperty{
@@ -91,9 +90,9 @@ var ServerInfo_ = struct {
 			Entity: &ServerInfoBinding.Entity,
 		},
 	},
-	Deadline: &objectbox.PropertyInt64{
+	CreatedAt: &objectbox.PropertyInt64{
 		BaseProperty: &objectbox.BaseProperty{
-			Id:     10,
+			Id:     11,
 			Entity: &ServerInfoBinding.Entity,
 		},
 	},
@@ -117,8 +116,8 @@ func (serverInfo_EntityInfo) AddToModel(model *objectbox.Model) {
 	model.Property("Latency", 6, 7, 3307723555413915932)
 	model.Property("Version", 9, 8, 5475580069145039603)
 	model.Property("Address", 23, 9, 2621582914343583550)
-	model.Property("Deadline", 12, 10, 6367824298795601347)
-	model.EntityLastPropertyId(10, 6367824298795601347)
+	model.Property("CreatedAt", 12, 11, 5861713027488802899)
+	model.EntityLastPropertyId(11, 5861713027488802899)
 }
 
 // GetId is called by ObjectBox during Put operations to check for existing ID on an object
@@ -140,12 +139,12 @@ func (serverInfo_EntityInfo) PutRelated(ob *objectbox.ObjectBox, object interfac
 // Flatten is called by ObjectBox to transform an object to a FlatBuffer
 func (serverInfo_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id uint64) error {
 	obj := object.(*ServerInfo)
-	var propDeadline int64
+	var propCreatedAt int64
 	{
 		var err error
-		propDeadline, err = objectbox.NanoTimeInt64ConvertToDatabaseValue(obj.Deadline)
+		propCreatedAt, err = objectbox.NanoTimeInt64ConvertToDatabaseValue(obj.CreatedAt)
 		if err != nil {
-			return errors.New("converter objectbox.NanoTimeInt64ConvertToDatabaseValue() failed on ServerInfo.Deadline: " + err.Error())
+			return errors.New("converter objectbox.NanoTimeInt64ConvertToDatabaseValue() failed on ServerInfo.CreatedAt: " + err.Error())
 		}
 	}
 
@@ -155,7 +154,7 @@ func (serverInfo_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builde
 	var offsetAddress = fbutils.CreateByteVectorOffset(fbb, obj.Address)
 
 	// build the FlatBuffers object
-	fbb.StartObject(10)
+	fbb.StartObject(11)
 	fbutils.SetUint64Slot(fbb, 0, id)
 	fbutils.SetUOffsetTSlot(fbb, 1, offsetURL)
 	fbutils.SetInt64Slot(fbb, 2, obj.Conns)
@@ -165,7 +164,7 @@ func (serverInfo_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builde
 	fbutils.SetInt64Slot(fbb, 6, obj.Latency)
 	fbutils.SetUOffsetTSlot(fbb, 7, offsetVersion)
 	fbutils.SetUOffsetTSlot(fbb, 8, offsetAddress)
-	fbutils.SetInt64Slot(fbb, 9, propDeadline)
+	fbutils.SetInt64Slot(fbb, 10, propCreatedAt)
 	return nil
 }
 
@@ -182,22 +181,22 @@ func (serverInfo_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interf
 
 	var propId = table.GetUint64Slot(4, 0)
 
-	propDeadline, err := objectbox.NanoTimeInt64ConvertToEntityProperty(fbutils.GetInt64Slot(table, 22))
+	propCreatedAt, err := objectbox.NanoTimeInt64ConvertToEntityProperty(fbutils.GetInt64Slot(table, 24))
 	if err != nil {
-		return nil, errors.New("converter objectbox.NanoTimeInt64ConvertToEntityProperty() failed on ServerInfo.Deadline: " + err.Error())
+		return nil, errors.New("converter objectbox.NanoTimeInt64ConvertToEntityProperty() failed on ServerInfo.CreatedAt: " + err.Error())
 	}
 
 	return &ServerInfo{
-		Id:       propId,
-		URL:      fbutils.GetStringSlot(table, 6),
-		Conns:    fbutils.GetInt64Slot(table, 8),
-		Chain:    fbutils.GetStringSlot(table, 10),
-		Uptime:   time.Duration(fbutils.GetInt64Slot(table, 12)),
-		Height:   fbutils.GetInt64Slot(table, 14),
-		Latency:  fbutils.GetInt64Slot(table, 16),
-		Version:  fbutils.GetStringSlot(table, 18),
-		Address:  fbutils.GetByteVectorSlot(table, 20),
-		Deadline: propDeadline,
+		Id:        propId,
+		URL:       fbutils.GetStringSlot(table, 6),
+		Conns:     fbutils.GetInt64Slot(table, 8),
+		Chain:     fbutils.GetStringSlot(table, 10),
+		Uptime:    time.Duration(fbutils.GetInt64Slot(table, 12)),
+		Height:    fbutils.GetInt64Slot(table, 14),
+		Latency:   fbutils.GetInt64Slot(table, 16),
+		Version:   fbutils.GetStringSlot(table, 18),
+		Address:   fbutils.GetByteVectorSlot(table, 20),
+		CreatedAt: propCreatedAt,
 	}, nil
 }
 

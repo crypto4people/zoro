@@ -6,8 +6,7 @@ package model
 import (
 	"encoding/json"
 	"errors"
-
-	flatbuffers "github.com/google/flatbuffers/go"
+	"github.com/google/flatbuffers/go"
 	"github.com/objectbox/objectbox-go/objectbox"
 	"github.com/objectbox/objectbox-go/objectbox/fbutils"
 )
@@ -26,12 +25,12 @@ var TxBinding = tx_EntityInfo{
 
 // Tx_ contains type-based Property helpers to facilitate some common operations such as Queries.
 var Tx_ = struct {
-	Id       *objectbox.PropertyUint64
-	Hash     *objectbox.PropertyByteVector
-	Server   *objectbox.PropertyString
-	Tx       *objectbox.PropertyByteVector
-	Status   *objectbox.PropertyString
-	Deadline *objectbox.PropertyInt64
+	Id        *objectbox.PropertyUint64
+	Hash      *objectbox.PropertyByteVector
+	Server    *objectbox.PropertyString
+	Tx        *objectbox.PropertyByteVector
+	Status    *objectbox.PropertyString
+	CreatedAt *objectbox.PropertyInt64
 }{
 	Id: &objectbox.PropertyUint64{
 		BaseProperty: &objectbox.BaseProperty{
@@ -63,9 +62,9 @@ var Tx_ = struct {
 			Entity: &TxBinding.Entity,
 		},
 	},
-	Deadline: &objectbox.PropertyInt64{
+	CreatedAt: &objectbox.PropertyInt64{
 		BaseProperty: &objectbox.BaseProperty{
-			Id:     6,
+			Id:     7,
 			Entity: &TxBinding.Entity,
 		},
 	},
@@ -85,8 +84,8 @@ func (tx_EntityInfo) AddToModel(model *objectbox.Model) {
 	model.Property("Server", 9, 3, 6842129567688911244)
 	model.Property("Tx", 23, 4, 4488459279261558137)
 	model.Property("Status", 9, 5, 9022603123329065334)
-	model.Property("Deadline", 12, 6, 788242635844903069)
-	model.EntityLastPropertyId(6, 788242635844903069)
+	model.Property("CreatedAt", 12, 7, 4053594798470356266)
+	model.EntityLastPropertyId(7, 4053594798470356266)
 }
 
 // GetId is called by ObjectBox during Put operations to check for existing ID on an object
@@ -108,12 +107,12 @@ func (tx_EntityInfo) PutRelated(ob *objectbox.ObjectBox, object interface{}, id 
 // Flatten is called by ObjectBox to transform an object to a FlatBuffer
 func (tx_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id uint64) error {
 	obj := object.(*Tx)
-	var propDeadline int64
+	var propCreatedAt int64
 	{
 		var err error
-		propDeadline, err = objectbox.NanoTimeInt64ConvertToDatabaseValue(obj.Deadline)
+		propCreatedAt, err = objectbox.NanoTimeInt64ConvertToDatabaseValue(obj.CreatedAt)
 		if err != nil {
-			return errors.New("converter objectbox.NanoTimeInt64ConvertToDatabaseValue() failed on Tx.Deadline: " + err.Error())
+			return errors.New("converter objectbox.NanoTimeInt64ConvertToDatabaseValue() failed on Tx.CreatedAt: " + err.Error())
 		}
 	}
 
@@ -123,13 +122,13 @@ func (tx_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id ui
 	var offsetStatus = fbutils.CreateStringOffset(fbb, obj.Status)
 
 	// build the FlatBuffers object
-	fbb.StartObject(6)
+	fbb.StartObject(7)
 	fbutils.SetUint64Slot(fbb, 0, id)
 	fbutils.SetUOffsetTSlot(fbb, 1, offsetHash)
 	fbutils.SetUOffsetTSlot(fbb, 2, offsetServer)
 	fbutils.SetUOffsetTSlot(fbb, 3, offsetTx)
 	fbutils.SetUOffsetTSlot(fbb, 4, offsetStatus)
-	fbutils.SetInt64Slot(fbb, 5, propDeadline)
+	fbutils.SetInt64Slot(fbb, 6, propCreatedAt)
 	return nil
 }
 
@@ -146,18 +145,18 @@ func (tx_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interface{}, e
 
 	var propId = table.GetUint64Slot(4, 0)
 
-	propDeadline, err := objectbox.NanoTimeInt64ConvertToEntityProperty(fbutils.GetInt64Slot(table, 14))
+	propCreatedAt, err := objectbox.NanoTimeInt64ConvertToEntityProperty(fbutils.GetInt64Slot(table, 16))
 	if err != nil {
-		return nil, errors.New("converter objectbox.NanoTimeInt64ConvertToEntityProperty() failed on Tx.Deadline: " + err.Error())
+		return nil, errors.New("converter objectbox.NanoTimeInt64ConvertToEntityProperty() failed on Tx.CreatedAt: " + err.Error())
 	}
 
 	return &Tx{
-		Id:       propId,
-		Hash:     fbutils.GetByteVectorSlot(table, 6),
-		Server:   fbutils.GetStringSlot(table, 8),
-		Tx:       json.RawMessage(fbutils.GetByteVectorSlot(table, 10)),
-		Status:   fbutils.GetStringSlot(table, 12),
-		Deadline: propDeadline,
+		Id:        propId,
+		Hash:      fbutils.GetByteVectorSlot(table, 6),
+		Server:    fbutils.GetStringSlot(table, 8),
+		Tx:        json.RawMessage(fbutils.GetByteVectorSlot(table, 10)),
+		Status:    fbutils.GetStringSlot(table, 12),
+		CreatedAt: propCreatedAt,
 	}, nil
 }
 
