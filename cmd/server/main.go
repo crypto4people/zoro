@@ -17,7 +17,6 @@ import (
 
 	"github.com/caarlos0/env/v11"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/itsabgr/ge"
 	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
@@ -29,7 +28,7 @@ var config struct {
 	Listen    string   `env:"LISTEN"`
 	Contract  string   `env:"CONTRACT" envDefault:"0x"`
 	Accounts  []string `env:"ACCOUNTS,required" envSeperator:","`
-	Nodes     []string `env:"NODES" envSeperator:"," envDefault:"https://0xrpc.io/eth"`
+	Node      string   `env:"NODE" envDefault:"https://0xrpc.io/eth"`
 	Domain    *string  `env:"DOMAIN"`
 	Interface *net.IP  `env:"INTERFACE"`
 }
@@ -70,12 +69,7 @@ func main() {
 	defer db.Close()
 
 	// ethereum pool
-	ethClients := []*ethclient.Client{}
-	for _, node := range config.Nodes {
-		ethClients = append(ethClients, ge.Must(ethclient.Dial(node)))
-	}
-	ethClientPool := ge.Must(proxy.NewPool(ctx, ethClients))
-	defer ethClientPool.Close()
+	ethClient := ge.Must(proxy.NewEthClient(ctx, common.HexToAddress(config.Contract), config.Node))
 
 	// server setup
 	var cert, key string
@@ -107,7 +101,7 @@ func main() {
 		Contract:  common.HexToAddress(config.Contract),
 		Accounts:  lo.Map(config.Accounts, func(addr string, _ int) common.Address { return common.HexToAddress(addr) }),
 		Database:  db,
-		Nodes:     ethClientPool,
+		Client:    ethClient,
 		Logger: slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		})),
