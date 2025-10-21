@@ -17,17 +17,16 @@ service Service {
 message Empty{}
 
 message ConnectParams {
-    int64 server = 1;
+    string server = 1;
 }
 
 message StatusResult {
     string version = 1;
     int64 uptime = 2;
     string address = 3;
-    string balance = 4;
-    string chain = 5;
-    string node = 6;
-    bool connected = 8;
+    string chain = 4;
+    string balance = 5;
+    bool connected = 6;
 }
 
 
@@ -60,7 +59,7 @@ message ListServersResult {
         repeated Sub subs = 10;
         string uri = 11;
     }
-    map<int64,Info> servers = 1;
+    repeated Info infos = 1;
 }
 
 message ListTxsParams {
