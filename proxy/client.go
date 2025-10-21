@@ -39,7 +39,18 @@ func (client *Client) Account() common.Address {
 }
 
 func (client *Client) GetInfo(ctx context.Context) (*Info, error) {
-	return doJsonRequest[Info](ctx, client.httpClient, client.endpoint, http.NoBody)
+	url, err := url.Parse(client.endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	url.Path = path.Join(url.Path, "info")
+
+	query := url.Query()
+	query.Set("user", client.account.Hex())
+	url.RawQuery = query.Encode()
+
+	return doJsonRequest[Info](ctx, client.httpClient, url.String(), http.NoBody)
 }
 
 func (client *Client) GetSubs(ctx context.Context) ([]Sub, error) {
@@ -55,7 +66,7 @@ func (client *Client) GetSubs(ctx context.Context) ([]Sub, error) {
 	url.RawQuery = query.Encode()
 
 	result, err := doJsonRequest[[]Sub](ctx, client.httpClient, url.String(), http.NoBody)
-	if err != nil || result == nil {
+	if result == nil {
 		return nil, err
 	}
 

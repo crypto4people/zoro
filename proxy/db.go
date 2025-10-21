@@ -27,21 +27,21 @@ func (server *Server) migrate(ctx context.Context) error {
 	return err
 }
 
-func (server *Server) vaccum(ctx context.Context) error {
-	if !server.db.vaccum.mutex.TryLock() {
+func (server *Server) vacuum(ctx context.Context) error {
+	if !server.db.vacuum.mutex.TryLock() {
 		return nil
 	}
-	defer server.db.vaccum.mutex.Unlock()
+	defer server.db.vacuum.mutex.Unlock()
 
-	if time.Since(server.db.vaccum.last) < server.db.vaccum.interval {
+	if time.Since(server.db.vacuum.last) < server.db.vacuum.interval {
 		return nil
 	}
 
-	server.logger.Debug("vaccum database")
+	server.logger.Debug("vacuum database")
 
 	_, err := server.db.conn.ExecContext(ctx, "VACUUM;")
 	if err == nil {
-		server.db.vaccum.last = time.Now()
+		server.db.vacuum.last = time.Now()
 	}
 
 	return err

@@ -33,10 +33,13 @@ func (server *Server) initMux() {
 		return 200, nil
 	}))
 
-	server.httpMux.HandleFunc("PUT /", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
-		server.logger.Debug("new request on /", slog.String("address", req.RemoteAddr))
+	server.httpMux.HandleFunc("PUT /info", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
+		ctx := req.Context()
 
-		info, err := server.Info(req.Context())
+		user := req.URL.Query().Get("user")
+
+		server.logger.Debug("new request on /", slog.String("address", req.RemoteAddr))
+		info, err := server.Info(ctx, common.HexToAddress(user))
 		if err != nil {
 			return http.StatusInternalServerError, err
 		}

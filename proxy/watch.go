@@ -37,7 +37,7 @@ func (server *Server) Watch(ctx context.Context) error {
 
 			timer.Reset(duration)
 
-			if err := server.vaccum(ctx); err != nil {
+			if err := server.vacuum(ctx); err != nil {
 				return err
 			}
 

@@ -40,7 +40,7 @@ func NewServer(ctx context.Context, conf ServerConfig) (app *Server, err error) 
 	app.proxy.congestion.Init(2000, 20)
 
 	app.db.conn = conf.Database
-	app.db.vaccum.interval = time.Hour
+	app.db.vacuum.interval = time.Hour
 
 	err = app.init(ctx)
 

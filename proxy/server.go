@@ -28,7 +28,7 @@ type Server struct {
 		conn   *sql.DB
 		height atomic.Int64
 		subs   atomic.Int64
-		vaccum struct {
+		vacuum struct {
 			interval time.Duration
 			mutex    sync.Mutex
 			last     time.Time
@@ -59,11 +59,24 @@ type Info struct {
 	Height   int64
 	RateFeed common.Address
 	Account  common.Address
+	Balance  string
+	GasPrice string
 	Rate     rate.Rate
 }
 
-func (server *Server) Info(ctx context.Context) (*Info, error) {
+func (server *Server) Info(ctx context.Context, user common.Address) (*Info, error) {
+
+	price, err := server.ethClient.GasPrice(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	rate, err := server.ethClient.RateAt(ctx, rpc.LatestBlockNumber.Int64())
+	if err != nil {
+		return nil, err
+	}
+
+	balance, err := server.ethClient.BalanceOf(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -83,6 +96,8 @@ func (server *Server) Info(ctx context.Context) (*Info, error) {
 		Height:   server.db.height.Load(),
 		RateFeed: server.ethClient.RateFeed(),
 		Rate:     *rate,
+		Balance:  balance.Text(10),
+		GasPrice: price.Text(10),
 	}, nil
 }
 
@@ -91,7 +106,7 @@ func (server *Server) init(ctx context.Context) error {
 		return err
 	}
 
-	if err := server.vaccum(ctx); err != nil {
+	if err := server.vacuum(ctx); err != nil {
 		return err
 	}
 
