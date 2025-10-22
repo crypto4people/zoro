@@ -105,9 +105,9 @@ func (indexer *Indexer) GetTx(ctx context.Context, hash common.Hash) ([]byte, er
 }
 
 func (indexer *Indexer) Receives(ctx context.Context, chain string, block int64, accounts map[common.Address]struct{}) ([][]byte, error) {
-	addrs := make([]string, 0, len(accounts))
+	addrs := make([]common.Address, 0, len(accounts))
 	for addr := range accounts {
-		addrs = append(addrs, addr.Hex())
+		addrs = append(addrs, addr)
 	}
 
 	filter := bson.D{
@@ -260,6 +260,9 @@ func (indexer *Indexer) getLocalHeight(ctx context.Context) (int64, error) {
 		opts.SetSort(bson.D{{Key: "block", Value: -1}}),
 	).Decode(&transfer)
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return 0, nil
+		}
 		return -1, err
 	}
 
@@ -277,9 +280,14 @@ func (indexer *Indexer) appendTransfer(ctx context.Context, block int64, tx *typ
 		return err
 	}
 
+	to := tx.To()
+	if to == nil {
+		return nil
+	}
+
 	newTransfer := &transfersDoc{
 		Block: block,
-		To:    *tx.To(),
+		To:    *to,
 		Tx:    rawBytes,
 		Hash:  tx.Hash(),
 		Chain: indexer.chain,
