@@ -70,6 +70,12 @@ func (ser *server) Submit(ctx context.Context, params *pb.SubmitParams) (*emptyp
 }
 
 func (ser *server) Info(ctx context.Context, _ *emptypb.Empty) (*pb.InfoResult, error) {
+
+	gasPrice, err := ser.client.GasPrice(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	info, err := ser.indexer.Info(ctx)
 	if err != nil {
 		return nil, err
@@ -82,6 +88,7 @@ func (ser *server) Info(ctx context.Context, _ *emptypb.Empty) (*pb.InfoResult, 
 		Chain:     info.Chain,
 		RateFeed:  info.Ratefeed[:],
 		BlockTime: durationpb.New(info.BlockTime),
+		GasPrice:  gasPrice.Text(10),
 	}, nil
 }
 
