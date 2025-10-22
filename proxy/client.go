@@ -22,7 +22,7 @@ type Client struct {
 	account    common.Address
 }
 
-type Response[R any] struct {
+type response[R any] struct {
 	result     *R
 	statusCode int
 }
@@ -164,24 +164,24 @@ func (client *Client) SubmitTx(ctx context.Context, tx *types.Transaction) error
 	return err
 }
 
-func doPlainRequest(ctx context.Context, client *http.Client, endpoint string, body io.Reader) (*Response[string], error) {
-	return doRequest(ctx, client, endpoint, body, func(ctx context.Context, statusCode int, reader io.Reader) (*Response[string], error) {
+func doPlainRequest(ctx context.Context, client *http.Client, endpoint string, body io.Reader) (*response[string], error) {
+	return doRequest(ctx, client, endpoint, body, func(ctx context.Context, statusCode int, reader io.Reader) (*response[string], error) {
 		body, err := io.ReadAll(reader)
 		if err != nil {
 			return nil, err
 		}
 		bodyStr := string(body)
 
-		return &Response[string]{
+		return &response[string]{
 			result:     &bodyStr,
 			statusCode: statusCode,
 		}, nil
 	})
 }
 
-func doJsonRequest[R any](ctx context.Context, client *http.Client, endpoint string, body io.Reader) (*Response[R], error) {
-	return doRequest(ctx, client, endpoint, body, func(ctx context.Context, statusCode int, reader io.Reader) (*Response[R], error) {
-		var response Response[R]
+func doJsonRequest[R any](ctx context.Context, client *http.Client, endpoint string, body io.Reader) (*response[R], error) {
+	return doRequest(ctx, client, endpoint, body, func(ctx context.Context, statusCode int, reader io.Reader) (*response[R], error) {
+		var response response[R]
 		response.statusCode = statusCode
 
 		err := json.NewDecoder(reader).Decode(response.result)
