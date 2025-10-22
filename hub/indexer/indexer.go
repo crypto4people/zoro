@@ -105,7 +105,37 @@ func (indexer *Indexer) GetTx(ctx context.Context, hash common.Hash) ([]byte, er
 }
 
 func (indexer *Indexer) Receives(ctx context.Context, chain string, block int64, accounts map[common.Address]struct{}) ([][]byte, error) {
-	panic("todo")
+	addrs := make([]string, 0, len(accounts))
+	for addr := range accounts {
+		addrs = append(addrs, addr.Hex())
+	}
+
+	filter := bson.D{
+		{Key: "chain", Value: chain},
+		{Key: "block", Value: block},
+		{Key: "to", Value: bson.D{{Key: "$in", Value: addrs}}},
+	}
+
+	cur, err := indexer.db.Collection("transfers").Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var txs [][]byte
+	for cur.Next(ctx) {
+		var doc transfersDoc
+		if err := cur.Decode(&doc); err != nil {
+			return nil, err
+		}
+		txs = append(txs, doc.Tx)
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+
+	return txs, nil
 }
 
 func (indexer *Indexer) Routine(ctx context.Context) error {
