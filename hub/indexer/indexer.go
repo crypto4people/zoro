@@ -8,7 +8,6 @@ import (
 	"math/big"
 	"time"
 	"zoro/eth"
-	"zoro/misc"
 	"zoro/rate"
 	"zoro/rate/contract"
 
@@ -34,11 +33,12 @@ type IndexerInfo struct {
 }
 
 type Indexer struct {
-	client   *ethclient.Client
-	db       *mongo.Database
-	chain    string
-	ratefeed common.Address
-	start    time.Time
+	client    *ethclient.Client
+	db        *mongo.Database
+	chain     string
+	ratefeed  common.Address
+	start     time.Time
+	blockTime time.Duration
 }
 
 type transfersDoc struct {
@@ -68,11 +68,11 @@ func (indexer *Indexer) Info(ctx context.Context) (*IndexerInfo, error) {
 
 	return &IndexerInfo{
 		Uptime:    time.Since(indexer.start),
-		Version:   "version", //todo
+		Version:   "v1",
 		Ratefeed:  indexer.ratefeed,
 		Chain:     indexer.chain,
 		Height:    transfer.Block,
-		BlockTime: 0, //todo
+		BlockTime: indexer.blockTime,
 	}, nil
 }
 
@@ -170,12 +170,9 @@ func (indexer *Indexer) Routine(ctx context.Context) error {
 			}
 
 			for _, tx := range blockData.Txs {
-				// todo: add receivers
-				if !misc.FilterNonReceive(tx, indexer.chain, nil) {
-					if err := indexer.appendTransfer(ctx, number, tx); err != nil {
-						// todo log
-						return err
-					}
+				if err := indexer.appendTransfer(ctx, number, tx); err != nil {
+					// todo log
+					return err
 				}
 			}
 
