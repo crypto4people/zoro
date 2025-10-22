@@ -55,8 +55,10 @@ func NewDirectClient(ctx context.Context, ethClient *ethclient.Client, config Di
 		signer:   types.LatestSignerForChainID(chainId),
 	}
 
-	dc.accounts.set = misc.SliceToSet(config.Accounts)
-	dc.accounts.list = slices.Clone(config.Accounts)
+	if len(config.Accounts) > 0 {
+		dc.accounts.set = misc.SliceToSet(config.Accounts)
+		dc.accounts.list = slices.Clone(config.Accounts)
+	}
 
 	return dc, nil
 }

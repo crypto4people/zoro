@@ -84,10 +84,12 @@ func NewClient(ctx context.Context, cc grpc.ClientConnInterface, config HubClien
 		signer: types.LatestSignerForChainID(chainId),
 	}
 
-	hub.accounts.set = misc.SliceToSet(config.Accounts)
-	hub.accounts.list = lo.Map(config.Accounts, func(addr common.Address, _ int) []byte {
-		return slices.Clone(addr[:])
-	})
+	if len(config.Accounts) > 0 {
+		hub.accounts.set = misc.SliceToSet(config.Accounts)
+		hub.accounts.list = lo.Map(config.Accounts, func(addr common.Address, _ int) []byte {
+			return slices.Clone(addr[:])
+		})
+	}
 
 	return hub, nil
 }
