@@ -143,7 +143,7 @@ func (man *Manager) loadTxStatus(ctx context.Context, obj *db.Tx) error {
 
 	client := proxy.NewClient(man.httpClient, obj.Server, man.account)
 
-	tx, pend, err := client.GetReceipt(ctx, common.Hash(obj.Hash))
+	tx, pend, err := client.GetReceipt(ctx, common.BytesToHash(obj.Hash))
 	if err != nil {
 		return err
 	}
@@ -182,8 +182,6 @@ func (man *Manager) loadServerInfo(ctx context.Context, server *db.Server) (err 
 	if info.Chain != man.chain {
 		return errors.New("unknown server chain")
 	}
-
-	server = &db.Server{}
 
 	server.Version = info.Version
 	server.Uptime = info.Uptime
