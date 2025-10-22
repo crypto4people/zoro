@@ -5,7 +5,6 @@ go 1.24.6
 require (
 	github.com/ethereum/go-ethereum v1.16.4
 	github.com/gobwas/ws v1.4.0
-	github.com/gofrs/flock v0.13.0
 	github.com/google/flatbuffers v23.5.26+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/holiman/uint256 v1.3.2
@@ -36,6 +35,7 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
+	github.com/gofrs/flock v0.13.0 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
@@ -44,6 +44,7 @@ require (
 	github.com/objectbox/objectbox-generator/v4 v4.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect
+	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/supranational/blst v0.3.16-0.20250831170142-f48500c1fdbe // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
