@@ -22,6 +22,11 @@ type Client struct {
 	account    common.Address
 }
 
+type Response[R any] struct {
+	result     *R
+	statusCode int
+}
+
 func NewClient(client *http.Client, endpoint string, account common.Address) *Client {
 	return &Client{
 		httpClient: client,
@@ -50,7 +55,11 @@ func (client *Client) GetInfo(ctx context.Context) (*Info, error) {
 	query.Set("user", client.account.Hex())
 	url.RawQuery = query.Encode()
 
-	return doJsonRequest[Info](ctx, client.httpClient, url.String(), http.NoBody)
+	info, err := doJsonRequest[Info](ctx, client.httpClient, url.String(), http.NoBody)
+	if err != nil {
+		return nil, err
+	}
+	return info.result, nil
 }
 
 func (client *Client) GetSubs(ctx context.Context) ([]Sub, error) {
@@ -70,7 +79,7 @@ func (client *Client) GetSubs(ctx context.Context) ([]Sub, error) {
 		return nil, err
 	}
 
-	return *result, nil
+	return *result.result, nil
 }
 
 func (client *Client) GetBalance(ctx context.Context) (*uint256.Int, error) {
@@ -88,11 +97,11 @@ func (client *Client) GetBalance(ctx context.Context) (*uint256.Int, error) {
 	url.RawQuery = query.Encode()
 
 	result, err := doPlainRequest(ctx, client.httpClient, url.String(), http.NoBody)
-	if err != nil || result == "" {
+	if err != nil || result == nil {
 		return zero, err
 	}
 
-	return uint256.MustFromDecimal(result), nil
+	return uint256.MustFromDecimal(*result.result), nil
 }
 
 func (client *Client) GetNonce(ctx context.Context) (uint64, error) {
@@ -110,11 +119,11 @@ func (client *Client) GetNonce(ctx context.Context) (uint64, error) {
 	url.RawQuery = query.Encode()
 
 	result, err := doPlainRequest(ctx, client.httpClient, url.String(), http.NoBody)
-	if err != nil || result == "" {
+	if err != nil || result == nil {
 		return zero, err
 	}
 
-	return strconv.ParseUint(result, 10, 32)
+	return strconv.ParseUint(*result.result, 10, 32)
 }
 
 func (client *Client) GetReceipt(ctx context.Context, hash common.Hash) (*types.Transaction, bool, error) {
@@ -134,8 +143,7 @@ func (client *Client) GetReceipt(ctx context.Context, hash common.Hash) (*types.
 		return nil, false, err
 	}
 
-	//todo fix get reicept by status code
-	return result, false, nil
+	return result.result, result.statusCode == http.StatusAccepted, nil
 }
 
 func (client *Client) SubmitTx(ctx context.Context, tx *types.Transaction) error {
@@ -156,30 +164,36 @@ func (client *Client) SubmitTx(ctx context.Context, tx *types.Transaction) error
 	return err
 }
 
-func doPlainRequest(ctx context.Context, client *http.Client, endpoint string, body io.Reader) (string, error) {
-	respBody, err := doRequest(ctx, client, endpoint, body, func(ctx context.Context, reader io.Reader) ([]byte, error) {
-		return io.ReadAll(reader)
-	})
-	if err != nil || body == nil {
-		return "", err
-	}
+func doPlainRequest(ctx context.Context, client *http.Client, endpoint string, body io.Reader) (*Response[string], error) {
+	return doRequest(ctx, client, endpoint, body, func(ctx context.Context, statusCode int, reader io.Reader) (*Response[string], error) {
+		body, err := io.ReadAll(reader)
+		if err != nil {
+			return nil, err
+		}
+		bodyStr := string(body)
 
-	return string(respBody), nil
+		return &Response[string]{
+			result:     &bodyStr,
+			statusCode: statusCode,
+		}, nil
+	})
 }
 
-func doJsonRequest[R any](ctx context.Context, client *http.Client, endpoint string, body io.Reader) (*R, error) {
-	return doRequest(ctx, client, endpoint, body, func(ctx context.Context, reader io.Reader) (*R, error) {
-		var result R
-		err := json.NewDecoder(reader).Decode(&result)
+func doJsonRequest[R any](ctx context.Context, client *http.Client, endpoint string, body io.Reader) (*Response[R], error) {
+	return doRequest(ctx, client, endpoint, body, func(ctx context.Context, statusCode int, reader io.Reader) (*Response[R], error) {
+		var response Response[R]
+		response.statusCode = statusCode
+
+		err := json.NewDecoder(reader).Decode(response.result)
 		if err != nil {
 			return nil, err
 		}
 
-		return &result, nil
+		return &response, nil
 	})
 }
 
-func doRequest[R any](ctx context.Context, client *http.Client, endpoint string, body io.Reader, fn func(context.Context, io.Reader) (R, error)) (R, error) {
+func doRequest[R any](ctx context.Context, client *http.Client, endpoint string, body io.Reader, fn func(context.Context, int, io.Reader) (R, error)) (R, error) {
 	var zero R
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPut, endpoint, body)
@@ -193,8 +207,8 @@ func doRequest[R any](ctx context.Context, client *http.Client, endpoint string,
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusBadRequest {
+	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
 		return zero, errors.New("http error") // todo, send the error back
 	}
-	return fn(ctx, io.LimitReader(resp.Body, 4<<20))
+	return fn(ctx, resp.StatusCode, io.LimitReader(resp.Body, 4<<20))
 }
