@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"time"
 	"zoro/eth"
+	"zoro/misc"
 	"zoro/rate"
 	"zoro/rate/contract"
 
@@ -37,6 +38,7 @@ type Indexer struct {
 	db       *mongo.Database
 	chain    string
 	ratefeed common.Address
+	start    time.Time
 }
 
 type transfersDoc struct {
@@ -59,21 +61,36 @@ type rateDoc struct {
 }
 
 func (indexer *Indexer) Info(ctx context.Context) (*IndexerInfo, error) {
-	panic("todo")
+	transfer, err := indexer.getLastTransfer(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &IndexerInfo{
+		Uptime:    time.Since(indexer.start),
+		Version:   "version", //todo
+		Ratefeed:  indexer.ratefeed,
+		Chain:     indexer.chain,
+		Height:    transfer.Block,
+		BlockTime: 0, //todo
+	}, nil
 }
 
 func (indexer *Indexer) RateAt(ctx context.Context, chain string, block int64, ratefeed common.Address) (*rate.Rate, error) {
 	var record rateDoc
 
-	err := indexer.db.Collection("rates").FindOne(
-		ctx,
-		bson.D{
-			{Key: "block", Value: block},
-			{Key: "chain", Value: chain},
-			{Key: "ratefeed", Value: ratefeed},
-		},
-	).Decode(&record)
+	filter := bson.D{
+		{Key: "block", Value: block},
+		{Key: "chain", Value: chain},
+		{Key: "ratefeed", Value: ratefeed},
+	}
+	opts := options.FindOne().SetSort(bson.D{{Key: "block", Value: -1}})
+
+	err := indexer.db.Collection("rates").FindOne(ctx, filter, opts).Decode(&record)
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -88,12 +105,11 @@ func (indexer *Indexer) RateAt(ctx context.Context, chain string, block int64, r
 func (indexer *Indexer) GetTx(ctx context.Context, hash common.Hash) ([]byte, error) {
 	var transfer transfersDoc
 
-	err := indexer.db.Collection("transfers").FindOne(
-		ctx,
-		bson.D{
-			{Key: "hash", Value: hash},
-		},
-	).Decode(&transfer)
+	filter := bson.D{
+		{Key: "hash", Value: hash},
+	}
+
+	err := indexer.db.Collection("transfers").FindOne(ctx, filter).Decode(&transfer)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, nil
@@ -152,17 +168,18 @@ func (indexer *Indexer) Routine(ctx context.Context) error {
 			}
 
 			for _, tx := range blockData.Txs {
-				// todo filter
-				if err := indexer.appendTransfer(ctx, number, tx); err != nil {
-					// todo log
-					return err
+				// todo: add receivers
+				if !misc.FilterNonReceive(tx, indexer.chain, nil) {
+					if err := indexer.appendTransfer(ctx, number, tx); err != nil {
+						// todo log
+						return err
+					}
 				}
 			}
 
 			for _, log := range blockData.Logs {
 				rateUpdatedEvent, err := contract.ABI().UnpackRateUpdatedEvent(&log)
 				if err != nil {
-					// todo log
 					// its kinda impossible
 					return err
 				}
@@ -202,12 +219,13 @@ func (indexer *Indexer) getBlockData(ctx context.Context, number int64) (*getBlo
 	}
 
 	hash := block.Hash()
-
-	logs, err := indexer.client.FilterLogs(ctx, ethereum.FilterQuery{
+	filter := ethereum.FilterQuery{
 		BlockHash: &hash,
 		Addresses: []common.Address{indexer.ratefeed},
 		Topics:    [][]common.Hash{{contract.RateChangedID()}},
-	})
+	}
+
+	logs, err := indexer.client.FilterLogs(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -249,21 +267,31 @@ func (indexer *Indexer) foreachSafeBlock(ctx context.Context, start int64, fn fu
 	return nil
 }
 
-func (indexer *Indexer) getLocalHeight(ctx context.Context) (int64, error) {
+func (indexer *Indexer) getLastTransfer(ctx context.Context) (*transfersDoc, error) {
 	var transfer transfersDoc
 
-	opts := options.FindOne()
+	filter := bson.D{{Key: "chain", Value: indexer.chain}}
+	opts := options.FindOne().SetSort(bson.D{{Key: "block", Value: -1}})
 
-	err := indexer.db.Collection("transfers").FindOne(
-		ctx,
-		bson.D{{Key: "chain", Value: indexer.chain}},
-		opts.SetSort(bson.D{{Key: "block", Value: -1}}),
-	).Decode(&transfer)
+	err := indexer.db.Collection("transfers").FindOne(ctx, filter, opts).Decode(&transfer)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return 0, nil
+			return nil, nil
 		}
+		return nil, err
+	}
+
+	return &transfer, nil
+}
+
+func (indexer *Indexer) getLocalHeight(ctx context.Context) (int64, error) {
+	transfer, err := indexer.getLastTransfer(ctx)
+	if err != nil {
 		return -1, err
+	}
+
+	if transfer == nil {
+		return 0, nil
 	}
 
 	start := transfer.Block - 1
@@ -293,12 +321,10 @@ func (indexer *Indexer) appendTransfer(ctx context.Context, block int64, tx *typ
 		Chain: indexer.chain,
 	}
 
-	_, err = indexer.db.Collection("transfers").ReplaceOne(
-		ctx,
-		bson.D{{Key: "hash", Value: tx.Hash()}},
-		newTransfer,
-		options.Replace().SetUpsert(true),
-	)
+	filter := bson.D{{Key: "hash", Value: tx.Hash()}}
+	opts := options.Replace().SetUpsert(true)
+
+	_, err = indexer.db.Collection("transfers").ReplaceOne(ctx, filter, newTransfer, opts)
 	return err
 }
 
@@ -316,12 +342,10 @@ func (indexer *Indexer) appendRate(ctx context.Context, block int64, rate *rate.
 		Add:      rate.Add.Bytes(),
 	}
 
-	_, err := indexer.db.Collection("rates").ReplaceOne(
-		ctx,
-		bson.D{{Key: "u", Value: hash}},
-		newRate,
-		options.Replace().SetUpsert(true),
-	)
+	filter := bson.D{{Key: "u", Value: hash}}
+	opts := options.Replace().SetUpsert(true)
+
+	_, err := indexer.db.Collection("rates").ReplaceOne(ctx, filter, newRate, opts)
 	return err
 }
 
