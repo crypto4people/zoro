@@ -129,7 +129,9 @@ func (indexer *Indexer) Receives(ctx context.Context, chain string, block int64,
 	filter := bson.D{
 		{Key: "chain", Value: chain},
 		{Key: "block", Value: block},
-		{Key: "to", Value: bson.D{{Key: "$in", Value: addrs}}},
+		{Key: "to", Value: bson.D{
+			{Key: "$in", Value: addrs},
+		}},
 	}
 
 	cur, err := indexer.db.Collection("transfers").Find(ctx, filter)
@@ -270,8 +272,12 @@ func (indexer *Indexer) foreachSafeBlock(ctx context.Context, start int64, fn fu
 func (indexer *Indexer) getLastTransfer(ctx context.Context) (*transfersDoc, error) {
 	var transfer transfersDoc
 
-	filter := bson.D{{Key: "chain", Value: indexer.chain}}
-	opts := options.FindOne().SetSort(bson.D{{Key: "block", Value: -1}})
+	filter := bson.D{
+		{Key: "chain", Value: indexer.chain},
+	}
+	opts := options.FindOne().SetSort(bson.D{
+		{Key: "block", Value: -1},
+	})
 
 	err := indexer.db.Collection("transfers").FindOne(ctx, filter, opts).Decode(&transfer)
 	if err != nil {
@@ -321,7 +327,9 @@ func (indexer *Indexer) appendTransfer(ctx context.Context, block int64, tx *typ
 		Chain: indexer.chain,
 	}
 
-	filter := bson.D{{Key: "hash", Value: tx.Hash()}}
+	filter := bson.D{
+		{Key: "hash", Value: tx.Hash()},
+	}
 	opts := options.Replace().SetUpsert(true)
 
 	_, err = indexer.db.Collection("transfers").ReplaceOne(ctx, filter, newTransfer, opts)
@@ -342,7 +350,9 @@ func (indexer *Indexer) appendRate(ctx context.Context, block int64, rate *rate.
 		Add:      rate.Add.Bytes(),
 	}
 
-	filter := bson.D{{Key: "u", Value: hash}}
+	filter := bson.D{
+		{Key: "u", Value: hash},
+	}
 	opts := options.Replace().SetUpsert(true)
 
 	_, err := indexer.db.Collection("rates").ReplaceOne(ctx, filter, newRate, opts)
