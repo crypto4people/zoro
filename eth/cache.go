@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"iter"
+	"maps"
 	"math/big"
 	"strconv"
 	"time"
@@ -104,34 +105,20 @@ func (client *cacheClient) Receipt(ctx context.Context, hash common.Hash) (*type
 }
 
 // Receives implements Client.
-type txMap = map[common.Address]*types.Transaction
-
 func (client *cacheClient) Receives(ctx context.Context, block int64) (iter.Seq2[common.Address, *types.Transaction], error) {
-	mapp, err := getOrFetch(client.sf, client.cache, ctx, "receives:"+strconv.FormatInt(block, 10), func() (txMap, error) {
+	mapp, err := getOrFetch(client.sf, client.cache, ctx, "receives:"+strconv.FormatInt(block, 10), func() (map[common.Address]*types.Transaction, error) {
 		seq, err := client.client.Receives(ctx, block)
 		if err != nil {
 			return nil, err
 		}
 
-		out := make(txMap, 256)
-
-		seq(func(addr common.Address, tx *types.Transaction) bool {
-			out[addr] = tx
-			return true
-		})
-		return out, nil
+		return maps.Collect(seq), nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return func(yield func(common.Address, *types.Transaction) bool) {
-		for addr, tx := range mapp {
-			if !yield(addr, tx) {
-				return
-			}
-		}
-	}, nil
+	return maps.All(mapp), nil
 }
 
 // Submit implements Client.
