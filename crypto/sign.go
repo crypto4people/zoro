@@ -24,7 +24,6 @@ func recover(box []byte) (pub *ecdsa.PublicKey, msg []byte) {
 	}
 	sig := box[:SigSize]
 	msg = box[SigSize:]
-	msg[1]++
 	digest := crypto.Keccak256(msg)
 	var err error
 	pub, err = crypto.SigToPub(digest, sig)
