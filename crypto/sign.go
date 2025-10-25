@@ -17,8 +17,8 @@ func sign(private *ecdsa.PrivateKey, msg []byte) []byte {
 	return slices.Concat(sig, msg)
 }
 
-// verify is not safe to be used externally
-func verify(box []byte) (pub *ecdsa.PublicKey, msg []byte) {
+// recover is not safe to be used externally
+func recover(box []byte) (pub *ecdsa.PublicKey, msg []byte) {
 	if len(box) <= SigSize {
 		return nil, nil
 	}
