@@ -569,7 +569,7 @@ var Sub_ = struct {
 	Expire *objectbox.PropertyInt
 	Remain *objectbox.PropertyInt
 	ID     *objectbox.PropertyUint64
-	Tx     *objectbox.PropertyByteVector
+	Tx     *objectbox.PropertyString
 }{
 	Server: &objectbox.PropertyString{
 		BaseProperty: &objectbox.BaseProperty{
@@ -595,7 +595,7 @@ var Sub_ = struct {
 			Entity: &SubBinding.Entity,
 		},
 	},
-	Tx: &objectbox.PropertyByteVector{
+	Tx: &objectbox.PropertyString{
 		BaseProperty: &objectbox.BaseProperty{
 			Id:     8,
 			Entity: &SubBinding.Entity,
@@ -622,8 +622,8 @@ func (sub_EntityInfo) AddToModel(model *objectbox.Model) {
 	model.PropertyIndex(8, 1131139656423590368)
 	model.Property("ID", 6, 7, 672415181466963337)
 	model.PropertyFlags(1)
-	model.Property("Tx", 23, 8, 3673809299674218089)
-	model.PropertyFlags(40)
+	model.Property("Tx", 9, 8, 3673809299674218089)
+	model.PropertyFlags(2080)
 	model.PropertyIndex(9, 6973502498624206520)
 	model.EntityLastPropertyId(8, 3673809299674218089)
 }
@@ -665,7 +665,7 @@ func (sub_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id u
 	}
 
 	var offsetServer = fbutils.CreateStringOffset(fbb, obj.Server)
-	var offsetTx = fbutils.CreateByteVectorOffset(fbb, obj.Tx)
+	var offsetTx = fbutils.CreateStringOffset(fbb, obj.Tx)
 
 	// build the FlatBuffers object
 	fbb.StartObject(8)
@@ -695,7 +695,7 @@ func (sub_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interface{}, 
 		Server: fbutils.GetStringSlot(table, 8),
 		Expire: fbutils.GetIntSlot(table, 10),
 		Remain: fbutils.GetIntSlot(table, 12),
-		Tx:     fbutils.GetByteVectorSlot(table, 18),
+		Tx:     fbutils.GetStringSlot(table, 18),
 	}, nil
 }
 
@@ -1309,7 +1309,7 @@ var TxBinding = tx_EntityInfo{
 var Tx_ = struct {
 	ID     *objectbox.PropertyUint64
 	Server *objectbox.PropertyString
-	Hash   *objectbox.PropertyByteVector
+	Hash   *objectbox.PropertyString
 	Status *objectbox.PropertyInt32
 	Time   *objectbox.PropertyInt64
 }{
@@ -1325,7 +1325,7 @@ var Tx_ = struct {
 			Entity: &TxBinding.Entity,
 		},
 	},
-	Hash: &objectbox.PropertyByteVector{
+	Hash: &objectbox.PropertyString{
 		BaseProperty: &objectbox.BaseProperty{
 			Id:     3,
 			Entity: &TxBinding.Entity,
@@ -1356,8 +1356,8 @@ func (tx_EntityInfo) AddToModel(model *objectbox.Model) {
 	model.Property("ID", 6, 1, 86911417498632605)
 	model.PropertyFlags(1)
 	model.Property("Server", 9, 2, 5120845003451267654)
-	model.Property("Hash", 23, 3, 3068625255189509430)
-	model.PropertyFlags(40)
+	model.Property("Hash", 9, 3, 3068625255189509430)
+	model.PropertyFlags(2080)
 	model.PropertyIndex(10, 5376749420332191548)
 	model.Property("Status", 5, 4, 8855282705380540006)
 	model.PropertyFlags(8)
@@ -1412,7 +1412,7 @@ func (tx_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id ui
 	}
 
 	var offsetServer = fbutils.CreateStringOffset(fbb, obj.Server)
-	var offsetHash = fbutils.CreateByteVectorOffset(fbb, obj.Hash)
+	var offsetHash = fbutils.CreateStringOffset(fbb, obj.Hash)
 
 	// build the FlatBuffers object
 	fbb.StartObject(5)
@@ -1446,7 +1446,7 @@ func (tx_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interface{}, e
 		ID:     propID,
 		Server: fbutils.GetStringSlot(table, 6),
 		Status: TxStatus(fbutils.GetInt32Slot(table, 10)),
-		Hash:   fbutils.GetByteVectorSlot(table, 8),
+		Hash:   fbutils.GetStringSlot(table, 8),
 		Time:   propTime,
 	}, nil
 }

@@ -46,13 +46,13 @@ type Sub struct {
 	Server string `objectbox:"index"`
 	Expire int    `objectbox:"index"`
 	Remain int    `objectbox:"index"`
-	Tx     []byte `objectbox:"unique"`
+	Tx     string `objectbox:"unique"`
 }
 
 type Tx struct {
 	ID     uint64 `objectbox:"id"`
 	Server string
 	Status TxStatus  `objectbox:"index"`
-	Hash   []byte    `objectbox:"unique"`
+	Hash   string    `objectbox:"unique"`
 	Time   time.Time `objectbox:"date-nano"`
 }

@@ -143,7 +143,7 @@ func (man *Manager) loadTxStatus(ctx context.Context, obj *db.Tx) error {
 
 	client := proxy.NewClient(man.httpClient, obj.Server, man.account)
 
-	tx, pend, err := client.GetReceipt(ctx, common.BytesToHash(obj.Hash))
+	tx, pend, err := client.GetReceipt(ctx, common.HexToHash(obj.Hash))
 	if err != nil {
 		return err
 	}
@@ -201,7 +201,7 @@ func (man *Manager) loadServerInfo(ctx context.Context, server *db.Server) (err 
 
 	server.MySubs = lo.Map(subs, func(sub proxy.Sub, _ int) db.Sub {
 		return db.Sub{
-			Tx:     sub.Tx[:],
+			Tx:     sub.Tx.Hex(),
 			Server: server.URL,
 			Expire: sub.Expire,
 			Remain: sub.Remain,

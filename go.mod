@@ -5,7 +5,7 @@ go 1.24.6
 require (
 	github.com/ethereum/go-ethereum v1.16.4
 	github.com/gobwas/ws v1.4.0
-	github.com/google/flatbuffers v23.5.26+incompatible
+	github.com/google/flatbuffers v25.9.23+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/holiman/uint256 v1.3.2
 	github.com/itsabgr/ge v0.0.0-20241202140951-7f5c5d99dde6

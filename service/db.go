@@ -16,6 +16,8 @@ type repo struct {
 	settings *db.SettingBox
 }
 
+var errServerNotFound = errors.New("server not found")
+
 func (re *repo) UpsertServer(server *db.Server) error {
 	if !validateServerURL(server.URL) {
 		return errors.New("invalid server url")
@@ -24,7 +26,7 @@ func (re *repo) UpsertServer(server *db.Server) error {
 	defer re.mutex.Unlock()
 
 	id, err := re.getServer(server.URL)
-	if err != nil {
+	if err != nil && !errors.Is(err, errServerNotFound) {
 		return err
 	}
 
@@ -89,7 +91,7 @@ func (re *repo) getServer(url string) (uint64, error) {
 
 	switch len(ids) {
 	case 0:
-		return 0, nil
+		return 0, errServerNotFound
 	case 1:
 		return ids[0], nil
 	default:
@@ -103,16 +105,21 @@ func (re *repo) removeServer(url string) error {
 	if err != nil {
 		return err
 	}
+
 	id, err := re.getServer(url)
 	if err != nil {
-		return err
+		if errors.Is(err, errServerNotFound) {
+			return nil
+		}
 	}
+
 	if len(ids) > 0 {
 		_, err = re.subs.RemoveIds(ids...)
 		if err != nil {
 			return err
 		}
 	}
+
 	return re.servers.RemoveId(id)
 }
 
