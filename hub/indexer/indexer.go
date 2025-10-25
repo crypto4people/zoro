@@ -179,7 +179,6 @@ func (indexer *Indexer) Routine(ctx context.Context) error {
 			for _, log := range blockData.Logs {
 				rateUpdatedEvent, err := contract.ABI().UnpackRateUpdatedEvent(&log)
 				if err != nil {
-					// its kinda impossible
 					return err
 				}
 
