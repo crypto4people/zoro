@@ -182,6 +182,7 @@ func doPlainRequest(ctx context.Context, client *http.Client, endpoint string, b
 func doJsonRequest[R any](ctx context.Context, client *http.Client, endpoint string, body io.Reader) (*response[R], error) {
 	return doRequest(ctx, client, endpoint, body, func(ctx context.Context, statusCode int, reader io.Reader) (*response[R], error) {
 		var response response[R]
+		response.result = new(R)
 		response.statusCode = statusCode
 
 		err := json.NewDecoder(reader).Decode(response.result)
