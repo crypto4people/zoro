@@ -24,7 +24,7 @@ func App() *cli.Command {
 
 func cmdGetServer() *cli.Command {
 	return &cli.Command{
-		Name:  "get-server",
+		Name:  "info",
 		Usage: "Fetch and display server info",
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "server", Required: true, Usage: "Server base URL (e.g. https://zoro.example.com)"},
@@ -48,7 +48,7 @@ func cmdGetServer() *cli.Command {
 
 func cmdGetSubs() *cli.Command {
 	return &cli.Command{
-		Name:  "get-subs",
+		Name:  "subs",
 		Usage: "List subscriptions for an account",
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "server", Required: true, Usage: "Server base URL"},
