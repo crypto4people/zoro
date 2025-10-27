@@ -33,7 +33,7 @@ var connectCmd = &cli.Command{
 	Flags: []cli.Flag{
 		serverFlag,
 		&cli.StringFlag{Name: "local-socks", Value: "127.0.0.1:1080"},
-		&cli.StringFlag{Name: "enable-tun", Value: "127.0.0.1:1080"},
+		&cli.BoolFlag{Name: "enable-tun"},
 	},
 	Action: connectAction,
 }
