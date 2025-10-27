@@ -7,7 +7,7 @@ import (
 var serverFlag = &cli.StringFlag{Name: "server", Required: true, Usage: "Server base URL (e.g. https://zoro.example.com)"}
 var accountFlag = &cli.StringFlag{Name: "account", Required: true, Usage: "Account address/string"}
 
-var clientInfoCmd = &cli.Command{
+var infoCmd = &cli.Command{
 	Name:  "info",
 	Usage: "Fetch and display server info",
 	Flags: []cli.Flag{
@@ -17,7 +17,7 @@ var clientInfoCmd = &cli.Command{
 	Action: infoAction,
 }
 
-var clientSubsCmd = &cli.Command{
+var subsCmd = &cli.Command{
 	Name:  "subs",
 	Usage: "List subscriptions for an account",
 	Flags: []cli.Flag{
@@ -27,17 +27,18 @@ var clientSubsCmd = &cli.Command{
 	Action: subsAction,
 }
 
-var clientConnectCmd = &cli.Command{
+var connectCmd = &cli.Command{
 	Name:  "connect",
 	Usage: "Start local SOCKS5 and tunnel via sing-box",
 	Flags: []cli.Flag{
 		serverFlag,
 		&cli.StringFlag{Name: "local-socks", Value: "127.0.0.1:1080"},
+		&cli.StringFlag{Name: "enable-tun", Value: "127.0.0.1:1080"},
 	},
 	Action: connectAction,
 }
 
-var clientTxApplyCmd = &cli.Command{
+var txApplyCmd = &cli.Command{
 	Name:  "apply",
 	Usage: "Create, sign and submit a payment transaction",
 	Flags: []cli.Flag{
@@ -47,7 +48,7 @@ var clientTxApplyCmd = &cli.Command{
 	Action: applyAction,
 }
 
-var clientTxCheckCmd = &cli.Command{
+var txCheckCmd = &cli.Command{
 	Name:  "check",
 	Usage: "Check a transaction receipt",
 	Flags: []cli.Flag{
@@ -57,19 +58,19 @@ var clientTxCheckCmd = &cli.Command{
 	Action: checkAction,
 }
 
-var clientTxCmd = &cli.Command{
+var txCmd = &cli.Command{
 	Name:     "tx",
 	Usage:    "Buy (send) or check a transaction",
-	Commands: []*cli.Command{clientTxApplyCmd, clientTxCheckCmd},
+	Commands: []*cli.Command{txApplyCmd, txCheckCmd},
 }
 
 var Cmd = &cli.Command{
 	Name:  "client",
 	Usage: "client → Get Server Info, Watch your subs, Buy a new subscription, Connect",
 	Commands: []*cli.Command{
-		clientInfoCmd,
-		clientSubsCmd,
-		clientConnectCmd,
-		clientTxCmd,
+		infoCmd,
+		subsCmd,
+		connectCmd,
+		txCmd,
 	},
 }

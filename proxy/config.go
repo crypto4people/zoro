@@ -12,13 +12,13 @@ import (
 )
 
 type ServerConfig struct {
-	LocalAddr net.IP
-	Contract  common.Address
-	Accounts  []common.Address
-	Database  *sql.DB
-	Client    eth.Client
-	Logger    *slog.Logger
-	MinBlock  int64
+	LocalAddr     net.IP
+	Contract      common.Address
+	Accounts      []common.Address
+	Database      *sql.DB
+	Client        eth.Client
+	Logger        *slog.Logger
+	StartingBlock int64
 }
 
 func NewServer(ctx context.Context, conf ServerConfig) (app *Server, err error) {
@@ -28,7 +28,7 @@ func NewServer(ctx context.Context, conf ServerConfig) (app *Server, err error) 
 	}
 
 	app.ethClient = conf.Client
-	app.ethStartingBlock = conf.MinBlock
+	app.ethStartingBlock = conf.StartingBlock
 
 	app.proxy.reporting.internal = time.Second * 10
 	app.proxy.reporting.timeout = time.Second * 5

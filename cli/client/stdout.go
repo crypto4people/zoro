@@ -43,8 +43,8 @@ func printSubs(subs []proxy.Sub) {
 	for idx, sub := range subs {
 		tblContents = append(tblContents, []string{"ID", fmt.Sprint(idx)})
 		tblContents = append(tblContents, []string{"TX", sub.Tx.Hex()})
-		tblContents = append(tblContents, []string{"Remaining", fmt.Sprint(sub.Remain)})
-		tblContents = append(tblContents, []string{"Expiration", fmt.Sprint(sub.Expire)})
+		tblContents = append(tblContents, []string{"Remaining", fmt.Sprint(time.Duration(sub.Remain) * time.Second)})
+		tblContents = append(tblContents, []string{"Expiration", time.Unix(int64(sub.Expire), 0).String()})
 		if idx != len(subs)-1 {
 			tblContents = append(tblContents, []string{"", ""})
 		}
