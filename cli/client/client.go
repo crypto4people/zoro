@@ -38,6 +38,13 @@ var connectCmd = &cli.Command{
 	Action: connectAction,
 }
 
+// tx
+var txCmd = &cli.Command{
+	Name:     "tx",
+	Usage:    "Buy (send) or check a transaction",
+	Commands: []*cli.Command{txApplyCmd, txCheckCmd},
+}
+
 var txApplyCmd = &cli.Command{
 	Name:  "apply",
 	Usage: "Create, sign and submit a payment transaction",
@@ -56,12 +63,6 @@ var txCheckCmd = &cli.Command{
 		&cli.StringFlag{Name: "hash", Required: true},
 	},
 	Action: checkAction,
-}
-
-var txCmd = &cli.Command{
-	Name:     "tx",
-	Usage:    "Buy (send) or check a transaction",
-	Commands: []*cli.Command{txApplyCmd, txCheckCmd},
 }
 
 var Cmd = &cli.Command{
