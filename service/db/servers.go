@@ -23,17 +23,11 @@ func (db *Database) Servers() (map[string]*url.URL, error) {
 	return result, nil
 }
 
-func (db *Database) DeleteServer(name string) error {
-	db.mutex.Lock()
-	defer db.mutex.Unlock()
-	server, err := db.getServer(name)
-	if err == nil && server != nil {
-		err = db.servers.RemoveId(server.ID)
-	}
-	return err
-}
-
 func (db *Database) PutServer(name string, serverURL *url.URL) error {
+
+	if serverURL == nil {
+		return db.deleteServer(name)
+	}
 
 	db.mutex.Lock()
 	defer db.mutex.Unlock()
@@ -54,14 +48,14 @@ func (db *Database) PutServer(name string, serverURL *url.URL) error {
 	return err
 }
 
-func (db *Database) GetServer(name string) (*url.URL, error) {
-	db.mutex.RLock()
-	defer db.mutex.RUnlock()
+func (db *Database) deleteServer(name string) error {
+	db.mutex.Lock()
+	defer db.mutex.Unlock()
 	server, err := db.getServer(name)
-	if err != nil || server == nil {
-		return nil, err
+	if err == nil && server != nil {
+		err = db.servers.RemoveId(server.ID)
 	}
-	return url.Parse(server.URL)
+	return err
 }
 
 func (db *Database) getServer(key string) (*ob.Server, error) {

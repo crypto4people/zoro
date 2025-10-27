@@ -18,17 +18,11 @@ func (db *Database) Settings() (map[string]string, error) {
 	return result, nil
 }
 
-func (db *Database) DeleteSetting(hash string) error {
-	db.mutex.Lock()
-	defer db.mutex.Unlock()
-	setting, err := db.getSetting(hash)
-	if err == nil && setting != nil {
-		err = db.settings.RemoveId(setting.ID)
-	}
-	return err
-}
-
 func (db *Database) PutSetting(key string, val string) error {
+
+	if len(val) <= 0 {
+		return db.deleteSetting(key)
+	}
 
 	db.mutex.Lock()
 	defer db.mutex.Unlock()
@@ -49,14 +43,14 @@ func (db *Database) PutSetting(key string, val string) error {
 	return err
 }
 
-func (db *Database) GetSetting(hash string) (string, error) {
-	db.mutex.RLock()
-	defer db.mutex.RUnlock()
+func (db *Database) deleteSetting(hash string) error {
+	db.mutex.Lock()
+	defer db.mutex.Unlock()
 	setting, err := db.getSetting(hash)
-	if err != nil || setting == nil {
-		return "", err
+	if err == nil && setting != nil {
+		err = db.settings.RemoveId(setting.ID)
 	}
-	return setting.Value, nil
+	return err
 }
 
 func (db *Database) getSetting(key string) (*ob.Setting, error) {

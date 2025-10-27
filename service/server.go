@@ -43,7 +43,7 @@ func (server *Server) CheckTx(ctx context.Context, params *pb.CheckTxParams) (*p
 	var status pb.CheckTxResult_TxStatus
 	if tx == nil {
 		status = pb.CheckTxResult_NotFound
-		_ = server.database.DeletePend(tx.Hash())
+		_ = server.database.PutPend(tx.Hash(), nil)
 	} else {
 		if isPend {
 			status = pb.CheckTxResult_Pend
@@ -58,7 +58,7 @@ func (server *Server) CheckTx(ctx context.Context, params *pb.CheckTxParams) (*p
 			}
 		} else {
 			status = pb.CheckTxResult_Done
-			_ = server.database.DeletePend(tx.Hash())
+			_ = server.database.PutPend(tx.Hash(), nil)
 		}
 	}
 
@@ -151,11 +151,9 @@ func (server *Server) ModifyAccount(ctx context.Context, params *pb.ModifyAccoun
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "failed to parse address")
 	}
-	if len(params.Cipher) <= 0 {
-		err = server.database.DeleteAccount(addr)
-	} else {
-		err = server.database.PutAccount(addr, params.Cipher)
-	}
+
+	err = server.database.PutAccount(addr, params.Cipher)
+
 	return &pb.ModifyAccountResult{}, err
 }
 
@@ -182,7 +180,7 @@ func (server *Server) ListServers(ctx context.Context, params *pb.ListServersPar
 
 func (server *Server) ModifyServer(ctx context.Context, params *pb.ModifyServerParams) (_ *pb.ModifyServerResult, err error) {
 	if params.Url == nil {
-		err = server.database.DeleteServer(params.Key)
+		err = server.database.PutServer(params.Key, nil)
 	} else {
 		var purl *url.URL
 		purl, err = url.Parse(*params.Url)

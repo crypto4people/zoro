@@ -26,17 +26,11 @@ func (db *Database) Pends() (map[common.Hash]*url.URL, error) {
 	return result, nil
 }
 
-func (db *Database) DeletePend(hash common.Hash) error {
-	db.mutex.Lock()
-	defer db.mutex.Unlock()
-	pend, err := db.getPend(hex.EncodeToString(hash[:]))
-	if err == nil && pend != nil {
-		err = db.pends.RemoveId(pend.ID)
-	}
-	return err
-}
-
 func (db *Database) PutPend(hash common.Hash, serverURL *url.URL) error {
+
+	if serverURL == nil {
+		return db.deletePend(hash)
+	}
 
 	hashHex := hex.EncodeToString(hash[:])
 
@@ -47,7 +41,7 @@ func (db *Database) PutPend(hash common.Hash, serverURL *url.URL) error {
 	if err != nil {
 		return err
 	}
-	
+
 	if pend == nil {
 		pend = &ob.Pend{
 			Hash:      hashHex,
@@ -61,14 +55,14 @@ func (db *Database) PutPend(hash common.Hash, serverURL *url.URL) error {
 	return err
 }
 
-func (db *Database) GetPend(hash common.Hash) (*url.URL, error) {
-	db.mutex.RLock()
-	defer db.mutex.RUnlock()
+func (db *Database) deletePend(hash common.Hash) error {
+	db.mutex.Lock()
+	defer db.mutex.Unlock()
 	pend, err := db.getPend(hex.EncodeToString(hash[:]))
-	if err != nil || pend == nil {
-		return nil, err
+	if err == nil && pend != nil {
+		err = db.pends.RemoveId(pend.ID)
 	}
-	return url.Parse(pend.ServerURL)
+	return err
 }
 
 func (db *Database) getPend(hash string) (*ob.Pend, error) {
