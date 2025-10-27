@@ -2,6 +2,7 @@ package db
 
 import (
 	"encoding/hex"
+	"errors"
 	"zoro/service/db/ob"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -33,6 +34,10 @@ func (db *Database) DeleteAccount(address common.Address) error {
 
 func (db *Database) PutAccount(address common.Address, cipher []byte) error {
 
+	if len(cipher) <= 0 {
+		return errors.New("empty cipher")
+	}
+
 	addrHex := hex.EncodeToString(address[:])
 
 	db.mutex.Lock()
@@ -58,10 +63,20 @@ func (db *Database) GetAccount(address common.Address) ([]byte, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
 	account, err := db.getAccount(hex.EncodeToString(address[:]))
-	if err != nil {
+	if err != nil || account == nil {
 		return nil, err
 	}
 	return account.Cipher, nil
+}
+
+func (db *Database) HasAccount(address common.Address) (bool, error) {
+	db.mutex.RLock()
+	defer db.mutex.RUnlock()
+	account, err := db.getAccount(hex.EncodeToString(address[:]))
+	if err != nil {
+		return false, err
+	}
+	return account != nil, nil
 }
 
 func (db *Database) getAccount(address string) (*ob.Account, error) {

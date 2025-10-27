@@ -19,6 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	Service_ListPends_FullMethodName     = "/Service/ListPends"
+	Service_ListSubs_FullMethodName      = "/Service/ListSubs"
+	Service_SubmitTx_FullMethodName      = "/Service/SubmitTx"
+	Service_CheckTx_FullMethodName       = "/Service/CheckTx"
 	Service_ModifyAccount_FullMethodName = "/Service/ModifyAccount"
 	Service_ListAccounts_FullMethodName  = "/Service/ListAccounts"
 	Service_ModifyServer_FullMethodName  = "/Service/ModifyServer"
@@ -30,6 +34,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
+	ListPends(ctx context.Context, in *ListPendsParams, opts ...grpc.CallOption) (*ListPendsResult, error)
+	ListSubs(ctx context.Context, in *ListSubsParams, opts ...grpc.CallOption) (*ListSubsResult, error)
+	SubmitTx(ctx context.Context, in *SubmitTxParams, opts ...grpc.CallOption) (*SubmitTxResult, error)
+	CheckTx(ctx context.Context, in *CheckTxParams, opts ...grpc.CallOption) (*CheckTxResult, error)
 	ModifyAccount(ctx context.Context, in *ModifyAccountParams, opts ...grpc.CallOption) (*ModifyAccountResult, error)
 	ListAccounts(ctx context.Context, in *ListAccountsParams, opts ...grpc.CallOption) (*ListAccountsResult, error)
 	ModifyServer(ctx context.Context, in *ModifyServerParams, opts ...grpc.CallOption) (*ModifyServerResult, error)
@@ -43,6 +51,46 @@ type serviceClient struct {
 
 func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
+}
+
+func (c *serviceClient) ListPends(ctx context.Context, in *ListPendsParams, opts ...grpc.CallOption) (*ListPendsResult, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListPendsResult)
+	err := c.cc.Invoke(ctx, Service_ListPends_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) ListSubs(ctx context.Context, in *ListSubsParams, opts ...grpc.CallOption) (*ListSubsResult, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSubsResult)
+	err := c.cc.Invoke(ctx, Service_ListSubs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) SubmitTx(ctx context.Context, in *SubmitTxParams, opts ...grpc.CallOption) (*SubmitTxResult, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SubmitTxResult)
+	err := c.cc.Invoke(ctx, Service_SubmitTx_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) CheckTx(ctx context.Context, in *CheckTxParams, opts ...grpc.CallOption) (*CheckTxResult, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckTxResult)
+	err := c.cc.Invoke(ctx, Service_CheckTx_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *serviceClient) ModifyAccount(ctx context.Context, in *ModifyAccountParams, opts ...grpc.CallOption) (*ModifyAccountResult, error) {
@@ -99,6 +147,10 @@ func (c *serviceClient) ServerInfo(ctx context.Context, in *ServerInfoParams, op
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility.
 type ServiceServer interface {
+	ListPends(context.Context, *ListPendsParams) (*ListPendsResult, error)
+	ListSubs(context.Context, *ListSubsParams) (*ListSubsResult, error)
+	SubmitTx(context.Context, *SubmitTxParams) (*SubmitTxResult, error)
+	CheckTx(context.Context, *CheckTxParams) (*CheckTxResult, error)
 	ModifyAccount(context.Context, *ModifyAccountParams) (*ModifyAccountResult, error)
 	ListAccounts(context.Context, *ListAccountsParams) (*ListAccountsResult, error)
 	ModifyServer(context.Context, *ModifyServerParams) (*ModifyServerResult, error)
@@ -114,6 +166,18 @@ type ServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedServiceServer struct{}
 
+func (UnimplementedServiceServer) ListPends(context.Context, *ListPendsParams) (*ListPendsResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPends not implemented")
+}
+func (UnimplementedServiceServer) ListSubs(context.Context, *ListSubsParams) (*ListSubsResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListSubs not implemented")
+}
+func (UnimplementedServiceServer) SubmitTx(context.Context, *SubmitTxParams) (*SubmitTxResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitTx not implemented")
+}
+func (UnimplementedServiceServer) CheckTx(context.Context, *CheckTxParams) (*CheckTxResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckTx not implemented")
+}
 func (UnimplementedServiceServer) ModifyAccount(context.Context, *ModifyAccountParams) (*ModifyAccountResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ModifyAccount not implemented")
 }
@@ -148,6 +212,78 @@ func RegisterServiceServer(s grpc.ServiceRegistrar, srv ServiceServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&Service_ServiceDesc, srv)
+}
+
+func _Service_ListPends_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPendsParams)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).ListPends(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_ListPends_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).ListPends(ctx, req.(*ListPendsParams))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_ListSubs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSubsParams)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).ListSubs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_ListSubs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).ListSubs(ctx, req.(*ListSubsParams))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_SubmitTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitTxParams)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).SubmitTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_SubmitTx_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).SubmitTx(ctx, req.(*SubmitTxParams))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_CheckTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckTxParams)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).CheckTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_CheckTx_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).CheckTx(ctx, req.(*CheckTxParams))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Service_ModifyAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -247,6 +383,22 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "Service",
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListPends",
+			Handler:    _Service_ListPends_Handler,
+		},
+		{
+			MethodName: "ListSubs",
+			Handler:    _Service_ListSubs_Handler,
+		},
+		{
+			MethodName: "SubmitTx",
+			Handler:    _Service_SubmitTx_Handler,
+		},
+		{
+			MethodName: "CheckTx",
+			Handler:    _Service_CheckTx_Handler,
+		},
 		{
 			MethodName: "ModifyAccount",
 			Handler:    _Service_ModifyAccount_Handler,

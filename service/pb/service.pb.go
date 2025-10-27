@@ -21,6 +21,423 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type CheckTxResult_TxStatus int32
+
+const (
+	CheckTxResult_Done     CheckTxResult_TxStatus = 0
+	CheckTxResult_NotFound CheckTxResult_TxStatus = 1
+	CheckTxResult_Pend     CheckTxResult_TxStatus = 2
+)
+
+// Enum value maps for CheckTxResult_TxStatus.
+var (
+	CheckTxResult_TxStatus_name = map[int32]string{
+		0: "Done",
+		1: "NotFound",
+		2: "Pend",
+	}
+	CheckTxResult_TxStatus_value = map[string]int32{
+		"Done":     0,
+		"NotFound": 1,
+		"Pend":     2,
+	}
+)
+
+func (x CheckTxResult_TxStatus) Enum() *CheckTxResult_TxStatus {
+	p := new(CheckTxResult_TxStatus)
+	*p = x
+	return p
+}
+
+func (x CheckTxResult_TxStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CheckTxResult_TxStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_service_proto_enumTypes[0].Descriptor()
+}
+
+func (CheckTxResult_TxStatus) Type() protoreflect.EnumType {
+	return &file_service_proto_enumTypes[0]
+}
+
+func (x CheckTxResult_TxStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CheckTxResult_TxStatus.Descriptor instead.
+func (CheckTxResult_TxStatus) EnumDescriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{5, 0}
+}
+
+type ListSubsParams struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Server        string                 `protobuf:"bytes,2,opt,name=server,proto3" json:"server,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSubsParams) Reset() {
+	*x = ListSubsParams{}
+	mi := &file_service_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSubsParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSubsParams) ProtoMessage() {}
+
+func (x *ListSubsParams) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSubsParams.ProtoReflect.Descriptor instead.
+func (*ListSubsParams) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ListSubsParams) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *ListSubsParams) GetServer() string {
+	if x != nil {
+		return x.Server
+	}
+	return ""
+}
+
+type ListSubsResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Subs          []*ListSubsResult_Sub  `protobuf:"bytes,1,rep,name=subs,proto3" json:"subs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSubsResult) Reset() {
+	*x = ListSubsResult{}
+	mi := &file_service_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSubsResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSubsResult) ProtoMessage() {}
+
+func (x *ListSubsResult) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSubsResult.ProtoReflect.Descriptor instead.
+func (*ListSubsResult) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListSubsResult) GetSubs() []*ListSubsResult_Sub {
+	if x != nil {
+		return x.Subs
+	}
+	return nil
+}
+
+type SubmitTxParams struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tx            []byte                 `protobuf:"bytes,1,opt,name=tx,proto3" json:"tx,omitempty"`
+	Server        string                 `protobuf:"bytes,2,opt,name=server,proto3" json:"server,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubmitTxParams) Reset() {
+	*x = SubmitTxParams{}
+	mi := &file_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitTxParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitTxParams) ProtoMessage() {}
+
+func (x *SubmitTxParams) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitTxParams.ProtoReflect.Descriptor instead.
+func (*SubmitTxParams) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *SubmitTxParams) GetTx() []byte {
+	if x != nil {
+		return x.Tx
+	}
+	return nil
+}
+
+func (x *SubmitTxParams) GetServer() string {
+	if x != nil {
+		return x.Server
+	}
+	return ""
+}
+
+type SubmitTxResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Hash          string                 `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubmitTxResult) Reset() {
+	*x = SubmitTxResult{}
+	mi := &file_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitTxResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitTxResult) ProtoMessage() {}
+
+func (x *SubmitTxResult) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitTxResult.ProtoReflect.Descriptor instead.
+func (*SubmitTxResult) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *SubmitTxResult) GetHash() string {
+	if x != nil {
+		return x.Hash
+	}
+	return ""
+}
+
+type CheckTxParams struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Hash          string                 `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	Server        string                 `protobuf:"bytes,2,opt,name=server,proto3" json:"server,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckTxParams) Reset() {
+	*x = CheckTxParams{}
+	mi := &file_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckTxParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckTxParams) ProtoMessage() {}
+
+func (x *CheckTxParams) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckTxParams.ProtoReflect.Descriptor instead.
+func (*CheckTxParams) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CheckTxParams) GetHash() string {
+	if x != nil {
+		return x.Hash
+	}
+	return ""
+}
+
+func (x *CheckTxParams) GetServer() string {
+	if x != nil {
+		return x.Server
+	}
+	return ""
+}
+
+type CheckTxResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        CheckTxResult_TxStatus `protobuf:"varint,1,opt,name=status,proto3,enum=CheckTxResult_TxStatus" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckTxResult) Reset() {
+	*x = CheckTxResult{}
+	mi := &file_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckTxResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckTxResult) ProtoMessage() {}
+
+func (x *CheckTxResult) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckTxResult.ProtoReflect.Descriptor instead.
+func (*CheckTxResult) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CheckTxResult) GetStatus() CheckTxResult_TxStatus {
+	if x != nil {
+		return x.Status
+	}
+	return CheckTxResult_Done
+}
+
+type ListPendsParams struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPendsParams) Reset() {
+	*x = ListPendsParams{}
+	mi := &file_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPendsParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPendsParams) ProtoMessage() {}
+
+func (x *ListPendsParams) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPendsParams.ProtoReflect.Descriptor instead.
+func (*ListPendsParams) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{6}
+}
+
+type ListPendsResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Txs           []*ListPendsResult_Tx  `protobuf:"bytes,1,rep,name=txs,proto3" json:"txs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPendsResult) Reset() {
+	*x = ListPendsResult{}
+	mi := &file_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPendsResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPendsResult) ProtoMessage() {}
+
+func (x *ListPendsResult) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPendsResult.ProtoReflect.Descriptor instead.
+func (*ListPendsResult) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ListPendsResult) GetTxs() []*ListPendsResult_Tx {
+	if x != nil {
+		return x.Txs
+	}
+	return nil
+}
+
 type ModifyAccountParams struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
@@ -31,7 +448,7 @@ type ModifyAccountParams struct {
 
 func (x *ModifyAccountParams) Reset() {
 	*x = ModifyAccountParams{}
-	mi := &file_service_proto_msgTypes[0]
+	mi := &file_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +460,7 @@ func (x *ModifyAccountParams) String() string {
 func (*ModifyAccountParams) ProtoMessage() {}
 
 func (x *ModifyAccountParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[0]
+	mi := &file_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +473,7 @@ func (x *ModifyAccountParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyAccountParams.ProtoReflect.Descriptor instead.
 func (*ModifyAccountParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{0}
+	return file_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ModifyAccountParams) GetAddress() string {
@@ -81,7 +498,7 @@ type ModifyAccountResult struct {
 
 func (x *ModifyAccountResult) Reset() {
 	*x = ModifyAccountResult{}
-	mi := &file_service_proto_msgTypes[1]
+	mi := &file_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -93,7 +510,7 @@ func (x *ModifyAccountResult) String() string {
 func (*ModifyAccountResult) ProtoMessage() {}
 
 func (x *ModifyAccountResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[1]
+	mi := &file_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -106,7 +523,7 @@ func (x *ModifyAccountResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyAccountResult.ProtoReflect.Descriptor instead.
 func (*ModifyAccountResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{1}
+	return file_service_proto_rawDescGZIP(), []int{9}
 }
 
 type ListAccountsParams struct {
@@ -118,7 +535,7 @@ type ListAccountsParams struct {
 
 func (x *ListAccountsParams) Reset() {
 	*x = ListAccountsParams{}
-	mi := &file_service_proto_msgTypes[2]
+	mi := &file_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -130,7 +547,7 @@ func (x *ListAccountsParams) String() string {
 func (*ListAccountsParams) ProtoMessage() {}
 
 func (x *ListAccountsParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[2]
+	mi := &file_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -143,7 +560,7 @@ func (x *ListAccountsParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAccountsParams.ProtoReflect.Descriptor instead.
 func (*ListAccountsParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{2}
+	return file_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListAccountsParams) GetCiphers() bool {
@@ -162,7 +579,7 @@ type ListAccountsResult struct {
 
 func (x *ListAccountsResult) Reset() {
 	*x = ListAccountsResult{}
-	mi := &file_service_proto_msgTypes[3]
+	mi := &file_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -174,7 +591,7 @@ func (x *ListAccountsResult) String() string {
 func (*ListAccountsResult) ProtoMessage() {}
 
 func (x *ListAccountsResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[3]
+	mi := &file_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -187,7 +604,7 @@ func (x *ListAccountsResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAccountsResult.ProtoReflect.Descriptor instead.
 func (*ListAccountsResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{3}
+	return file_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListAccountsResult) GetAccounts() []*ListAccountsResult_Account {
@@ -207,7 +624,7 @@ type ModifyServerParams struct {
 
 func (x *ModifyServerParams) Reset() {
 	*x = ModifyServerParams{}
-	mi := &file_service_proto_msgTypes[4]
+	mi := &file_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -219,7 +636,7 @@ func (x *ModifyServerParams) String() string {
 func (*ModifyServerParams) ProtoMessage() {}
 
 func (x *ModifyServerParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[4]
+	mi := &file_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -232,7 +649,7 @@ func (x *ModifyServerParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyServerParams.ProtoReflect.Descriptor instead.
 func (*ModifyServerParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{4}
+	return file_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ModifyServerParams) GetKey() string {
@@ -257,7 +674,7 @@ type ModifyServerResult struct {
 
 func (x *ModifyServerResult) Reset() {
 	*x = ModifyServerResult{}
-	mi := &file_service_proto_msgTypes[5]
+	mi := &file_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -269,7 +686,7 @@ func (x *ModifyServerResult) String() string {
 func (*ModifyServerResult) ProtoMessage() {}
 
 func (x *ModifyServerResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[5]
+	mi := &file_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -282,7 +699,7 @@ func (x *ModifyServerResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyServerResult.ProtoReflect.Descriptor instead.
 func (*ModifyServerResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{5}
+	return file_service_proto_rawDescGZIP(), []int{13}
 }
 
 type ListServersParams struct {
@@ -293,7 +710,7 @@ type ListServersParams struct {
 
 func (x *ListServersParams) Reset() {
 	*x = ListServersParams{}
-	mi := &file_service_proto_msgTypes[6]
+	mi := &file_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -305,7 +722,7 @@ func (x *ListServersParams) String() string {
 func (*ListServersParams) ProtoMessage() {}
 
 func (x *ListServersParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[6]
+	mi := &file_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -318,7 +735,7 @@ func (x *ListServersParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServersParams.ProtoReflect.Descriptor instead.
 func (*ListServersParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{6}
+	return file_service_proto_rawDescGZIP(), []int{14}
 }
 
 type ListServersResult struct {
@@ -330,7 +747,7 @@ type ListServersResult struct {
 
 func (x *ListServersResult) Reset() {
 	*x = ListServersResult{}
-	mi := &file_service_proto_msgTypes[7]
+	mi := &file_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -342,7 +759,7 @@ func (x *ListServersResult) String() string {
 func (*ListServersResult) ProtoMessage() {}
 
 func (x *ListServersResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[7]
+	mi := &file_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -355,7 +772,7 @@ func (x *ListServersResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServersResult.ProtoReflect.Descriptor instead.
 func (*ListServersResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{7}
+	return file_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListServersResult) GetServers() []*ListServersResult_Server {
@@ -375,7 +792,7 @@ type ServerInfoParams struct {
 
 func (x *ServerInfoParams) Reset() {
 	*x = ServerInfoParams{}
-	mi := &file_service_proto_msgTypes[8]
+	mi := &file_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -387,7 +804,7 @@ func (x *ServerInfoParams) String() string {
 func (*ServerInfoParams) ProtoMessage() {}
 
 func (x *ServerInfoParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[8]
+	mi := &file_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -400,7 +817,7 @@ func (x *ServerInfoParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerInfoParams.ProtoReflect.Descriptor instead.
 func (*ServerInfoParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{8}
+	return file_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ServerInfoParams) GetUrl() string {
@@ -436,7 +853,7 @@ type ServerInfoResult struct {
 
 func (x *ServerInfoResult) Reset() {
 	*x = ServerInfoResult{}
-	mi := &file_service_proto_msgTypes[9]
+	mi := &file_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -448,7 +865,7 @@ func (x *ServerInfoResult) String() string {
 func (*ServerInfoResult) ProtoMessage() {}
 
 func (x *ServerInfoResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[9]
+	mi := &file_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -461,7 +878,7 @@ func (x *ServerInfoResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerInfoResult.ProtoReflect.Descriptor instead.
 func (*ServerInfoResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{9}
+	return file_service_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ServerInfoResult) GetVersion() string {
@@ -541,6 +958,118 @@ func (x *ServerInfoResult) GetRate() *ServerInfoResult_Rate {
 	return nil
 }
 
+type ListSubsResult_Sub struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tx            string                 `protobuf:"bytes,1,opt,name=tx,proto3" json:"tx,omitempty"`
+	Expire        int64                  `protobuf:"varint,2,opt,name=expire,proto3" json:"expire,omitempty"`
+	Remain        int64                  `protobuf:"varint,3,opt,name=remain,proto3" json:"remain,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSubsResult_Sub) Reset() {
+	*x = ListSubsResult_Sub{}
+	mi := &file_service_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSubsResult_Sub) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSubsResult_Sub) ProtoMessage() {}
+
+func (x *ListSubsResult_Sub) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSubsResult_Sub.ProtoReflect.Descriptor instead.
+func (*ListSubsResult_Sub) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{1, 0}
+}
+
+func (x *ListSubsResult_Sub) GetTx() string {
+	if x != nil {
+		return x.Tx
+	}
+	return ""
+}
+
+func (x *ListSubsResult_Sub) GetExpire() int64 {
+	if x != nil {
+		return x.Expire
+	}
+	return 0
+}
+
+func (x *ListSubsResult_Sub) GetRemain() int64 {
+	if x != nil {
+		return x.Remain
+	}
+	return 0
+}
+
+type ListPendsResult_Tx struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Hash          string                 `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
+	Server        string                 `protobuf:"bytes,2,opt,name=server,proto3" json:"server,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPendsResult_Tx) Reset() {
+	*x = ListPendsResult_Tx{}
+	mi := &file_service_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPendsResult_Tx) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPendsResult_Tx) ProtoMessage() {}
+
+func (x *ListPendsResult_Tx) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPendsResult_Tx.ProtoReflect.Descriptor instead.
+func (*ListPendsResult_Tx) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{7, 0}
+}
+
+func (x *ListPendsResult_Tx) GetHash() string {
+	if x != nil {
+		return x.Hash
+	}
+	return ""
+}
+
+func (x *ListPendsResult_Tx) GetServer() string {
+	if x != nil {
+		return x.Server
+	}
+	return ""
+}
+
 type ListAccountsResult_Account struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
@@ -551,7 +1080,7 @@ type ListAccountsResult_Account struct {
 
 func (x *ListAccountsResult_Account) Reset() {
 	*x = ListAccountsResult_Account{}
-	mi := &file_service_proto_msgTypes[10]
+	mi := &file_service_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -563,7 +1092,7 @@ func (x *ListAccountsResult_Account) String() string {
 func (*ListAccountsResult_Account) ProtoMessage() {}
 
 func (x *ListAccountsResult_Account) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[10]
+	mi := &file_service_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -576,7 +1105,7 @@ func (x *ListAccountsResult_Account) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAccountsResult_Account.ProtoReflect.Descriptor instead.
 func (*ListAccountsResult_Account) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{3, 0}
+	return file_service_proto_rawDescGZIP(), []int{11, 0}
 }
 
 func (x *ListAccountsResult_Account) GetAddress() string {
@@ -603,7 +1132,7 @@ type ListServersResult_Server struct {
 
 func (x *ListServersResult_Server) Reset() {
 	*x = ListServersResult_Server{}
-	mi := &file_service_proto_msgTypes[11]
+	mi := &file_service_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -615,7 +1144,7 @@ func (x *ListServersResult_Server) String() string {
 func (*ListServersResult_Server) ProtoMessage() {}
 
 func (x *ListServersResult_Server) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[11]
+	mi := &file_service_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -628,7 +1157,7 @@ func (x *ListServersResult_Server) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServersResult_Server.ProtoReflect.Descriptor instead.
 func (*ListServersResult_Server) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{7, 0}
+	return file_service_proto_rawDescGZIP(), []int{15, 0}
 }
 
 func (x *ListServersResult_Server) GetKey() string {
@@ -657,7 +1186,7 @@ type ServerInfoResult_Rate struct {
 
 func (x *ServerInfoResult_Rate) Reset() {
 	*x = ServerInfoResult_Rate{}
-	mi := &file_service_proto_msgTypes[12]
+	mi := &file_service_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -669,7 +1198,7 @@ func (x *ServerInfoResult_Rate) String() string {
 func (*ServerInfoResult_Rate) ProtoMessage() {}
 
 func (x *ServerInfoResult_Rate) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[12]
+	mi := &file_service_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -682,7 +1211,7 @@ func (x *ServerInfoResult_Rate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerInfoResult_Rate.ProtoReflect.Descriptor instead.
 func (*ServerInfoResult_Rate) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{9, 0}
+	return file_service_proto_rawDescGZIP(), []int{17, 0}
 }
 
 func (x *ServerInfoResult_Rate) GetSub() string {
@@ -717,7 +1246,36 @@ var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
 	"\n" +
-	"\rservice.proto\"W\n" +
+	"\rservice.proto\"B\n" +
+	"\x0eListSubsParams\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x16\n" +
+	"\x06server\x18\x02 \x01(\tR\x06server\"\x80\x01\n" +
+	"\x0eListSubsResult\x12'\n" +
+	"\x04subs\x18\x01 \x03(\v2\x13.ListSubsResult.SubR\x04subs\x1aE\n" +
+	"\x03Sub\x12\x0e\n" +
+	"\x02tx\x18\x01 \x01(\tR\x02tx\x12\x16\n" +
+	"\x06expire\x18\x02 \x01(\x03R\x06expire\x12\x16\n" +
+	"\x06remain\x18\x03 \x01(\x03R\x06remain\"8\n" +
+	"\x0eSubmitTxParams\x12\x0e\n" +
+	"\x02tx\x18\x01 \x01(\fR\x02tx\x12\x16\n" +
+	"\x06server\x18\x02 \x01(\tR\x06server\"$\n" +
+	"\x0eSubmitTxResult\x12\x12\n" +
+	"\x04hash\x18\x01 \x01(\tR\x04hash\";\n" +
+	"\rCheckTxParams\x12\x12\n" +
+	"\x04hash\x18\x01 \x01(\tR\x04hash\x12\x16\n" +
+	"\x06server\x18\x02 \x01(\tR\x06server\"n\n" +
+	"\rCheckTxResult\x12/\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x17.CheckTxResult.TxStatusR\x06status\",\n" +
+	"\bTxStatus\x12\b\n" +
+	"\x04Done\x10\x00\x12\f\n" +
+	"\bNotFound\x10\x01\x12\b\n" +
+	"\x04Pend\x10\x02\"\x11\n" +
+	"\x0fListPendsParams\"j\n" +
+	"\x0fListPendsResult\x12%\n" +
+	"\x03txs\x18\x01 \x03(\v2\x13.ListPendsResult.TxR\x03txs\x1a0\n" +
+	"\x02Tx\x12\x12\n" +
+	"\x04hash\x18\x01 \x01(\tR\x04hash\x12\x16\n" +
+	"\x06server\x18\x02 \x01(\tR\x06server\"W\n" +
 	"\x13ModifyAccountParams\x12\x18\n" +
 	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x1b\n" +
 	"\x06cipher\x18\x02 \x01(\fH\x00R\x06cipher\x88\x01\x01B\t\n" +
@@ -764,8 +1322,12 @@ const file_service_proto_rawDesc = "" +
 	"\x03sub\x18\x01 \x01(\tR\x03sub\x12\x10\n" +
 	"\x03div\x18\x02 \x01(\tR\x03div\x12\x10\n" +
 	"\x03mul\x18\x03 \x01(\tR\x03mul\x12\x10\n" +
-	"\x03add\x18\x04 \x01(\tR\x03add2\xa5\x02\n" +
-	"\aService\x12;\n" +
+	"\x03add\x18\x04 \x01(\tR\x03add2\xdd\x03\n" +
+	"\aService\x12/\n" +
+	"\tListPends\x12\x10.ListPendsParams\x1a\x10.ListPendsResult\x12,\n" +
+	"\bListSubs\x12\x0f.ListSubsParams\x1a\x0f.ListSubsResult\x12,\n" +
+	"\bSubmitTx\x12\x0f.SubmitTxParams\x1a\x0f.SubmitTxResult\x12)\n" +
+	"\aCheckTx\x12\x0e.CheckTxParams\x1a\x0e.CheckTxResult\x12;\n" +
 	"\rModifyAccount\x12\x14.ModifyAccountParams\x1a\x14.ModifyAccountResult\x128\n" +
 	"\fListAccounts\x12\x13.ListAccountsParams\x1a\x13.ListAccountsResult\x128\n" +
 	"\fModifyServer\x12\x13.ModifyServerParams\x1a\x13.ModifyServerResult\x125\n" +
@@ -785,41 +1347,64 @@ func file_service_proto_rawDescGZIP() []byte {
 	return file_service_proto_rawDescData
 }
 
-var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_service_proto_goTypes = []any{
-	(*ModifyAccountParams)(nil),        // 0: ModifyAccountParams
-	(*ModifyAccountResult)(nil),        // 1: ModifyAccountResult
-	(*ListAccountsParams)(nil),         // 2: ListAccountsParams
-	(*ListAccountsResult)(nil),         // 3: ListAccountsResult
-	(*ModifyServerParams)(nil),         // 4: ModifyServerParams
-	(*ModifyServerResult)(nil),         // 5: ModifyServerResult
-	(*ListServersParams)(nil),          // 6: ListServersParams
-	(*ListServersResult)(nil),          // 7: ListServersResult
-	(*ServerInfoParams)(nil),           // 8: ServerInfoParams
-	(*ServerInfoResult)(nil),           // 9: ServerInfoResult
-	(*ListAccountsResult_Account)(nil), // 10: ListAccountsResult.Account
-	(*ListServersResult_Server)(nil),   // 11: ListServersResult.Server
-	(*ServerInfoResult_Rate)(nil),      // 12: ServerInfoResult.Rate
+	(CheckTxResult_TxStatus)(0),        // 0: CheckTxResult.TxStatus
+	(*ListSubsParams)(nil),             // 1: ListSubsParams
+	(*ListSubsResult)(nil),             // 2: ListSubsResult
+	(*SubmitTxParams)(nil),             // 3: SubmitTxParams
+	(*SubmitTxResult)(nil),             // 4: SubmitTxResult
+	(*CheckTxParams)(nil),              // 5: CheckTxParams
+	(*CheckTxResult)(nil),              // 6: CheckTxResult
+	(*ListPendsParams)(nil),            // 7: ListPendsParams
+	(*ListPendsResult)(nil),            // 8: ListPendsResult
+	(*ModifyAccountParams)(nil),        // 9: ModifyAccountParams
+	(*ModifyAccountResult)(nil),        // 10: ModifyAccountResult
+	(*ListAccountsParams)(nil),         // 11: ListAccountsParams
+	(*ListAccountsResult)(nil),         // 12: ListAccountsResult
+	(*ModifyServerParams)(nil),         // 13: ModifyServerParams
+	(*ModifyServerResult)(nil),         // 14: ModifyServerResult
+	(*ListServersParams)(nil),          // 15: ListServersParams
+	(*ListServersResult)(nil),          // 16: ListServersResult
+	(*ServerInfoParams)(nil),           // 17: ServerInfoParams
+	(*ServerInfoResult)(nil),           // 18: ServerInfoResult
+	(*ListSubsResult_Sub)(nil),         // 19: ListSubsResult.Sub
+	(*ListPendsResult_Tx)(nil),         // 20: ListPendsResult.Tx
+	(*ListAccountsResult_Account)(nil), // 21: ListAccountsResult.Account
+	(*ListServersResult_Server)(nil),   // 22: ListServersResult.Server
+	(*ServerInfoResult_Rate)(nil),      // 23: ServerInfoResult.Rate
 }
 var file_service_proto_depIdxs = []int32{
-	10, // 0: ListAccountsResult.accounts:type_name -> ListAccountsResult.Account
-	11, // 1: ListServersResult.servers:type_name -> ListServersResult.Server
-	12, // 2: ServerInfoResult.rate:type_name -> ServerInfoResult.Rate
-	0,  // 3: Service.ModifyAccount:input_type -> ModifyAccountParams
-	2,  // 4: Service.ListAccounts:input_type -> ListAccountsParams
-	4,  // 5: Service.ModifyServer:input_type -> ModifyServerParams
-	6,  // 6: Service.ListServers:input_type -> ListServersParams
-	8,  // 7: Service.ServerInfo:input_type -> ServerInfoParams
-	1,  // 8: Service.ModifyAccount:output_type -> ModifyAccountResult
-	3,  // 9: Service.ListAccounts:output_type -> ListAccountsResult
-	5,  // 10: Service.ModifyServer:output_type -> ModifyServerResult
-	7,  // 11: Service.ListServers:output_type -> ListServersResult
-	9,  // 12: Service.ServerInfo:output_type -> ServerInfoResult
-	8,  // [8:13] is the sub-list for method output_type
-	3,  // [3:8] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	19, // 0: ListSubsResult.subs:type_name -> ListSubsResult.Sub
+	0,  // 1: CheckTxResult.status:type_name -> CheckTxResult.TxStatus
+	20, // 2: ListPendsResult.txs:type_name -> ListPendsResult.Tx
+	21, // 3: ListAccountsResult.accounts:type_name -> ListAccountsResult.Account
+	22, // 4: ListServersResult.servers:type_name -> ListServersResult.Server
+	23, // 5: ServerInfoResult.rate:type_name -> ServerInfoResult.Rate
+	7,  // 6: Service.ListPends:input_type -> ListPendsParams
+	1,  // 7: Service.ListSubs:input_type -> ListSubsParams
+	3,  // 8: Service.SubmitTx:input_type -> SubmitTxParams
+	5,  // 9: Service.CheckTx:input_type -> CheckTxParams
+	9,  // 10: Service.ModifyAccount:input_type -> ModifyAccountParams
+	11, // 11: Service.ListAccounts:input_type -> ListAccountsParams
+	13, // 12: Service.ModifyServer:input_type -> ModifyServerParams
+	15, // 13: Service.ListServers:input_type -> ListServersParams
+	17, // 14: Service.ServerInfo:input_type -> ServerInfoParams
+	8,  // 15: Service.ListPends:output_type -> ListPendsResult
+	2,  // 16: Service.ListSubs:output_type -> ListSubsResult
+	4,  // 17: Service.SubmitTx:output_type -> SubmitTxResult
+	6,  // 18: Service.CheckTx:output_type -> CheckTxResult
+	10, // 19: Service.ModifyAccount:output_type -> ModifyAccountResult
+	12, // 20: Service.ListAccounts:output_type -> ListAccountsResult
+	14, // 21: Service.ModifyServer:output_type -> ModifyServerResult
+	16, // 22: Service.ListServers:output_type -> ListServersResult
+	18, // 23: Service.ServerInfo:output_type -> ServerInfoResult
+	15, // [15:24] is the sub-list for method output_type
+	6,  // [6:15] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_service_proto_init() }
@@ -827,22 +1412,23 @@ func file_service_proto_init() {
 	if File_service_proto != nil {
 		return
 	}
-	file_service_proto_msgTypes[0].OneofWrappers = []any{}
-	file_service_proto_msgTypes[4].OneofWrappers = []any{}
 	file_service_proto_msgTypes[8].OneofWrappers = []any{}
-	file_service_proto_msgTypes[10].OneofWrappers = []any{}
+	file_service_proto_msgTypes[12].OneofWrappers = []any{}
+	file_service_proto_msgTypes[16].OneofWrappers = []any{}
+	file_service_proto_msgTypes[20].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_proto_rawDesc), len(file_service_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   13,
+			NumEnums:      1,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_service_proto_goTypes,
 		DependencyIndexes: file_service_proto_depIdxs,
+		EnumInfos:         file_service_proto_enumTypes,
 		MessageInfos:      file_service_proto_msgTypes,
 	}.Build()
 	File_service_proto = out.File

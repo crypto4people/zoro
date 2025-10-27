@@ -53,7 +53,7 @@ func (db *Database) GetSetting(hash string) (string, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
 	setting, err := db.getSetting(hash)
-	if err != nil {
+	if err != nil || setting == nil {
 		return "", err
 	}
 	return setting.Value, nil

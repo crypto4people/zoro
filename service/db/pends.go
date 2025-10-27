@@ -47,6 +47,7 @@ func (db *Database) PutPend(hash common.Hash, serverURL *url.URL) error {
 	if err != nil {
 		return err
 	}
+	
 	if pend == nil {
 		pend = &ob.Pend{
 			Hash:      hashHex,
@@ -64,7 +65,7 @@ func (db *Database) GetPend(hash common.Hash) (*url.URL, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
 	pend, err := db.getPend(hex.EncodeToString(hash[:]))
-	if err != nil {
+	if err != nil || pend == nil {
 		return nil, err
 	}
 	return url.Parse(pend.ServerURL)

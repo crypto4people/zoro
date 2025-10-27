@@ -11,8 +11,8 @@ import (
 
 type Sub struct {
 	Tx     common.Hash
-	Expire int
-	Remain int
+	Expire int64
+	Remain int64
 }
 
 func (server *Server) ListSubs(ctx context.Context, addr common.Address) ([]Sub, error) {
@@ -32,7 +32,7 @@ func (server *Server) ListSubs(ctx context.Context, addr common.Address) ([]Sub,
 	result := make([]Sub, 0, 4)
 
 	var tx string
-	var values [2]int
+	var values [2]int64
 
 	for rows.Next() {
 		err = rows.Scan(&tx, &values[0], &values[1])

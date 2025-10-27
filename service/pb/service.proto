@@ -4,6 +4,14 @@ option go_package = "../pb";
 
 service Service {
 
+    rpc ListPends(ListPendsParams) returns (ListPendsResult);
+
+    rpc ListSubs(ListSubsParams) returns (ListSubsResult);
+
+    rpc SubmitTx(SubmitTxParams) returns (SubmitTxResult);
+
+    rpc CheckTx(CheckTxParams) returns (CheckTxResult);
+
     rpc ModifyAccount(ModifyAccountParams) returns (ModifyAccountResult);
 
     rpc ListAccounts(ListAccountsParams) returns (ListAccountsResult);
@@ -14,6 +22,55 @@ service Service {
 
     rpc ServerInfo(ServerInfoParams) returns (ServerInfoResult);
 
+}
+
+
+
+message ListSubsParams{
+    string address = 1;
+    string server = 2;
+}
+
+message ListSubsResult{
+    message Sub {
+        string tx = 1;
+        int64 expire = 2;
+        int64 remain = 3;
+    }
+    repeated Sub subs = 1;
+}
+
+message SubmitTxParams {
+    bytes tx = 1;
+    string server = 2;
+}
+
+message SubmitTxResult {
+    string hash = 1;   
+}
+
+message CheckTxParams {
+    string hash = 1;
+    string server = 2;
+}
+
+message CheckTxResult {
+    enum TxStatus {
+        Done = 0;
+        NotFound = 1;
+        Pend = 2;
+    }
+    TxStatus status = 1;
+}
+
+message ListPendsParams{}
+
+message ListPendsResult{
+    message Tx {
+        string hash = 1;
+        string server = 2;
+    }
+    repeated Tx txs = 1;
 }
 
 message ModifyAccountParams{

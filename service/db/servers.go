@@ -58,7 +58,7 @@ func (db *Database) GetServer(name string) (*url.URL, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
 	server, err := db.getServer(name)
-	if err != nil {
+	if err != nil || server == nil {
 		return nil, err
 	}
 	return url.Parse(server.URL)
