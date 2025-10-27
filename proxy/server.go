@@ -15,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/gobwas/ws"
+	"github.com/holiman/uint256"
 )
 
 const version = "beta"
@@ -56,12 +57,12 @@ type Info struct {
 	Uptime   int64
 	Conns    int64
 	Subs     int64
-	Chain    string
+	Chain    uint256.Int
 	Height   int64
 	RateFeed common.Address
 	Account  common.Address
-	Balance  string
-	GasPrice string
+	Balance  uint256.Int
+	GasPrice uint256.Int
 	Rate     rate.Rate
 }
 
@@ -87,19 +88,21 @@ func (server *Server) Info(ctx context.Context, user common.Address) (*Info, err
 		break
 	}
 
-	return &Info{
+	info := &Info{
 		Version:  version,
 		Conns:    int64(server.proxy.congestion.Count()),
 		Subs:     int64(server.db.subs.Load()),
-		Chain:    server.ethClient.Chain(),
 		Uptime:   time.Since(server.uptime).Milliseconds() / 1000,
 		Account:  account,
 		Height:   server.db.height.Load(),
 		RateFeed: server.ethClient.RateFeed(),
 		Rate:     *rate,
-		Balance:  balance.Text(10),
-		GasPrice: price.Text(10),
-	}, nil
+		Balance:  *balance,
+		GasPrice: *price,
+		Chain:    server.ethClient.Chain(),
+	}
+
+	return info, nil
 }
 
 func (server *Server) init(ctx context.Context) error {

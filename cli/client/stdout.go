@@ -8,7 +8,6 @@ import (
 	"zoro/proxy"
 
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/holiman/uint256"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -18,12 +17,12 @@ func printServerInfo(info *proxy.Info) {
 		{"Uptime", (time.Duration(info.Uptime) * time.Second).String()},
 		{"Connections", fmt.Sprint(info.Conns)},
 		{"Subs", fmt.Sprint(info.Subs)},
-		{"Chain", info.Chain},
+		{"Chain", info.Chain.Dec()},
 		{"Height", fmt.Sprint(info.Height)},
 		{"Contract", info.RateFeed.Hex()},
 		{"Account", info.Account.Hex()},
-		{"Balance", misc.WeiToEth(uint256.MustFromDecimal(info.Balance).ToBig()) + " ETH"},
-		{"Gas Price", misc.WeiToGwei(uint256.MustFromDecimal(info.GasPrice).ToBig()) + " GWEI"},
+		{"Balance", misc.WeiToEth(info.Balance.ToBig()) + " ETH"},
+		{"Gas Price", misc.WeiToGwei(info.GasPrice.ToBig()) + " GWEI"},
 		{
 			"Rate",
 			fmt.Sprintf(

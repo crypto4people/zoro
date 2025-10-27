@@ -16,6 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/holiman/uint256"
 )
 
 type directEthClient struct {
@@ -26,7 +27,7 @@ type directEthClient struct {
 		list []common.Address
 	}
 	signer    types.Signer
-	chain     string
+	chain     uint256.Int
 	blockTime time.Duration
 }
 
@@ -49,11 +50,12 @@ func NewDirectClient(ctx context.Context, ethClient *ethclient.Client, config Di
 	}
 
 	dc := &directEthClient{
-		chain:    chainId.Text(10),
 		client:   ethClient,
 		ratefeed: config.RateFeed,
 		signer:   types.LatestSignerForChainID(chainId),
 	}
+
+	dc.chain.SetFromBig(chainId)
 
 	if len(config.Accounts) > 0 {
 		dc.accounts.set = misc.SliceToSet(config.Accounts)
@@ -75,16 +77,32 @@ func (client *directEthClient) BlockTime() time.Duration {
 	return client.blockTime
 }
 
-func (client *directEthClient) Chain() string {
+func (client *directEthClient) Chain() uint256.Int {
 	return client.chain
 }
 
-func (client *directEthClient) BalanceOf(ctx context.Context, account common.Address) (*big.Int, error) {
-	return client.client.BalanceAt(ctx, account, nil)
+func (client *directEthClient) BalanceOf(ctx context.Context, account common.Address) (*uint256.Int, error) {
+	balance, err := client.client.BalanceAt(ctx, account, nil)
+	if err != nil {
+		return nil, err
+	}
+	u256 := new(uint256.Int)
+	if u256.SetFromBig(balance) {
+		return nil, errors.New("balance overflow")
+	}
+	return u256, nil
 }
 
-func (client *directEthClient) GasPrice(ctx context.Context) (*big.Int, error) {
-	return client.client.SuggestGasPrice(ctx)
+func (client *directEthClient) GasPrice(ctx context.Context) (*uint256.Int, error) {
+	price, err := client.client.SuggestGasPrice(ctx)
+	if err != nil {
+		return nil, err
+	}
+	u256 := new(uint256.Int)
+	if u256.SetFromBig(price) {
+		return nil, errors.New("gas price overflow")
+	}
+	return u256, nil
 }
 
 func (client *directEthClient) RateAt(ctx context.Context, block int64) (*rate.Rate, error) {
@@ -92,12 +110,14 @@ func (client *directEthClient) RateAt(ctx context.Context, block int64) (*rate.R
 	if err != nil {
 		return nil, err
 	}
-	return &rate.Rate{
-		Sub: out.Sub,
-		Div: out.Div,
-		Mul: out.Mul,
-		Add: out.Sub,
-	}, nil
+
+	res := &rate.Rate{}
+	res.Sub.SetFromBig(out.Sub)
+	res.Div.SetFromBig(out.Div)
+	res.Mul.SetFromBig(out.Mul)
+	res.Add.SetFromBig(out.Add)
+
+	return res, nil
 }
 
 func (client *directEthClient) FinalHeight(ctx context.Context) (int64, error) {
@@ -120,7 +140,7 @@ func (client *directEthClient) Receipt(ctx context.Context, hash common.Hash) (*
 		}
 		return nil, false, err
 	}
-	if misc.FilterNonReceive(tx, client.chain, client.accounts.set) {
+	if misc.FilterNonReceive(tx, client.chain.ToBig(), client.accounts.set) {
 		return nil, false, nil
 	}
 	return tx, isPending, nil
@@ -130,7 +150,7 @@ func (client *directEthClient) Submit(ctx context.Context, tx *types.Transaction
 	if _, err := client.signer.Sender(tx); err != nil {
 		return err
 	}
-	if misc.FilterNonReceive(tx, client.chain, client.accounts.set) {
+	if misc.FilterNonReceive(tx, client.chain.ToBig(), client.accounts.set) {
 		return errors.New("tx is filtered")
 	}
 	return client.client.SendTransaction(ctx, tx)
@@ -143,7 +163,7 @@ func (client *directEthClient) Receives(ctx context.Context, number int64) (iter
 	}
 	return func(yield func(common.Address, *types.Transaction) bool) {
 		for _, tx := range block.Transactions() {
-			if misc.FilterNonReceive(tx, client.chain, client.accounts.set) {
+			if misc.FilterNonReceive(tx, client.chain.ToBig(), client.accounts.set) {
 				continue
 			}
 			sender, err := client.signer.Sender(tx)

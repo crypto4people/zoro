@@ -40,7 +40,7 @@ func (ser *server) BalanceOf(ctx context.Context, params *pb.BalanceOfParams) (*
 		return nil, err
 	}
 	return &pb.BalanceOfResult{
-		Balance: bal.Text(10),
+		Balance: bal.Dec(),
 	}, nil
 }
 
@@ -88,7 +88,7 @@ func (ser *server) Info(ctx context.Context, _ *emptypb.Empty) (*pb.InfoResult, 
 		Chain:     info.Chain,
 		RateFeed:  info.Ratefeed[:],
 		BlockTime: durationpb.New(info.BlockTime),
-		GasPrice:  gasPrice.Text(10),
+		GasPrice:  gasPrice.Dec(),
 	}, nil
 }
 
@@ -98,10 +98,10 @@ func (ser *server) RateAt(ctx context.Context, params *pb.RateAtParams) (*pb.Rat
 		return nil, err
 	}
 	return &pb.RateAtResult{
-		Sub: res.Sub.Text(10),
-		Div: res.Div.Text(10),
-		Mul: res.Mul.Text(10),
-		Add: res.Add.Text(10),
+		Sub: res.Sub.Dec(),
+		Div: res.Div.Dec(),
+		Mul: res.Mul.Dec(),
+		Add: res.Add.Dec(),
 	}, nil
 }
 

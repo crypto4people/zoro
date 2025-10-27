@@ -6,16 +6,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/holiman/uint256"
 )
-
-func StrToBig(name, str string) (*big.Int, error) {
-	result, ok := new(big.Int).SetString(str, 10)
-	if !ok {
-		return nil, fmt.Errorf("invalid: %q", str)
-	}
-
-	return result, nil
-}
 
 func WeiToEth(wei *big.Int) string {
 	return new(big.Float).Quo(new(big.Float).SetInt(wei), big.NewFloat(1e18)).Text('f', 18)
@@ -57,10 +49,18 @@ func ParseBigInt(str string) (*big.Int, error) {
 	return bi, nil
 }
 
-func FilterNonReceive(tx *types.Transaction, chain string, receivers map[common.Address]struct{}) bool {
+func ParseUint256(str string) (*uint256.Int, error) {
+	u256, err := uint256.FromDecimal(str)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse uint256 %q", str)
+	}
+	return u256, nil
+}
+
+func FilterNonReceive(tx *types.Transaction, chain *big.Int, receivers map[common.Address]struct{}) bool {
 	to := tx.To()
 	return to == nil ||
-		tx.ChainId().Text(10) != chain ||
+		tx.ChainId().Cmp(chain) != 0 ||
 		tx.Value().Sign() <= 0 ||
 		len(tx.Data()) > 0 ||
 		(len(receivers) > 0 && !setContains(receivers, *to))

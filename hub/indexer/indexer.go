@@ -94,12 +94,13 @@ func (indexer *Indexer) RateAt(ctx context.Context, chain string, block int64, r
 		return nil, err
 	}
 
-	return &rate.Rate{
-		Sub: new(big.Int).SetBytes(record.Sub),
-		Div: new(big.Int).SetBytes(record.Div),
-		Mul: new(big.Int).SetBytes(record.Mul),
-		Add: new(big.Int).SetBytes(record.Add),
-	}, nil
+	res := &rate.Rate{}
+	res.Sub.SetBytes(record.Sub)
+	res.Div.SetBytes(record.Div)
+	res.Mul.SetBytes(record.Mul)
+	res.Add.SetBytes(record.Add)
+
+	return res, nil
 }
 
 func (indexer *Indexer) GetTx(ctx context.Context, hash common.Hash) ([]byte, error) {
@@ -182,12 +183,12 @@ func (indexer *Indexer) Routine(ctx context.Context) error {
 					return err
 				}
 
-				rate := &rate.Rate{
-					Sub: rateUpdatedEvent.Sub,
-					Div: rateUpdatedEvent.Div,
-					Mul: rateUpdatedEvent.Mul,
-					Add: rateUpdatedEvent.Add,
-				}
+				rate := &rate.Rate{}
+				rate.Sub.SetFromBig(rateUpdatedEvent.Sub)
+				rate.Div.SetFromBig(rateUpdatedEvent.Div)
+				rate.Mul.SetFromBig(rateUpdatedEvent.Mul)
+				rate.Add.SetFromBig(rateUpdatedEvent.Add)
+
 				if err := indexer.appendRate(ctx, number, rate); err != nil {
 					// todo log
 					return err

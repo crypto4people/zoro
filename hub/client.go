@@ -16,6 +16,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/holiman/uint256"
 	"github.com/samber/lo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -37,7 +38,7 @@ type hubClient struct {
 		list [][]byte
 	}
 	signer types.Signer
-	chain  string
+	chain  uint256.Int
 }
 
 func NewClient(ctx context.Context, cc grpc.ClientConnInterface, config HubClientConfig) (eth.Client, error) {
@@ -53,6 +54,7 @@ func NewClient(ctx context.Context, cc grpc.ClientConnInterface, config HubClien
 	if len(info.RateFeed) != 20 {
 		return nil, errors.New("invalid ratefeed address length")
 	}
+
 	if info.Chain == "" {
 		return nil, errors.New("empty chain id")
 	}
@@ -84,6 +86,8 @@ func NewClient(ctx context.Context, cc grpc.ClientConnInterface, config HubClien
 		signer: types.LatestSignerForChainID(chainId),
 	}
 
+	hub.chain.SetFromBig(chainId)
+
 	if len(config.Accounts) > 0 {
 		hub.accounts.set = misc.SliceToSet(config.Accounts)
 		hub.accounts.list = lo.Map(config.Accounts, func(addr common.Address, _ int) []byte {
@@ -104,8 +108,8 @@ func (client *hubClient) Accounts() iter.Seq[common.Address] {
 	}
 }
 
-func (client *hubClient) Chain() string {
-	return client.info.Chain
+func (client *hubClient) Chain() uint256.Int {
+	return client.chain
 }
 
 func (client *hubClient) BlockTime() time.Duration {
@@ -116,7 +120,7 @@ func (client *hubClient) RateFeed() common.Address {
 	return common.BytesToAddress(client.info.RateFeed)
 }
 
-func (client *hubClient) BalanceOf(ctx context.Context, account common.Address) (*big.Int, error) {
+func (client *hubClient) BalanceOf(ctx context.Context, account common.Address) (*uint256.Int, error) {
 	res, err := client.client.BalanceOf(ctx, &pb.BalanceOfParams{
 		Account: account[:],
 		Chain:   client.info.Chain,
@@ -124,15 +128,15 @@ func (client *hubClient) BalanceOf(ctx context.Context, account common.Address) 
 	if err != nil {
 		return nil, err
 	}
-	return misc.ParseBigInt(res.Balance)
+	return misc.ParseUint256(res.Balance)
 }
 
-func (client *hubClient) GasPrice(ctx context.Context) (*big.Int, error) {
+func (client *hubClient) GasPrice(ctx context.Context) (*uint256.Int, error) {
 	info, err := client.getInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return misc.ParseBigInt(info.GasPrice)
+	return misc.ParseUint256(info.GasPrice)
 }
 
 func (client *hubClient) FinalHeight(ctx context.Context) (int64, error) {
@@ -194,7 +198,7 @@ func (client *hubClient) Receipt(ctx context.Context, hash common.Hash) (*types.
 	if err != nil {
 		return nil, false, err
 	}
-	if misc.FilterNonReceive(tx, client.chain, client.accounts.set) {
+	if misc.FilterNonReceive(tx, client.signer.ChainID(), client.accounts.set) {
 		return nil, false, nil
 	}
 	return tx, res.Pend, nil
@@ -239,7 +243,7 @@ func (client *hubClient) Submit(ctx context.Context, tx *types.Transaction) (err
 	if _, err = client.signer.Sender(tx); err != nil {
 		return err
 	}
-	if misc.FilterNonReceive(tx, client.chain, client.accounts.set) {
+	if misc.FilterNonReceive(tx, client.signer.ChainID(), client.accounts.set) {
 		return errors.New("tx is filtered")
 	}
 
@@ -258,23 +262,19 @@ func (client *hubClient) Submit(ctx context.Context, tx *types.Transaction) (err
 func parseRatePb(res *pb.RateAtResult) (r *rate.Rate, err error) {
 	r = &rate.Rate{}
 
-	r.Sub, err = misc.ParseBigInt(res.Sub)
-	if err != nil {
+	if err = r.Sub.SetFromDecimal(res.Sub); err != nil {
 		return nil, err
 	}
 
-	r.Div, err = misc.ParseBigInt(res.Div)
-	if err != nil {
+	if err = r.Div.SetFromDecimal(res.Div); err != nil {
 		return nil, err
 	}
 
-	r.Mul, err = misc.ParseBigInt(res.Mul)
-	if err != nil {
+	if err = r.Mul.SetFromDecimal(res.Mul); err != nil {
 		return nil, err
 	}
 
-	r.Add, err = misc.ParseBigInt(res.Add)
-	if err != nil {
+	if err = r.Add.SetFromDecimal(res.Add); err != nil {
 		return nil, err
 	}
 

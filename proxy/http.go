@@ -76,7 +76,7 @@ func (server *Server) initMux() {
 		}
 
 		writer.Header().Set("Content-Type", "text/plain")
-		io.WriteString(writer, bal.Text(10))
+		io.WriteString(writer, bal.Dec())
 		return 200, nil
 	}))
 

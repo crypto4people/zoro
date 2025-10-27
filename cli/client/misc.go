@@ -116,7 +116,7 @@ func connect(ctx context.Context, server, account, socksAddr string) (*box.Box, 
 	return box, nil
 }
 
-func signTx(priv *ecdsa.PrivateKey, nonce uint64, to common.Address, chainID, amount, gasPrice *big.Int) (*types.Transaction, error) {
+func signTx(priv *ecdsa.PrivateKey, nonce uint64, to common.Address, signer types.Signer, amount, gasPrice *big.Int) (*types.Transaction, error) {
 	if gasPrice == nil || gasPrice.Sign() <= 0 {
 		return nil, fmt.Errorf("invalid gas price")
 	}
@@ -133,7 +133,7 @@ func signTx(priv *ecdsa.PrivateKey, nonce uint64, to common.Address, chainID, am
 		GasPrice: new(big.Int).Set(gasPrice),
 	})
 
-	signed, err := types.SignTx(tx, types.LatestSignerForChainID(chainID), priv)
+	signed, err := types.SignTx(tx, signer, priv)
 	if err != nil {
 		return nil, fmt.Errorf("sign: %w", err)
 	}

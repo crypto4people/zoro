@@ -14,6 +14,7 @@ import (
 	"zoro/proxy"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/urfave/cli/v3"
 )
@@ -126,17 +127,9 @@ func applyAction(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("get nonce: %w", err)
 	}
 
-	chainID, err := misc.StrToBig("chain id", info.Chain)
-	if err != nil {
-		return err
-	}
+	signer := types.LatestSignerForChainID(info.Chain.ToBig())
 
-	gasPrice, err := misc.StrToBig("gas price (wei)", info.GasPrice)
-	if err != nil {
-		return err
-	}
-
-	tx, err := signTx(priv, nonce, info.Account, chainID, amount, gasPrice)
+	tx, err := signTx(priv, nonce, info.Account, signer, amount, info.GasPrice.ToBig())
 	if err != nil {
 		return fmt.Errorf("sign tx: %w", err)
 	}
@@ -151,7 +144,7 @@ func applyAction(ctx context.Context, cmd *cli.Command) error {
 		{"To", info.Account.Hex()},
 		{"Value", fmt.Sprintf("%s ETH", misc.WeiToEth(amount))},
 		{"Nonce", fmt.Sprint(nonce)},
-		{"GasPrice", fmt.Sprintf("%s wei", gasPrice.String())},
+		{"GasPrice", fmt.Sprintf("%s wei", info.GasPrice.Dec())},
 	})
 
 	return nil

@@ -5,13 +5,13 @@ import (
 	"errors"
 	"iter"
 	"maps"
-	"math/big"
 	"strconv"
 	"time"
 	"zoro/rate"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/holiman/uint256"
 	"github.com/maypok86/otter/v2"
 	"golang.org/x/sync/singleflight"
 )
@@ -35,7 +35,7 @@ func (client *cacheClient) BlockTime() time.Duration {
 }
 
 // Chain implements Client.
-func (client *cacheClient) Chain() string {
+func (client *cacheClient) Chain() uint256.Int {
 	return client.client.Chain()
 }
 
@@ -45,8 +45,8 @@ func (client *cacheClient) RateFeed() common.Address {
 }
 
 // BalanceOf implements Client.
-func (client *cacheClient) BalanceOf(ctx context.Context, account common.Address) (*big.Int, error) {
-	return getOrFetch(client.sf, client.cache, ctx, "BalanceOf:"+account.Hex(), func() (*big.Int, error) {
+func (client *cacheClient) BalanceOf(ctx context.Context, account common.Address) (*uint256.Int, error) {
+	return getOrFetch(client.sf, client.cache, ctx, "BalanceOf:"+account.Hex(), func() (*uint256.Int, error) {
 		return client.client.BalanceOf(ctx, account)
 	})
 }
@@ -59,8 +59,8 @@ func (client *cacheClient) FinalHeight(ctx context.Context) (int64, error) {
 }
 
 // GasPrice implements Client.
-func (client *cacheClient) GasPrice(ctx context.Context) (*big.Int, error) {
-	return getOrFetch(client.sf, client.cache, ctx, "GasPrice", func() (*big.Int, error) {
+func (client *cacheClient) GasPrice(ctx context.Context) (*uint256.Int, error) {
+	return getOrFetch(client.sf, client.cache, ctx, "GasPrice", func() (*uint256.Int, error) {
 		return client.client.GasPrice(ctx)
 	})
 }
