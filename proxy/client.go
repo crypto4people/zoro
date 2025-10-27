@@ -154,7 +154,7 @@ func (client *Client) SubmitTx(ctx context.Context, tx *types.Transaction) error
 	}
 	url.Path = path.Join(url.Path, "eth/submit")
 
-	jsonTx, err := tx.MarshalJSON()
+	jsonTx, err := tx.MarshalBinary()
 	if err != nil {
 		return err
 	}

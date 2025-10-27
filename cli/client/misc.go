@@ -1,13 +1,19 @@
-package cli
+package client
 
 import (
+	"bufio"
 	"context"
+	"crypto/ecdsa"
 	"errors"
 	"fmt"
+	"math/big"
 	"net/netip"
+	"os"
 	"strconv"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	box "github.com/sagernet/sing-box"
 	"github.com/sagernet/sing-box/include"
 	"github.com/sagernet/sing-box/option"
@@ -80,7 +86,7 @@ func connect(ctx context.Context, server, account, socksAddr string) (*box.Box, 
 	}
 
 	rules := []option.Rule{
-		option.Rule{
+		{
 			DefaultOptions: option.DefaultRule{
 				RawDefaultRule: option.RawDefaultRule{
 					Protocol: []string{network.NetworkUDP},
@@ -108,4 +114,42 @@ func connect(ctx context.Context, server, account, socksAddr string) (*box.Box, 
 		return nil, err
 	}
 	return box, nil
+}
+
+func signTx(priv *ecdsa.PrivateKey, nonce uint64, to common.Address, chainID, amount, gasPrice *big.Int) (*types.Transaction, error) {
+	if gasPrice == nil || gasPrice.Sign() <= 0 {
+		return nil, fmt.Errorf("invalid gas price")
+	}
+
+	if amount == nil || amount.Sign() < 0 {
+		return nil, fmt.Errorf("invalid amount")
+	}
+
+	tx := types.NewTx(&types.LegacyTx{
+		Nonce:    nonce,
+		To:       &to,
+		Value:    new(big.Int).Set(amount),
+		Gas:      21_000,
+		GasPrice: new(big.Int).Set(gasPrice),
+	})
+
+	signed, err := types.SignTx(tx, types.LatestSignerForChainID(chainID), priv)
+	if err != nil {
+		return nil, fmt.Errorf("sign: %w", err)
+	}
+	return signed, nil
+}
+
+func confirm(msg string) (bool, error) {
+	tty, err := os.Open("/dev/tty")
+	if err != nil {
+		return false, fmt.Errorf("no TTY available for confirmation: %w", err)
+	}
+	defer tty.Close()
+
+	fmt.Fprintf(os.Stdout, "%s [y/N]: ", msg)
+	reader := bufio.NewReader(tty)
+	line, _ := reader.ReadString('\n')
+	resp := strings.TrimSpace(strings.ToLower(line))
+	return resp == "y" || resp == "yes", nil
 }

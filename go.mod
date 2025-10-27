@@ -10,6 +10,7 @@ require (
 	github.com/holiman/uint256 v1.3.2
 	github.com/itsabgr/ge v0.0.0-20241202140951-7f5c5d99dde6
 	github.com/itsabgr/retry v0.0.0-20250503143232-077ac44149d3
+	github.com/mattn/go-sqlite3 v1.14.32
 	github.com/maypok86/otter/v2 v2.2.1
 	github.com/mholt/acmez/v3 v3.1.4
 	github.com/objectbox/objectbox-go v1.9.0

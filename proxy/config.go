@@ -18,6 +18,7 @@ type ServerConfig struct {
 	Database  *sql.DB
 	Client    eth.Client
 	Logger    *slog.Logger
+	MinBlock  int64
 }
 
 func NewServer(ctx context.Context, conf ServerConfig) (app *Server, err error) {
@@ -27,6 +28,7 @@ func NewServer(ctx context.Context, conf ServerConfig) (app *Server, err error) 
 	}
 
 	app.ethClient = conf.Client
+	app.ethStartingBlock = conf.MinBlock
 
 	app.proxy.reporting.internal = time.Second * 10
 	app.proxy.reporting.timeout = time.Second * 5

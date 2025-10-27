@@ -130,8 +130,8 @@ func (server *Server) doProxy(ctx context.Context, logger *slog.Logger, congesti
 					return err
 				}
 				_, err = ioConn.Write(data)
-				server.logger.Debug("connection dropped due to failure when writing on remote conn", slog.String("err", err.Error()))
 				if err != nil {
+					server.logger.Debug("connection dropped due to failure when writing on remote conn", slog.String("err", err.Error()))
 					return err
 				}
 			}

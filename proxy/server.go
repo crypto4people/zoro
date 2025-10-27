@@ -47,7 +47,8 @@ type Server struct {
 
 	httpMux http.ServeMux
 
-	ethClient eth.Client
+	ethClient        eth.Client
+	ethStartingBlock int64
 }
 
 type Info struct {

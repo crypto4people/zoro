@@ -8,6 +8,23 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
+func StrToBig(name, str string) (*big.Int, error) {
+	result, ok := new(big.Int).SetString(str, 10)
+	if !ok {
+		return nil, fmt.Errorf("invalid: %q", str)
+	}
+
+	return result, nil
+}
+
+func WeiToEth(wei *big.Int) string {
+	return new(big.Float).Quo(new(big.Float).SetInt(wei), big.NewFloat(1e18)).Text('f', 18)
+}
+
+func WeiToGwei(wei *big.Int) string {
+	return new(big.Float).Quo(new(big.Float).SetInt(wei), big.NewFloat(1e9)).Text('f', 2)
+}
+
 func SliceToSet[T comparable](slice []T) map[T]struct{} {
 	mapp := make(map[T]struct{}, len(slice))
 	for _, v := range slice {

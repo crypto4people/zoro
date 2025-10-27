@@ -99,7 +99,7 @@ func (server *Server) getLocalHeight(ctx context.Context) (int64, error) {
 	}
 
 	if err == sql.ErrNoRows {
-		return 0, nil
+		return server.ethStartingBlock, nil
 	}
 
 	return height, err
