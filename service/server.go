@@ -43,6 +43,7 @@ func (server *Server) CheckTx(ctx context.Context, params *pb.CheckTxParams) (*p
 	var status pb.CheckTxResult_TxStatus
 	if tx == nil {
 		status = pb.CheckTxResult_NotFound
+		_ = server.database.DeletePend(tx.Hash())
 	} else {
 		if isPend {
 			status = pb.CheckTxResult_Pend
@@ -57,7 +58,7 @@ func (server *Server) CheckTx(ctx context.Context, params *pb.CheckTxParams) (*p
 			}
 		} else {
 			status = pb.CheckTxResult_Done
-
+			_ = server.database.DeletePend(tx.Hash())
 		}
 	}
 
@@ -95,7 +96,7 @@ func (server *Server) SubmitTx(ctx context.Context, params *pb.SubmitTxParams) (
 	err = proxy.NewClient(server.httpClient, serverURL.String(), common.Address{}).SubmitTx(ctx, tx)
 
 	if err == nil {
-		err = server.database.PutPend(tx.Hash(), serverURL)
+		_ = server.database.PutPend(tx.Hash(), serverURL)
 	}
 
 	return &pb.SubmitTxResult{}, err
