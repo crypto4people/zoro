@@ -151,7 +151,7 @@ func (server *Server) ModifyAccount(ctx context.Context, params *pb.ModifyAccoun
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "failed to parse address")
 	}
-	if len(params.Cipher) == 0 {
+	if len(params.Cipher) <= 0 {
 		err = server.database.DeleteAccount(addr)
 	} else {
 		err = server.database.PutAccount(addr, params.Cipher)
