@@ -19,26 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Service_Connect_FullMethodName       = "/Service/Connect"
-	Service_Disconnect_FullMethodName    = "/Service/Disconnect"
-	Service_Status_FullMethodName        = "/Service/Status"
-	Service_ModifyServers_FullMethodName = "/Service/ModifyServers"
-	Service_ListServers_FullMethodName   = "/Service/ListServers"
-	Service_ListTxs_FullMethodName       = "/Service/ListTxs"
-	Service_SubmitTx_FullMethodName      = "/Service/SubmitTx"
+	Service_ModifyServer_FullMethodName = "/Service/ModifyServer"
+	Service_ListServers_FullMethodName  = "/Service/ListServers"
+	Service_ServerInfo_FullMethodName   = "/Service/ServerInfo"
 )
 
 // ServiceClient is the client API for Service service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
-	Connect(ctx context.Context, in *ConnectParams, opts ...grpc.CallOption) (*Empty, error)
-	Disconnect(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
-	Status(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*StatusResult, error)
-	ModifyServers(ctx context.Context, in *ModifyServersParams, opts ...grpc.CallOption) (*Empty, error)
-	ListServers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListServersResult, error)
-	ListTxs(ctx context.Context, in *ListTxsParams, opts ...grpc.CallOption) (*ListTxsResult, error)
-	SubmitTx(ctx context.Context, in *SubmitTxParams, opts ...grpc.CallOption) (*SubmitTxResult, error)
+	ModifyServer(ctx context.Context, in *ModifyServerParams, opts ...grpc.CallOption) (*ModifyServerResult, error)
+	ListServers(ctx context.Context, in *ListServersParams, opts ...grpc.CallOption) (*ListServersResult, error)
+	ServerInfo(ctx context.Context, in *ServerInfoParams, opts ...grpc.CallOption) (*ServerInfoResult, error)
 }
 
 type serviceClient struct {
@@ -49,47 +41,17 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
 }
 
-func (c *serviceClient) Connect(ctx context.Context, in *ConnectParams, opts ...grpc.CallOption) (*Empty, error) {
+func (c *serviceClient) ModifyServer(ctx context.Context, in *ModifyServerParams, opts ...grpc.CallOption) (*ModifyServerResult, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, Service_Connect_FullMethodName, in, out, cOpts...)
+	out := new(ModifyServerResult)
+	err := c.cc.Invoke(ctx, Service_ModifyServer_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) Disconnect(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, Service_Disconnect_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serviceClient) Status(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*StatusResult, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(StatusResult)
-	err := c.cc.Invoke(ctx, Service_Status_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serviceClient) ModifyServers(ctx context.Context, in *ModifyServersParams, opts ...grpc.CallOption) (*Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, Service_ModifyServers_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serviceClient) ListServers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListServersResult, error) {
+func (c *serviceClient) ListServers(ctx context.Context, in *ListServersParams, opts ...grpc.CallOption) (*ListServersResult, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListServersResult)
 	err := c.cc.Invoke(ctx, Service_ListServers_FullMethodName, in, out, cOpts...)
@@ -99,20 +61,10 @@ func (c *serviceClient) ListServers(ctx context.Context, in *Empty, opts ...grpc
 	return out, nil
 }
 
-func (c *serviceClient) ListTxs(ctx context.Context, in *ListTxsParams, opts ...grpc.CallOption) (*ListTxsResult, error) {
+func (c *serviceClient) ServerInfo(ctx context.Context, in *ServerInfoParams, opts ...grpc.CallOption) (*ServerInfoResult, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListTxsResult)
-	err := c.cc.Invoke(ctx, Service_ListTxs_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serviceClient) SubmitTx(ctx context.Context, in *SubmitTxParams, opts ...grpc.CallOption) (*SubmitTxResult, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SubmitTxResult)
-	err := c.cc.Invoke(ctx, Service_SubmitTx_FullMethodName, in, out, cOpts...)
+	out := new(ServerInfoResult)
+	err := c.cc.Invoke(ctx, Service_ServerInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,13 +75,9 @@ func (c *serviceClient) SubmitTx(ctx context.Context, in *SubmitTxParams, opts .
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility.
 type ServiceServer interface {
-	Connect(context.Context, *ConnectParams) (*Empty, error)
-	Disconnect(context.Context, *Empty) (*Empty, error)
-	Status(context.Context, *Empty) (*StatusResult, error)
-	ModifyServers(context.Context, *ModifyServersParams) (*Empty, error)
-	ListServers(context.Context, *Empty) (*ListServersResult, error)
-	ListTxs(context.Context, *ListTxsParams) (*ListTxsResult, error)
-	SubmitTx(context.Context, *SubmitTxParams) (*SubmitTxResult, error)
+	ModifyServer(context.Context, *ModifyServerParams) (*ModifyServerResult, error)
+	ListServers(context.Context, *ListServersParams) (*ListServersResult, error)
+	ServerInfo(context.Context, *ServerInfoParams) (*ServerInfoResult, error)
 	mustEmbedUnimplementedServiceServer()
 }
 
@@ -140,26 +88,14 @@ type ServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedServiceServer struct{}
 
-func (UnimplementedServiceServer) Connect(context.Context, *ConnectParams) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
+func (UnimplementedServiceServer) ModifyServer(context.Context, *ModifyServerParams) (*ModifyServerResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyServer not implemented")
 }
-func (UnimplementedServiceServer) Disconnect(context.Context, *Empty) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Disconnect not implemented")
-}
-func (UnimplementedServiceServer) Status(context.Context, *Empty) (*StatusResult, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
-}
-func (UnimplementedServiceServer) ModifyServers(context.Context, *ModifyServersParams) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ModifyServers not implemented")
-}
-func (UnimplementedServiceServer) ListServers(context.Context, *Empty) (*ListServersResult, error) {
+func (UnimplementedServiceServer) ListServers(context.Context, *ListServersParams) (*ListServersResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListServers not implemented")
 }
-func (UnimplementedServiceServer) ListTxs(context.Context, *ListTxsParams) (*ListTxsResult, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListTxs not implemented")
-}
-func (UnimplementedServiceServer) SubmitTx(context.Context, *SubmitTxParams) (*SubmitTxResult, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SubmitTx not implemented")
+func (UnimplementedServiceServer) ServerInfo(context.Context, *ServerInfoParams) (*ServerInfoResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ServerInfo not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
 func (UnimplementedServiceServer) testEmbeddedByValue()                 {}
@@ -182,80 +118,26 @@ func RegisterServiceServer(s grpc.ServiceRegistrar, srv ServiceServer) {
 	s.RegisterService(&Service_ServiceDesc, srv)
 }
 
-func _Service_Connect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConnectParams)
+func _Service_ModifyServer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyServerParams)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).Connect(ctx, in)
+		return srv.(ServiceServer).ModifyServer(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_Connect_FullMethodName,
+		FullMethod: Service_ModifyServer_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).Connect(ctx, req.(*ConnectParams))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Service_Disconnect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceServer).Disconnect(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Service_Disconnect_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).Disconnect(ctx, req.(*Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Service_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceServer).Status(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Service_Status_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).Status(ctx, req.(*Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Service_ModifyServers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ModifyServersParams)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceServer).ModifyServers(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Service_ModifyServers_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).ModifyServers(ctx, req.(*ModifyServersParams))
+		return srv.(ServiceServer).ModifyServer(ctx, req.(*ModifyServerParams))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Service_ListServers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+	in := new(ListServersParams)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -267,43 +149,25 @@ func _Service_ListServers_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: Service_ListServers_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).ListServers(ctx, req.(*Empty))
+		return srv.(ServiceServer).ListServers(ctx, req.(*ListServersParams))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_ListTxs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListTxsParams)
+func _Service_ServerInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ServerInfoParams)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).ListTxs(ctx, in)
+		return srv.(ServiceServer).ServerInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_ListTxs_FullMethodName,
+		FullMethod: Service_ServerInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).ListTxs(ctx, req.(*ListTxsParams))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Service_SubmitTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SubmitTxParams)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceServer).SubmitTx(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Service_SubmitTx_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).SubmitTx(ctx, req.(*SubmitTxParams))
+		return srv.(ServiceServer).ServerInfo(ctx, req.(*ServerInfoParams))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -316,32 +180,16 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Connect",
-			Handler:    _Service_Connect_Handler,
-		},
-		{
-			MethodName: "Disconnect",
-			Handler:    _Service_Disconnect_Handler,
-		},
-		{
-			MethodName: "Status",
-			Handler:    _Service_Status_Handler,
-		},
-		{
-			MethodName: "ModifyServers",
-			Handler:    _Service_ModifyServers_Handler,
+			MethodName: "ModifyServer",
+			Handler:    _Service_ModifyServer_Handler,
 		},
 		{
 			MethodName: "ListServers",
 			Handler:    _Service_ListServers_Handler,
 		},
 		{
-			MethodName: "ListTxs",
-			Handler:    _Service_ListTxs_Handler,
-		},
-		{
-			MethodName: "SubmitTx",
-			Handler:    _Service_SubmitTx_Handler,
+			MethodName: "ServerInfo",
+			Handler:    _Service_ServerInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -3,84 +3,52 @@ syntax = "proto3";
 option go_package = "../pb";
 
 service Service {
-    rpc Connect(ConnectParams) returns (Empty);
-    rpc Disconnect(Empty) returns (Empty);
-    rpc Status(Empty) returns (StatusResult);
 
-    rpc ModifyServers(ModifyServersParams) returns (Empty);
-    rpc ListServers(Empty) returns (ListServersResult);
+    rpc ModifyServer(ModifyServerParams) returns (ModifyServerResult);
+    rpc ListServers(ListServersParams) returns (ListServersResult);
+    rpc ServerInfo(ServerInfoParams) returns (ServerInfoResult);
 
-    rpc ListTxs(ListTxsParams) returns (ListTxsResult);
-    rpc SubmitTx(SubmitTxParams) returns (SubmitTxResult);
 }
 
-message Empty{}
 
-message ConnectParams {
-    string server = 1;
+message ModifyServerParams{
+    string key = 1;
+    optional string url = 2;
 }
 
-message StatusResult {
+message ModifyServerResult{}
+
+message ListServersParams{}
+
+message ListServersResult{
+    message Server {
+        string key = 1;
+        string url = 2;
+    }
+    repeated Server servers = 1;
+}
+
+message ServerInfoParams{
+    string url = 1; 
+    optional string account = 2;
+}
+
+message ServerInfoResult{
+    message Rate {
+        string sub =1 ;
+        string div = 2;
+        string mul  = 3;
+        string add = 4;
+    }
     string version = 1;
     int64 uptime = 2;
-    string address = 3;
-    string chain = 4;
-    string balance = 5;
-    bool connected = 6;
-}
-
-
-message ModifyServersParams {
-    string server = 1;
-    bool add = 2;
-}
-
-message ListServersResult {
-    message Info {
-        string version = 1;
-        int64 uptime = 2;
-        int64 conns  = 3;
-        int64 allSubs = 4;
-        string chain = 5;
-        int64 height = 6;
-        string address = 7;
-        message Rate {
-            string sub = 1;
-            string div = 2;
-            string mul = 3;
-            string add = 4;
-        }
-        Rate rate = 8;
-        int64 latency = 9;
-        message Sub {
-            int64 expire = 1;
-            int64 remain = 2;
-        }
-        repeated Sub subs = 10;
-        string uri = 11;
-    }
-    repeated Info infos = 1;
-}
-
-message ListTxsParams {
-    int64 continution = 1;
-}   
-
-message ListTxsResult {
-    message Tx {
-        string hash = 1;
-        string server = 2;
-        string status = 3;
-        bytes tx = 4;
-    }
-    map<int64, Tx> txs = 1;    
-}
-
-message SubmitTxParams {
-    int64 server = 1;
-    bytes tx = 2;
-}
-
-message SubmitTxResult {
-   string tx = 1;
+    int64 conns = 3;
+    int64 subs = 4;
+    string chain = 5;
+    int64 height = 6;
+    string rate_feed = 7;
+    string account = 8;
+    string balance = 9;
+    string gas_price = 10;
+    Rate rate = 11;
 }

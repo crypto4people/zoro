@@ -1,58 +1,48 @@
-//go:generate go run github.com/objectbox/objectbox-go/cmd/objectbox-gogen -byValue
-
 package db
 
 import (
-	"time"
+	"encoding/hex"
+	"net/url"
+	"strings"
+	"sync"
+	"unicode/utf8"
+	"zoro/service/db/ob"
+
+	"github.com/objectbox/objectbox-go/objectbox"
 )
 
-type TxStatus int32
-
-const (
-	TxStatusFail TxStatus = -1
-	TxStatusPend TxStatus = 0
-	TxStatusDone TxStatus = 1
-)
-
-type Setting struct {
-	ID    uint64 `objectbox:"id"`
-	Key   string `objectbox:"unique"`
-	Value string
+type Database struct {
+	mutex    sync.RWMutex
+	pends    *ob.PendBox
+	servers  *ob.ServerBox
+	settings *ob.SettingBox
 }
 
-type Server struct {
-	ID       uint64 `objectbox:"id"`
-	URL      string `objectbox:"unique"`
-	Version  string
-	Uptime   int64
-	Conns    int64
-	Subs     int64
-	Height   int64
-	Account  []byte
-	GasPrice string
-	Balance  string
-	RateFeed []byte
-	RateSub  string
-	RateDiv  string
-	RateMul  string
-	RateAdd  string
-	Latency  int64
-	Time     time.Time `objectbox:"date-nano"`
-	MySubs   []Sub     `objectbox:"link"`
+func New(box *objectbox.ObjectBox) *Database {
+
+	db := &Database{
+		pends:    ob.BoxForPend(box),
+		servers:  ob.BoxForServer(box),
+		settings: ob.BoxForSetting(box),
+	}
+
+	return db
+
 }
 
-type Sub struct {
-	ID     uint64 `objectbox:"id"`
-	Server string `objectbox:"index"`
-	Expire int    `objectbox:"index"`
-	Remain int    `objectbox:"index"`
-	Tx     string `objectbox:"unique"`
+func validKey(str string) bool {
+	return utf8.ValidString(str) && strings.ToLower(str) == str
 }
 
-type Tx struct {
-	ID     uint64 `objectbox:"id"`
-	Server string
-	Status TxStatus  `objectbox:"index"`
-	Hash   string    `objectbox:"unique"`
-	Time   time.Time `objectbox:"date-nano"`
+func validURL(str string) bool {
+	purl, err := url.Parse(str)
+	return err == nil && purl.String() == str
+}
+
+func validHash(str string) bool {
+	if len(str) != hex.EncodedLen(32) && strings.ToLower(str) != str {
+		return false
+	}
+	data, err := hex.DecodeString(str)
+	return err == nil && len(data) == 32
 }
