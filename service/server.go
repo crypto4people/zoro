@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"zoro/proxy"
 	"zoro/service/db"
 	"zoro/service/pb"
@@ -20,6 +21,43 @@ type Server struct {
 	pb.UnimplementedServiceServer
 }
 
+func (server *Server) ListAccounts(ctx context.Context, params *pb.ListAccountsParams) (_ *pb.ListAccountsResult, err error) {
+	accounts, err := server.database.Accounts()
+	if err != nil {
+		return nil, err
+	}
+
+	result := &pb.ListAccountsResult{
+		Accounts: make([]*pb.ListAccountsResult_Account, 0, len(accounts)),
+	}
+
+	for addr, cipher := range accounts {
+		if !params.Ciphers {
+			cipher = nil
+		}
+		result.Accounts = append(result.Accounts, &pb.ListAccountsResult_Account{
+			Address: addr.String(),
+			Cipher:  cipher,
+		})
+	}
+
+	return result, nil
+}
+
+func (server *Server) ModifyAccount(ctx context.Context, params *pb.ModifyAccountParams) (_ *pb.ModifyAccountResult, err error) {
+	var addr common.Address
+	err = addr.UnmarshalText([]byte(params.Address))
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "failed to parse address")
+	}
+	if len(params.Cipher) == 0 {
+		err = server.database.DeleteAccount(addr)
+	} else {
+		err = server.database.PutAccount(addr, params.Cipher)
+	}
+	return &pb.ModifyAccountResult{}, err
+}
+
 func (server *Server) ListServers(ctx context.Context, params *pb.ListServersParams) (*pb.ListServersResult, error) {
 	servers, err := server.database.Servers()
 	if err != nil {
@@ -33,7 +71,7 @@ func (server *Server) ListServers(ctx context.Context, params *pb.ListServersPar
 	for key, url := range servers {
 		result.Servers = append(result.Servers, &pb.ListServersResult_Server{
 			Key: key,
-			Url: url,
+			Url: url.String(),
 		})
 	}
 
@@ -45,7 +83,12 @@ func (server *Server) ModifyServer(ctx context.Context, params *pb.ModifyServerP
 	if params.Url == nil {
 		err = server.database.DeleteServer(params.Key)
 	} else {
-		err = server.database.PutServer(params.Key, *params.Url)
+		var purl *url.URL
+		purl, err = url.Parse(*params.Url)
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, "failed to parse url")
+		}
+		err = server.database.PutServer(params.Key, purl)
 	}
 	return &pb.ModifyServerResult{}, err
 }

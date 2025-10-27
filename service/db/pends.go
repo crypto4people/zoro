@@ -1,70 +1,73 @@
 package db
 
 import (
-	"errors"
+	"encoding/hex"
+	"net/url"
 	"zoro/service/db/ob"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
-func (db *Database) Pends() (map[string]string, error) {
+func (db *Database) Pends() (map[common.Hash]*url.URL, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
 	pends, err := db.pends.GetAll()
 	if err != nil {
 		return nil, err
 	}
-	result := make(map[string]string, len(pends))
+	result := make(map[common.Hash]*url.URL, len(pends))
 	for _, pend := range pends {
-		result[pend.Hash] = pend.ServerURL
+		purl, err := url.Parse(pend.ServerURL)
+		if err != nil {
+			return nil, err
+		}
+		result[common.HexToHash(pend.Hash)] = purl
 	}
 	return result, nil
 }
 
-func (db *Database) DeletePend(hash string) error {
+func (db *Database) DeletePend(hash common.Hash) error {
 	db.mutex.Lock()
 	defer db.mutex.Unlock()
-	pend, err := db.getPend(hash)
+	pend, err := db.getPend(hex.EncodeToString(hash[:]))
 	if err == nil && pend != nil {
 		err = db.pends.RemoveId(pend.ID)
 	}
 	return err
 }
 
-func (db *Database) PutPend(hash string, serverURL string) error {
-	if !validHash(hash) {
-		return errors.New("invalid hash")
-	}
+func (db *Database) PutPend(hash common.Hash, serverURL *url.URL) error {
 
-	if !validURL(serverURL) {
-		return errors.New("invalid server url")
-	}
+	hashHex := hex.EncodeToString(hash[:])
 
 	db.mutex.Lock()
 	defer db.mutex.Unlock()
 
-	pend, err := db.getPend(hash)
+	pend, err := db.getPend(hashHex)
 	if err != nil {
 		return err
 	}
 	if pend == nil {
 		pend = &ob.Pend{
-			Hash:      hash,
-			ServerURL: serverURL,
+			Hash:      hashHex,
+			ServerURL: serverURL.String(),
 		}
 	} else {
-		pend.ServerURL = serverURL
+		pend.ServerURL = serverURL.String()
 	}
+
 	_, err = db.pends.Put(pend)
 	return err
 }
 
-func (db *Database) GetPend(hash string) (string, error) {
+func (db *Database) GetPend(hash common.Hash) (*url.URL, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
-	pend, err := db.getPend(hash)
+	pend, err := db.getPend(hex.EncodeToString(hash[:]))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return pend.ServerURL, nil
+	return url.Parse(pend.ServerURL)
 }
 
 func (db *Database) getPend(hash string) (*ob.Pend, error) {

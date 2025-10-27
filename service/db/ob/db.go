@@ -2,6 +2,12 @@
 
 package ob
 
+type Account struct {
+	ID      uint64 `objectbox:"id"`
+	Address string `objectbox:"unique"`
+	Cipher  []byte
+}
+
 type Pend struct {
 	ID        uint64 `objectbox:"id"`
 	Hash      string `objectbox:"unique"`
@@ -9,9 +15,9 @@ type Pend struct {
 }
 
 type Server struct {
-	ID  uint64 `objectbox:"id"`
-	Key string `objectbox:"unique"`
-	URL string
+	ID   uint64 `objectbox:"id"`
+	Name string `objectbox:"unique"`
+	URL  string
 }
 
 type Setting struct {

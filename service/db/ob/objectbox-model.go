@@ -12,11 +12,12 @@ func ObjectBoxModel() *objectbox.Model {
 	model := objectbox.NewModel()
 	model.GeneratorVersion(6)
 
-	model.RegisterBinding(SettingBinding)
-	model.RegisterBinding(ServerBinding)
+	model.RegisterBinding(AccountBinding)
 	model.RegisterBinding(PendBinding)
-	model.LastEntityId(3, 506362987882014103)
-	model.LastIndexId(3, 4554587549085701550)
+	model.RegisterBinding(ServerBinding)
+	model.RegisterBinding(SettingBinding)
+	model.LastEntityId(4, 4080594665437675410)
+	model.LastIndexId(5, 7862791364560289222)
 
 	return model
 }

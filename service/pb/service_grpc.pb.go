@@ -19,15 +19,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Service_ModifyServer_FullMethodName = "/Service/ModifyServer"
-	Service_ListServers_FullMethodName  = "/Service/ListServers"
-	Service_ServerInfo_FullMethodName   = "/Service/ServerInfo"
+	Service_ModifyAccount_FullMethodName = "/Service/ModifyAccount"
+	Service_ListAccounts_FullMethodName  = "/Service/ListAccounts"
+	Service_ModifyServer_FullMethodName  = "/Service/ModifyServer"
+	Service_ListServers_FullMethodName   = "/Service/ListServers"
+	Service_ServerInfo_FullMethodName    = "/Service/ServerInfo"
 )
 
 // ServiceClient is the client API for Service service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
+	ModifyAccount(ctx context.Context, in *ModifyAccountParams, opts ...grpc.CallOption) (*ModifyAccountResult, error)
+	ListAccounts(ctx context.Context, in *ListAccountsParams, opts ...grpc.CallOption) (*ListAccountsResult, error)
 	ModifyServer(ctx context.Context, in *ModifyServerParams, opts ...grpc.CallOption) (*ModifyServerResult, error)
 	ListServers(ctx context.Context, in *ListServersParams, opts ...grpc.CallOption) (*ListServersResult, error)
 	ServerInfo(ctx context.Context, in *ServerInfoParams, opts ...grpc.CallOption) (*ServerInfoResult, error)
@@ -39,6 +43,26 @@ type serviceClient struct {
 
 func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
+}
+
+func (c *serviceClient) ModifyAccount(ctx context.Context, in *ModifyAccountParams, opts ...grpc.CallOption) (*ModifyAccountResult, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModifyAccountResult)
+	err := c.cc.Invoke(ctx, Service_ModifyAccount_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) ListAccounts(ctx context.Context, in *ListAccountsParams, opts ...grpc.CallOption) (*ListAccountsResult, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAccountsResult)
+	err := c.cc.Invoke(ctx, Service_ListAccounts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *serviceClient) ModifyServer(ctx context.Context, in *ModifyServerParams, opts ...grpc.CallOption) (*ModifyServerResult, error) {
@@ -75,6 +99,8 @@ func (c *serviceClient) ServerInfo(ctx context.Context, in *ServerInfoParams, op
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility.
 type ServiceServer interface {
+	ModifyAccount(context.Context, *ModifyAccountParams) (*ModifyAccountResult, error)
+	ListAccounts(context.Context, *ListAccountsParams) (*ListAccountsResult, error)
 	ModifyServer(context.Context, *ModifyServerParams) (*ModifyServerResult, error)
 	ListServers(context.Context, *ListServersParams) (*ListServersResult, error)
 	ServerInfo(context.Context, *ServerInfoParams) (*ServerInfoResult, error)
@@ -88,6 +114,12 @@ type ServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedServiceServer struct{}
 
+func (UnimplementedServiceServer) ModifyAccount(context.Context, *ModifyAccountParams) (*ModifyAccountResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyAccount not implemented")
+}
+func (UnimplementedServiceServer) ListAccounts(context.Context, *ListAccountsParams) (*ListAccountsResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAccounts not implemented")
+}
 func (UnimplementedServiceServer) ModifyServer(context.Context, *ModifyServerParams) (*ModifyServerResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ModifyServer not implemented")
 }
@@ -116,6 +148,42 @@ func RegisterServiceServer(s grpc.ServiceRegistrar, srv ServiceServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&Service_ServiceDesc, srv)
+}
+
+func _Service_ModifyAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyAccountParams)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).ModifyAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_ModifyAccount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).ModifyAccount(ctx, req.(*ModifyAccountParams))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_ListAccounts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAccountsParams)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).ListAccounts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_ListAccounts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).ListAccounts(ctx, req.(*ListAccountsParams))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Service_ModifyServer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -179,6 +247,14 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "Service",
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ModifyAccount",
+			Handler:    _Service_ModifyAccount_Handler,
+		},
+		{
+			MethodName: "ListAccounts",
+			Handler:    _Service_ListAccounts_Handler,
+		},
 		{
 			MethodName: "ModifyServer",
 			Handler:    _Service_ModifyServer_Handler,

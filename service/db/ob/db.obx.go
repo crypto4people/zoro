@@ -10,112 +10,112 @@ import (
 	"github.com/objectbox/objectbox-go/objectbox/fbutils"
 )
 
-type setting_EntityInfo struct {
+type account_EntityInfo struct {
 	objectbox.Entity
 	Uid uint64
 }
 
-var SettingBinding = setting_EntityInfo{
+var AccountBinding = account_EntityInfo{
 	Entity: objectbox.Entity{
 		Id: 1,
 	},
-	Uid: 3211306103443750222,
+	Uid: 8792800756107384192,
 }
 
-// Setting_ contains type-based Property helpers to facilitate some common operations such as Queries.
-var Setting_ = struct {
-	ID    *objectbox.PropertyUint64
-	Key   *objectbox.PropertyString
-	Value *objectbox.PropertyString
+// Account_ contains type-based Property helpers to facilitate some common operations such as Queries.
+var Account_ = struct {
+	ID      *objectbox.PropertyUint64
+	Address *objectbox.PropertyString
+	Cipher  *objectbox.PropertyByteVector
 }{
 	ID: &objectbox.PropertyUint64{
 		BaseProperty: &objectbox.BaseProperty{
 			Id:     1,
-			Entity: &SettingBinding.Entity,
+			Entity: &AccountBinding.Entity,
 		},
 	},
-	Key: &objectbox.PropertyString{
+	Address: &objectbox.PropertyString{
 		BaseProperty: &objectbox.BaseProperty{
 			Id:     2,
-			Entity: &SettingBinding.Entity,
+			Entity: &AccountBinding.Entity,
 		},
 	},
-	Value: &objectbox.PropertyString{
+	Cipher: &objectbox.PropertyByteVector{
 		BaseProperty: &objectbox.BaseProperty{
-			Id:     4,
-			Entity: &SettingBinding.Entity,
+			Id:     3,
+			Entity: &AccountBinding.Entity,
 		},
 	},
 }
 
 // GeneratorVersion is called by ObjectBox to verify the compatibility of the generator used to generate this code
-func (setting_EntityInfo) GeneratorVersion() int {
+func (account_EntityInfo) GeneratorVersion() int {
 	return 6
 }
 
 // AddToModel is called by ObjectBox during model build
-func (setting_EntityInfo) AddToModel(model *objectbox.Model) {
-	model.Entity("Setting", 1, 3211306103443750222)
-	model.Property("ID", 6, 1, 2643863439239733021)
+func (account_EntityInfo) AddToModel(model *objectbox.Model) {
+	model.Entity("Account", 1, 8792800756107384192)
+	model.Property("ID", 6, 1, 5226693666938633320)
 	model.PropertyFlags(1)
-	model.Property("Key", 9, 2, 1851265868151295170)
+	model.Property("Address", 9, 2, 3844199448186193838)
 	model.PropertyFlags(2080)
-	model.PropertyIndex(1, 195270491054618116)
-	model.Property("Value", 9, 4, 7860014170975992148)
-	model.EntityLastPropertyId(4, 7860014170975992148)
+	model.PropertyIndex(1, 6304743834975968357)
+	model.Property("Cipher", 23, 3, 754647262435262703)
+	model.EntityLastPropertyId(3, 754647262435262703)
 }
 
 // GetId is called by ObjectBox during Put operations to check for existing ID on an object
-func (setting_EntityInfo) GetId(object interface{}) (uint64, error) {
-	if obj, ok := object.(*Setting); ok {
+func (account_EntityInfo) GetId(object interface{}) (uint64, error) {
+	if obj, ok := object.(*Account); ok {
 		return obj.ID, nil
 	} else {
-		return object.(Setting).ID, nil
+		return object.(Account).ID, nil
 	}
 }
 
 // SetId is called by ObjectBox during Put to update an ID on an object that has just been inserted
-func (setting_EntityInfo) SetId(object interface{}, id uint64) error {
-	if obj, ok := object.(*Setting); ok {
+func (account_EntityInfo) SetId(object interface{}, id uint64) error {
+	if obj, ok := object.(*Account); ok {
 		obj.ID = id
 		return nil
 	} else {
 		// NOTE while this can't update, it will at least behave consistently (panic in case of a wrong type)
-		_ = object.(Setting).ID
+		_ = object.(Account).ID
 		return nil
 	}
 }
 
 // PutRelated is called by ObjectBox to put related entities before the object itself is flattened and put
-func (setting_EntityInfo) PutRelated(ob *objectbox.ObjectBox, object interface{}, id uint64) error {
+func (account_EntityInfo) PutRelated(ob *objectbox.ObjectBox, object interface{}, id uint64) error {
 	return nil
 }
 
 // Flatten is called by ObjectBox to transform an object to a FlatBuffer
-func (setting_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id uint64) error {
-	var obj *Setting
-	if objPtr, ok := object.(*Setting); ok {
+func (account_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id uint64) error {
+	var obj *Account
+	if objPtr, ok := object.(*Account); ok {
 		obj = objPtr
 	} else {
-		objVal := object.(Setting)
+		objVal := object.(Account)
 		obj = &objVal
 	}
 
-	var offsetKey = fbutils.CreateStringOffset(fbb, obj.Key)
-	var offsetValue = fbutils.CreateStringOffset(fbb, obj.Value)
+	var offsetAddress = fbutils.CreateStringOffset(fbb, obj.Address)
+	var offsetCipher = fbutils.CreateByteVectorOffset(fbb, obj.Cipher)
 
 	// build the FlatBuffers object
-	fbb.StartObject(4)
+	fbb.StartObject(3)
 	fbutils.SetUint64Slot(fbb, 0, id)
-	fbutils.SetUOffsetTSlot(fbb, 1, offsetKey)
-	fbutils.SetUOffsetTSlot(fbb, 3, offsetValue)
+	fbutils.SetUOffsetTSlot(fbb, 1, offsetAddress)
+	fbutils.SetUOffsetTSlot(fbb, 2, offsetCipher)
 	return nil
 }
 
 // Load is called by ObjectBox to load an object from a FlatBuffer
-func (setting_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interface{}, error) {
+func (account_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interface{}, error) {
 	if len(bytes) == 0 { // sanity check, should "never" happen
-		return nil, errors.New("can't deserialize an object of type 'Setting' - no data received")
+		return nil, errors.New("can't deserialize an object of type 'Account' - no data received")
 	}
 
 	var table = &flatbuffers.Table{
@@ -125,61 +125,61 @@ func (setting_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interface
 
 	var propID = table.GetUint64Slot(4, 0)
 
-	return &Setting{
-		ID:    propID,
-		Key:   fbutils.GetStringSlot(table, 6),
-		Value: fbutils.GetStringSlot(table, 10),
+	return &Account{
+		ID:      propID,
+		Address: fbutils.GetStringSlot(table, 6),
+		Cipher:  fbutils.GetByteVectorSlot(table, 8),
 	}, nil
 }
 
 // MakeSlice is called by ObjectBox to construct a new slice to hold the read objects
-func (setting_EntityInfo) MakeSlice(capacity int) interface{} {
-	return make([]Setting, 0, capacity)
+func (account_EntityInfo) MakeSlice(capacity int) interface{} {
+	return make([]Account, 0, capacity)
 }
 
 // AppendToSlice is called by ObjectBox to fill the slice of the read objects
-func (setting_EntityInfo) AppendToSlice(slice interface{}, object interface{}) interface{} {
+func (account_EntityInfo) AppendToSlice(slice interface{}, object interface{}) interface{} {
 	if object == nil {
-		return append(slice.([]Setting), Setting{})
+		return append(slice.([]Account), Account{})
 	}
-	return append(slice.([]Setting), *object.(*Setting))
+	return append(slice.([]Account), *object.(*Account))
 }
 
-// Box provides CRUD access to Setting objects
-type SettingBox struct {
+// Box provides CRUD access to Account objects
+type AccountBox struct {
 	*objectbox.Box
 }
 
-// BoxForSetting opens a box of Setting objects
-func BoxForSetting(ob *objectbox.ObjectBox) *SettingBox {
-	return &SettingBox{
+// BoxForAccount opens a box of Account objects
+func BoxForAccount(ob *objectbox.ObjectBox) *AccountBox {
+	return &AccountBox{
 		Box: ob.InternalBox(1),
 	}
 }
 
 // Put synchronously inserts/updates a single object.
 // In case the ID is not specified, it would be assigned automatically (auto-increment).
-// When inserting, the Setting.ID property on the passed object will be assigned the new ID as well.
-func (box *SettingBox) Put(object *Setting) (uint64, error) {
+// When inserting, the Account.ID property on the passed object will be assigned the new ID as well.
+func (box *AccountBox) Put(object *Account) (uint64, error) {
 	return box.Box.Put(object)
 }
 
 // Insert synchronously inserts a single object. As opposed to Put, Insert will fail if given an ID that already exists.
 // In case the ID is not specified, it would be assigned automatically (auto-increment).
-// When inserting, the Setting.ID property on the passed object will be assigned the new ID as well.
-func (box *SettingBox) Insert(object *Setting) (uint64, error) {
+// When inserting, the Account.ID property on the passed object will be assigned the new ID as well.
+func (box *AccountBox) Insert(object *Account) (uint64, error) {
 	return box.Box.Insert(object)
 }
 
 // Update synchronously updates a single object.
 // As opposed to Put, Update will fail if an object with the same ID is not found in the database.
-func (box *SettingBox) Update(object *Setting) error {
+func (box *AccountBox) Update(object *Account) error {
 	return box.Box.Update(object)
 }
 
 // PutAsync asynchronously inserts/updates a single object.
 // Deprecated: use box.Async().Put() instead
-func (box *SettingBox) PutAsync(object *Setting) (uint64, error) {
+func (box *AccountBox) PutAsync(object *Account) (uint64, error) {
 	return box.Box.PutAsync(object)
 }
 
@@ -187,59 +187,59 @@ func (box *SettingBox) PutAsync(object *Setting) (uint64, error) {
 // In case IDs are not set on the objects, they would be assigned automatically (auto-increment).
 //
 // Returns: IDs of the put objects (in the same order).
-// When inserting, the Setting.ID property on the objects in the slice will be assigned the new IDs as well.
+// When inserting, the Account.ID property on the objects in the slice will be assigned the new IDs as well.
 //
-// Note: In case an error occurs during the transaction, some of the objects may already have the Setting.ID assigned
+// Note: In case an error occurs during the transaction, some of the objects may already have the Account.ID assigned
 // even though the transaction has been rolled back and the objects are not stored under those IDs.
 //
 // Note: The slice may be empty or even nil; in both cases, an empty IDs slice and no error is returned.
-func (box *SettingBox) PutMany(objects []Setting) ([]uint64, error) {
+func (box *AccountBox) PutMany(objects []Account) ([]uint64, error) {
 	return box.Box.PutMany(objects)
 }
 
 // Get reads a single object.
 //
 // Returns nil (and no error) in case the object with the given ID doesn't exist.
-func (box *SettingBox) Get(id uint64) (*Setting, error) {
+func (box *AccountBox) Get(id uint64) (*Account, error) {
 	object, err := box.Box.Get(id)
 	if err != nil {
 		return nil, err
 	} else if object == nil {
 		return nil, nil
 	}
-	return object.(*Setting), nil
+	return object.(*Account), nil
 }
 
 // GetMany reads multiple objects at once.
 // If any of the objects doesn't exist, its position in the return slice is an empty object
-func (box *SettingBox) GetMany(ids ...uint64) ([]Setting, error) {
+func (box *AccountBox) GetMany(ids ...uint64) ([]Account, error) {
 	objects, err := box.Box.GetMany(ids...)
 	if err != nil {
 		return nil, err
 	}
-	return objects.([]Setting), nil
+	return objects.([]Account), nil
 }
 
 // GetManyExisting reads multiple objects at once, skipping those that do not exist.
-func (box *SettingBox) GetManyExisting(ids ...uint64) ([]Setting, error) {
+func (box *AccountBox) GetManyExisting(ids ...uint64) ([]Account, error) {
 	objects, err := box.Box.GetManyExisting(ids...)
 	if err != nil {
 		return nil, err
 	}
-	return objects.([]Setting), nil
+	return objects.([]Account), nil
 }
 
 // GetAll reads all stored objects
-func (box *SettingBox) GetAll() ([]Setting, error) {
+func (box *AccountBox) GetAll() ([]Account, error) {
 	objects, err := box.Box.GetAll()
 	if err != nil {
 		return nil, err
 	}
-	return objects.([]Setting), nil
+	return objects.([]Account), nil
 }
 
 // Remove deletes a single object
-func (box *SettingBox) Remove(object *Setting) error {
+func (box *AccountBox) Remove(object *Account) error {
 	return box.Box.Remove(object)
 }
 
@@ -248,7 +248,7 @@ func (box *SettingBox) Remove(object *Setting) error {
 // Note that this method will not fail if an object is not found (e.g. already removed).
 // In case you need to strictly check whether all of the objects exist before removing them,
 // you can execute multiple box.Contains() and box.Remove() inside a single write transaction.
-func (box *SettingBox) RemoveMany(objects ...*Setting) (uint64, error) {
+func (box *AccountBox) RemoveMany(objects ...*Account) (uint64, error) {
 	var ids = make([]uint64, len(objects))
 	for k, object := range objects {
 		ids[k] = object.ID
@@ -256,32 +256,32 @@ func (box *SettingBox) RemoveMany(objects ...*Setting) (uint64, error) {
 	return box.Box.RemoveIds(ids...)
 }
 
-// Creates a query with the given conditions. Use the fields of the Setting_ struct to create conditions.
-// Keep the *SettingQuery if you intend to execute the query multiple times.
+// Creates a query with the given conditions. Use the fields of the Account_ struct to create conditions.
+// Keep the *AccountQuery if you intend to execute the query multiple times.
 // Note: this function panics if you try to create illegal queries; e.g. use properties of an alien type.
 // This is typically a programming error. Use QueryOrError instead if you want the explicit error check.
-func (box *SettingBox) Query(conditions ...objectbox.Condition) *SettingQuery {
-	return &SettingQuery{
+func (box *AccountBox) Query(conditions ...objectbox.Condition) *AccountQuery {
+	return &AccountQuery{
 		box.Box.Query(conditions...),
 	}
 }
 
-// Creates a query with the given conditions. Use the fields of the Setting_ struct to create conditions.
-// Keep the *SettingQuery if you intend to execute the query multiple times.
-func (box *SettingBox) QueryOrError(conditions ...objectbox.Condition) (*SettingQuery, error) {
+// Creates a query with the given conditions. Use the fields of the Account_ struct to create conditions.
+// Keep the *AccountQuery if you intend to execute the query multiple times.
+func (box *AccountBox) QueryOrError(conditions ...objectbox.Condition) (*AccountQuery, error) {
 	if query, err := box.Box.QueryOrError(conditions...); err != nil {
 		return nil, err
 	} else {
-		return &SettingQuery{query}, nil
+		return &AccountQuery{query}, nil
 	}
 }
 
-// Async provides access to the default Async Box for asynchronous operations. See SettingAsyncBox for more information.
-func (box *SettingBox) Async() *SettingAsyncBox {
-	return &SettingAsyncBox{AsyncBox: box.Box.Async()}
+// Async provides access to the default Async Box for asynchronous operations. See AccountAsyncBox for more information.
+func (box *AccountBox) Async() *AccountAsyncBox {
+	return &AccountAsyncBox{AsyncBox: box.Box.Async()}
 }
 
-// SettingAsyncBox provides asynchronous operations on Setting objects.
+// AccountAsyncBox provides asynchronous operations on Account objects.
 //
 // Asynchronous operations are executed on a separate internal thread for better performance.
 //
@@ -297,25 +297,25 @@ func (box *SettingBox) Async() *SettingAsyncBox {
 //
 // Note that async methods do not give you hard durability guarantees like the synchronous Box provides.
 // There is a small time window in which the data may not have been committed durably yet.
-type SettingAsyncBox struct {
+type AccountAsyncBox struct {
 	*objectbox.AsyncBox
 }
 
-// AsyncBoxForSetting creates a new async box with the given operation timeout in case an async queue is full.
+// AsyncBoxForAccount creates a new async box with the given operation timeout in case an async queue is full.
 // The returned struct must be freed explicitly using the Close() method.
-// It's usually preferable to use SettingBox::Async() which takes care of resource management and doesn't require closing.
-func AsyncBoxForSetting(ob *objectbox.ObjectBox, timeoutMs uint64) *SettingAsyncBox {
+// It's usually preferable to use AccountBox::Async() which takes care of resource management and doesn't require closing.
+func AsyncBoxForAccount(ob *objectbox.ObjectBox, timeoutMs uint64) *AccountAsyncBox {
 	var async, err = objectbox.NewAsyncBox(ob, 1, timeoutMs)
 	if err != nil {
 		panic("Could not create async box for entity ID 1: %s" + err.Error())
 	}
-	return &SettingAsyncBox{AsyncBox: async}
+	return &AccountAsyncBox{AsyncBox: async}
 }
 
 // Put inserts/updates a single object asynchronously.
 // When inserting a new object, the ID property on the passed object will be assigned the new ID the entity would hold
 // if the insert is ultimately successful. The newly assigned ID may not become valid if the insert fails.
-func (asyncBox *SettingAsyncBox) Put(object *Setting) (uint64, error) {
+func (asyncBox *AccountAsyncBox) Put(object *Account) (uint64, error) {
 	return asyncBox.AsyncBox.Put(object)
 }
 
@@ -323,405 +323,47 @@ func (asyncBox *SettingAsyncBox) Put(object *Setting) (uint64, error) {
 // The ID property on the passed object will be assigned the new ID the entity would hold if the insert is ultimately
 // successful. The newly assigned ID may not become valid if the insert fails.
 // Fails silently if an object with the same ID already exists (this error is not returned).
-func (asyncBox *SettingAsyncBox) Insert(object *Setting) (id uint64, err error) {
+func (asyncBox *AccountAsyncBox) Insert(object *Account) (id uint64, err error) {
 	return asyncBox.AsyncBox.Insert(object)
 }
 
 // Update a single object asynchronously.
 // The object must already exists or the update fails silently (without an error returned).
-func (asyncBox *SettingAsyncBox) Update(object *Setting) error {
+func (asyncBox *AccountAsyncBox) Update(object *Account) error {
 	return asyncBox.AsyncBox.Update(object)
 }
 
 // Remove deletes a single object asynchronously.
-func (asyncBox *SettingAsyncBox) Remove(object *Setting) error {
+func (asyncBox *AccountAsyncBox) Remove(object *Account) error {
 	return asyncBox.AsyncBox.Remove(object)
 }
 
 // Query provides a way to search stored objects
 //
-// For example, you can find all Setting which ID is either 42 or 47:
+// For example, you can find all Account which ID is either 42 or 47:
 //
-// box.Query(Setting_.ID.In(42, 47)).Find()
-type SettingQuery struct {
+// box.Query(Account_.ID.In(42, 47)).Find()
+type AccountQuery struct {
 	*objectbox.Query
 }
 
 // Find returns all objects matching the query
-func (query *SettingQuery) Find() ([]Setting, error) {
+func (query *AccountQuery) Find() ([]Account, error) {
 	objects, err := query.Query.Find()
 	if err != nil {
 		return nil, err
 	}
-	return objects.([]Setting), nil
+	return objects.([]Account), nil
 }
 
 // Offset defines the index of the first object to process (how many objects to skip)
-func (query *SettingQuery) Offset(offset uint64) *SettingQuery {
+func (query *AccountQuery) Offset(offset uint64) *AccountQuery {
 	query.Query.Offset(offset)
 	return query
 }
 
 // Limit sets the number of elements to process by the query
-func (query *SettingQuery) Limit(limit uint64) *SettingQuery {
-	query.Query.Limit(limit)
-	return query
-}
-
-type server_EntityInfo struct {
-	objectbox.Entity
-	Uid uint64
-}
-
-var ServerBinding = server_EntityInfo{
-	Entity: objectbox.Entity{
-		Id: 2,
-	},
-	Uid: 192904515799890928,
-}
-
-// Server_ contains type-based Property helpers to facilitate some common operations such as Queries.
-var Server_ = struct {
-	ID  *objectbox.PropertyUint64
-	Key *objectbox.PropertyString
-	URL *objectbox.PropertyString
-}{
-	ID: &objectbox.PropertyUint64{
-		BaseProperty: &objectbox.BaseProperty{
-			Id:     1,
-			Entity: &ServerBinding.Entity,
-		},
-	},
-	Key: &objectbox.PropertyString{
-		BaseProperty: &objectbox.BaseProperty{
-			Id:     2,
-			Entity: &ServerBinding.Entity,
-		},
-	},
-	URL: &objectbox.PropertyString{
-		BaseProperty: &objectbox.BaseProperty{
-			Id:     3,
-			Entity: &ServerBinding.Entity,
-		},
-	},
-}
-
-// GeneratorVersion is called by ObjectBox to verify the compatibility of the generator used to generate this code
-func (server_EntityInfo) GeneratorVersion() int {
-	return 6
-}
-
-// AddToModel is called by ObjectBox during model build
-func (server_EntityInfo) AddToModel(model *objectbox.Model) {
-	model.Entity("Server", 2, 192904515799890928)
-	model.Property("ID", 6, 1, 7571687599468837308)
-	model.PropertyFlags(1)
-	model.Property("Key", 9, 2, 6028152809251415465)
-	model.PropertyFlags(2080)
-	model.PropertyIndex(2, 8604483338501973061)
-	model.Property("URL", 9, 3, 6076693883331985327)
-	model.EntityLastPropertyId(3, 6076693883331985327)
-}
-
-// GetId is called by ObjectBox during Put operations to check for existing ID on an object
-func (server_EntityInfo) GetId(object interface{}) (uint64, error) {
-	if obj, ok := object.(*Server); ok {
-		return obj.ID, nil
-	} else {
-		return object.(Server).ID, nil
-	}
-}
-
-// SetId is called by ObjectBox during Put to update an ID on an object that has just been inserted
-func (server_EntityInfo) SetId(object interface{}, id uint64) error {
-	if obj, ok := object.(*Server); ok {
-		obj.ID = id
-		return nil
-	} else {
-		// NOTE while this can't update, it will at least behave consistently (panic in case of a wrong type)
-		_ = object.(Server).ID
-		return nil
-	}
-}
-
-// PutRelated is called by ObjectBox to put related entities before the object itself is flattened and put
-func (server_EntityInfo) PutRelated(ob *objectbox.ObjectBox, object interface{}, id uint64) error {
-	return nil
-}
-
-// Flatten is called by ObjectBox to transform an object to a FlatBuffer
-func (server_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id uint64) error {
-	var obj *Server
-	if objPtr, ok := object.(*Server); ok {
-		obj = objPtr
-	} else {
-		objVal := object.(Server)
-		obj = &objVal
-	}
-
-	var offsetKey = fbutils.CreateStringOffset(fbb, obj.Key)
-	var offsetURL = fbutils.CreateStringOffset(fbb, obj.URL)
-
-	// build the FlatBuffers object
-	fbb.StartObject(3)
-	fbutils.SetUint64Slot(fbb, 0, id)
-	fbutils.SetUOffsetTSlot(fbb, 1, offsetKey)
-	fbutils.SetUOffsetTSlot(fbb, 2, offsetURL)
-	return nil
-}
-
-// Load is called by ObjectBox to load an object from a FlatBuffer
-func (server_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interface{}, error) {
-	if len(bytes) == 0 { // sanity check, should "never" happen
-		return nil, errors.New("can't deserialize an object of type 'Server' - no data received")
-	}
-
-	var table = &flatbuffers.Table{
-		Bytes: bytes,
-		Pos:   flatbuffers.GetUOffsetT(bytes),
-	}
-
-	var propID = table.GetUint64Slot(4, 0)
-
-	return &Server{
-		ID:  propID,
-		Key: fbutils.GetStringSlot(table, 6),
-		URL: fbutils.GetStringSlot(table, 8),
-	}, nil
-}
-
-// MakeSlice is called by ObjectBox to construct a new slice to hold the read objects
-func (server_EntityInfo) MakeSlice(capacity int) interface{} {
-	return make([]Server, 0, capacity)
-}
-
-// AppendToSlice is called by ObjectBox to fill the slice of the read objects
-func (server_EntityInfo) AppendToSlice(slice interface{}, object interface{}) interface{} {
-	if object == nil {
-		return append(slice.([]Server), Server{})
-	}
-	return append(slice.([]Server), *object.(*Server))
-}
-
-// Box provides CRUD access to Server objects
-type ServerBox struct {
-	*objectbox.Box
-}
-
-// BoxForServer opens a box of Server objects
-func BoxForServer(ob *objectbox.ObjectBox) *ServerBox {
-	return &ServerBox{
-		Box: ob.InternalBox(2),
-	}
-}
-
-// Put synchronously inserts/updates a single object.
-// In case the ID is not specified, it would be assigned automatically (auto-increment).
-// When inserting, the Server.ID property on the passed object will be assigned the new ID as well.
-func (box *ServerBox) Put(object *Server) (uint64, error) {
-	return box.Box.Put(object)
-}
-
-// Insert synchronously inserts a single object. As opposed to Put, Insert will fail if given an ID that already exists.
-// In case the ID is not specified, it would be assigned automatically (auto-increment).
-// When inserting, the Server.ID property on the passed object will be assigned the new ID as well.
-func (box *ServerBox) Insert(object *Server) (uint64, error) {
-	return box.Box.Insert(object)
-}
-
-// Update synchronously updates a single object.
-// As opposed to Put, Update will fail if an object with the same ID is not found in the database.
-func (box *ServerBox) Update(object *Server) error {
-	return box.Box.Update(object)
-}
-
-// PutAsync asynchronously inserts/updates a single object.
-// Deprecated: use box.Async().Put() instead
-func (box *ServerBox) PutAsync(object *Server) (uint64, error) {
-	return box.Box.PutAsync(object)
-}
-
-// PutMany inserts multiple objects in single transaction.
-// In case IDs are not set on the objects, they would be assigned automatically (auto-increment).
-//
-// Returns: IDs of the put objects (in the same order).
-// When inserting, the Server.ID property on the objects in the slice will be assigned the new IDs as well.
-//
-// Note: In case an error occurs during the transaction, some of the objects may already have the Server.ID assigned
-// even though the transaction has been rolled back and the objects are not stored under those IDs.
-//
-// Note: The slice may be empty or even nil; in both cases, an empty IDs slice and no error is returned.
-func (box *ServerBox) PutMany(objects []Server) ([]uint64, error) {
-	return box.Box.PutMany(objects)
-}
-
-// Get reads a single object.
-//
-// Returns nil (and no error) in case the object with the given ID doesn't exist.
-func (box *ServerBox) Get(id uint64) (*Server, error) {
-	object, err := box.Box.Get(id)
-	if err != nil {
-		return nil, err
-	} else if object == nil {
-		return nil, nil
-	}
-	return object.(*Server), nil
-}
-
-// GetMany reads multiple objects at once.
-// If any of the objects doesn't exist, its position in the return slice is an empty object
-func (box *ServerBox) GetMany(ids ...uint64) ([]Server, error) {
-	objects, err := box.Box.GetMany(ids...)
-	if err != nil {
-		return nil, err
-	}
-	return objects.([]Server), nil
-}
-
-// GetManyExisting reads multiple objects at once, skipping those that do not exist.
-func (box *ServerBox) GetManyExisting(ids ...uint64) ([]Server, error) {
-	objects, err := box.Box.GetManyExisting(ids...)
-	if err != nil {
-		return nil, err
-	}
-	return objects.([]Server), nil
-}
-
-// GetAll reads all stored objects
-func (box *ServerBox) GetAll() ([]Server, error) {
-	objects, err := box.Box.GetAll()
-	if err != nil {
-		return nil, err
-	}
-	return objects.([]Server), nil
-}
-
-// Remove deletes a single object
-func (box *ServerBox) Remove(object *Server) error {
-	return box.Box.Remove(object)
-}
-
-// RemoveMany deletes multiple objects at once.
-// Returns the number of deleted object or error on failure.
-// Note that this method will not fail if an object is not found (e.g. already removed).
-// In case you need to strictly check whether all of the objects exist before removing them,
-// you can execute multiple box.Contains() and box.Remove() inside a single write transaction.
-func (box *ServerBox) RemoveMany(objects ...*Server) (uint64, error) {
-	var ids = make([]uint64, len(objects))
-	for k, object := range objects {
-		ids[k] = object.ID
-	}
-	return box.Box.RemoveIds(ids...)
-}
-
-// Creates a query with the given conditions. Use the fields of the Server_ struct to create conditions.
-// Keep the *ServerQuery if you intend to execute the query multiple times.
-// Note: this function panics if you try to create illegal queries; e.g. use properties of an alien type.
-// This is typically a programming error. Use QueryOrError instead if you want the explicit error check.
-func (box *ServerBox) Query(conditions ...objectbox.Condition) *ServerQuery {
-	return &ServerQuery{
-		box.Box.Query(conditions...),
-	}
-}
-
-// Creates a query with the given conditions. Use the fields of the Server_ struct to create conditions.
-// Keep the *ServerQuery if you intend to execute the query multiple times.
-func (box *ServerBox) QueryOrError(conditions ...objectbox.Condition) (*ServerQuery, error) {
-	if query, err := box.Box.QueryOrError(conditions...); err != nil {
-		return nil, err
-	} else {
-		return &ServerQuery{query}, nil
-	}
-}
-
-// Async provides access to the default Async Box for asynchronous operations. See ServerAsyncBox for more information.
-func (box *ServerBox) Async() *ServerAsyncBox {
-	return &ServerAsyncBox{AsyncBox: box.Box.Async()}
-}
-
-// ServerAsyncBox provides asynchronous operations on Server objects.
-//
-// Asynchronous operations are executed on a separate internal thread for better performance.
-//
-// There are two main use cases:
-//
-// 1) "execute & forget:" you gain faster put/remove operations as you don't have to wait for the transaction to finish.
-//
-// 2) Many small transactions: if your write load is typically a lot of individual puts that happen in parallel,
-// this will merge small transactions into bigger ones. This results in a significant gain in overall throughput.
-//
-// In situations with (extremely) high async load, an async method may be throttled (~1ms) or delayed up to 1 second.
-// In the unlikely event that the object could still not be enqueued (full queue), an error will be returned.
-//
-// Note that async methods do not give you hard durability guarantees like the synchronous Box provides.
-// There is a small time window in which the data may not have been committed durably yet.
-type ServerAsyncBox struct {
-	*objectbox.AsyncBox
-}
-
-// AsyncBoxForServer creates a new async box with the given operation timeout in case an async queue is full.
-// The returned struct must be freed explicitly using the Close() method.
-// It's usually preferable to use ServerBox::Async() which takes care of resource management and doesn't require closing.
-func AsyncBoxForServer(ob *objectbox.ObjectBox, timeoutMs uint64) *ServerAsyncBox {
-	var async, err = objectbox.NewAsyncBox(ob, 2, timeoutMs)
-	if err != nil {
-		panic("Could not create async box for entity ID 2: %s" + err.Error())
-	}
-	return &ServerAsyncBox{AsyncBox: async}
-}
-
-// Put inserts/updates a single object asynchronously.
-// When inserting a new object, the ID property on the passed object will be assigned the new ID the entity would hold
-// if the insert is ultimately successful. The newly assigned ID may not become valid if the insert fails.
-func (asyncBox *ServerAsyncBox) Put(object *Server) (uint64, error) {
-	return asyncBox.AsyncBox.Put(object)
-}
-
-// Insert a single object asynchronously.
-// The ID property on the passed object will be assigned the new ID the entity would hold if the insert is ultimately
-// successful. The newly assigned ID may not become valid if the insert fails.
-// Fails silently if an object with the same ID already exists (this error is not returned).
-func (asyncBox *ServerAsyncBox) Insert(object *Server) (id uint64, err error) {
-	return asyncBox.AsyncBox.Insert(object)
-}
-
-// Update a single object asynchronously.
-// The object must already exists or the update fails silently (without an error returned).
-func (asyncBox *ServerAsyncBox) Update(object *Server) error {
-	return asyncBox.AsyncBox.Update(object)
-}
-
-// Remove deletes a single object asynchronously.
-func (asyncBox *ServerAsyncBox) Remove(object *Server) error {
-	return asyncBox.AsyncBox.Remove(object)
-}
-
-// Query provides a way to search stored objects
-//
-// For example, you can find all Server which ID is either 42 or 47:
-//
-// box.Query(Server_.ID.In(42, 47)).Find()
-type ServerQuery struct {
-	*objectbox.Query
-}
-
-// Find returns all objects matching the query
-func (query *ServerQuery) Find() ([]Server, error) {
-	objects, err := query.Query.Find()
-	if err != nil {
-		return nil, err
-	}
-	return objects.([]Server), nil
-}
-
-// Offset defines the index of the first object to process (how many objects to skip)
-func (query *ServerQuery) Offset(offset uint64) *ServerQuery {
-	query.Query.Offset(offset)
-	return query
-}
-
-// Limit sets the number of elements to process by the query
-func (query *ServerQuery) Limit(limit uint64) *ServerQuery {
+func (query *AccountQuery) Limit(limit uint64) *AccountQuery {
 	query.Query.Limit(limit)
 	return query
 }
@@ -733,9 +375,9 @@ type pend_EntityInfo struct {
 
 var PendBinding = pend_EntityInfo{
 	Entity: objectbox.Entity{
-		Id: 3,
+		Id: 2,
 	},
-	Uid: 506362987882014103,
+	Uid: 3898257492590898171,
 }
 
 // Pend_ contains type-based Property helpers to facilitate some common operations such as Queries.
@@ -758,7 +400,7 @@ var Pend_ = struct {
 	},
 	ServerURL: &objectbox.PropertyString{
 		BaseProperty: &objectbox.BaseProperty{
-			Id:     4,
+			Id:     3,
 			Entity: &PendBinding.Entity,
 		},
 	},
@@ -771,14 +413,14 @@ func (pend_EntityInfo) GeneratorVersion() int {
 
 // AddToModel is called by ObjectBox during model build
 func (pend_EntityInfo) AddToModel(model *objectbox.Model) {
-	model.Entity("Pend", 3, 506362987882014103)
-	model.Property("ID", 6, 1, 2411498428237218820)
+	model.Entity("Pend", 2, 3898257492590898171)
+	model.Property("ID", 6, 1, 8923438151742768245)
 	model.PropertyFlags(1)
-	model.Property("Hash", 9, 2, 4600545342812876871)
+	model.Property("Hash", 9, 2, 1599257182654252375)
 	model.PropertyFlags(2080)
-	model.PropertyIndex(3, 4554587549085701550)
-	model.Property("ServerURL", 9, 4, 366089370609930159)
-	model.EntityLastPropertyId(4, 366089370609930159)
+	model.PropertyIndex(2, 737917681892057813)
+	model.Property("ServerURL", 9, 3, 6431141653111853146)
+	model.EntityLastPropertyId(3, 6431141653111853146)
 }
 
 // GetId is called by ObjectBox during Put operations to check for existing ID on an object
@@ -821,10 +463,10 @@ func (pend_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id 
 	var offsetServerURL = fbutils.CreateStringOffset(fbb, obj.ServerURL)
 
 	// build the FlatBuffers object
-	fbb.StartObject(4)
+	fbb.StartObject(3)
 	fbutils.SetUint64Slot(fbb, 0, id)
 	fbutils.SetUOffsetTSlot(fbb, 1, offsetHash)
-	fbutils.SetUOffsetTSlot(fbb, 3, offsetServerURL)
+	fbutils.SetUOffsetTSlot(fbb, 2, offsetServerURL)
 	return nil
 }
 
@@ -844,7 +486,7 @@ func (pend_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interface{},
 	return &Pend{
 		ID:        propID,
 		Hash:      fbutils.GetStringSlot(table, 6),
-		ServerURL: fbutils.GetStringSlot(table, 10),
+		ServerURL: fbutils.GetStringSlot(table, 8),
 	}, nil
 }
 
@@ -869,7 +511,7 @@ type PendBox struct {
 // BoxForPend opens a box of Pend objects
 func BoxForPend(ob *objectbox.ObjectBox) *PendBox {
 	return &PendBox{
-		Box: ob.InternalBox(3),
+		Box: ob.InternalBox(2),
 	}
 }
 
@@ -1021,9 +663,9 @@ type PendAsyncBox struct {
 // The returned struct must be freed explicitly using the Close() method.
 // It's usually preferable to use PendBox::Async() which takes care of resource management and doesn't require closing.
 func AsyncBoxForPend(ob *objectbox.ObjectBox, timeoutMs uint64) *PendAsyncBox {
-	var async, err = objectbox.NewAsyncBox(ob, 3, timeoutMs)
+	var async, err = objectbox.NewAsyncBox(ob, 2, timeoutMs)
 	if err != nil {
-		panic("Could not create async box for entity ID 3: %s" + err.Error())
+		panic("Could not create async box for entity ID 2: %s" + err.Error())
 	}
 	return &PendAsyncBox{AsyncBox: async}
 }
@@ -1080,6 +722,722 @@ func (query *PendQuery) Offset(offset uint64) *PendQuery {
 
 // Limit sets the number of elements to process by the query
 func (query *PendQuery) Limit(limit uint64) *PendQuery {
+	query.Query.Limit(limit)
+	return query
+}
+
+type server_EntityInfo struct {
+	objectbox.Entity
+	Uid uint64
+}
+
+var ServerBinding = server_EntityInfo{
+	Entity: objectbox.Entity{
+		Id: 3,
+	},
+	Uid: 7142236740686887717,
+}
+
+// Server_ contains type-based Property helpers to facilitate some common operations such as Queries.
+var Server_ = struct {
+	ID   *objectbox.PropertyUint64
+	URL  *objectbox.PropertyString
+	Name *objectbox.PropertyString
+}{
+	ID: &objectbox.PropertyUint64{
+		BaseProperty: &objectbox.BaseProperty{
+			Id:     1,
+			Entity: &ServerBinding.Entity,
+		},
+	},
+	URL: &objectbox.PropertyString{
+		BaseProperty: &objectbox.BaseProperty{
+			Id:     3,
+			Entity: &ServerBinding.Entity,
+		},
+	},
+	Name: &objectbox.PropertyString{
+		BaseProperty: &objectbox.BaseProperty{
+			Id:     4,
+			Entity: &ServerBinding.Entity,
+		},
+	},
+}
+
+// GeneratorVersion is called by ObjectBox to verify the compatibility of the generator used to generate this code
+func (server_EntityInfo) GeneratorVersion() int {
+	return 6
+}
+
+// AddToModel is called by ObjectBox during model build
+func (server_EntityInfo) AddToModel(model *objectbox.Model) {
+	model.Entity("Server", 3, 7142236740686887717)
+	model.Property("ID", 6, 1, 7800836814119570388)
+	model.PropertyFlags(1)
+	model.Property("URL", 9, 3, 8890279654342371858)
+	model.Property("Name", 9, 4, 5352760356159229025)
+	model.PropertyFlags(2080)
+	model.PropertyIndex(5, 7862791364560289222)
+	model.EntityLastPropertyId(4, 5352760356159229025)
+}
+
+// GetId is called by ObjectBox during Put operations to check for existing ID on an object
+func (server_EntityInfo) GetId(object interface{}) (uint64, error) {
+	if obj, ok := object.(*Server); ok {
+		return obj.ID, nil
+	} else {
+		return object.(Server).ID, nil
+	}
+}
+
+// SetId is called by ObjectBox during Put to update an ID on an object that has just been inserted
+func (server_EntityInfo) SetId(object interface{}, id uint64) error {
+	if obj, ok := object.(*Server); ok {
+		obj.ID = id
+		return nil
+	} else {
+		// NOTE while this can't update, it will at least behave consistently (panic in case of a wrong type)
+		_ = object.(Server).ID
+		return nil
+	}
+}
+
+// PutRelated is called by ObjectBox to put related entities before the object itself is flattened and put
+func (server_EntityInfo) PutRelated(ob *objectbox.ObjectBox, object interface{}, id uint64) error {
+	return nil
+}
+
+// Flatten is called by ObjectBox to transform an object to a FlatBuffer
+func (server_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id uint64) error {
+	var obj *Server
+	if objPtr, ok := object.(*Server); ok {
+		obj = objPtr
+	} else {
+		objVal := object.(Server)
+		obj = &objVal
+	}
+
+	var offsetURL = fbutils.CreateStringOffset(fbb, obj.URL)
+	var offsetName = fbutils.CreateStringOffset(fbb, obj.Name)
+
+	// build the FlatBuffers object
+	fbb.StartObject(4)
+	fbutils.SetUint64Slot(fbb, 0, id)
+	fbutils.SetUOffsetTSlot(fbb, 3, offsetName)
+	fbutils.SetUOffsetTSlot(fbb, 2, offsetURL)
+	return nil
+}
+
+// Load is called by ObjectBox to load an object from a FlatBuffer
+func (server_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interface{}, error) {
+	if len(bytes) == 0 { // sanity check, should "never" happen
+		return nil, errors.New("can't deserialize an object of type 'Server' - no data received")
+	}
+
+	var table = &flatbuffers.Table{
+		Bytes: bytes,
+		Pos:   flatbuffers.GetUOffsetT(bytes),
+	}
+
+	var propID = table.GetUint64Slot(4, 0)
+
+	return &Server{
+		ID:   propID,
+		Name: fbutils.GetStringSlot(table, 10),
+		URL:  fbutils.GetStringSlot(table, 8),
+	}, nil
+}
+
+// MakeSlice is called by ObjectBox to construct a new slice to hold the read objects
+func (server_EntityInfo) MakeSlice(capacity int) interface{} {
+	return make([]Server, 0, capacity)
+}
+
+// AppendToSlice is called by ObjectBox to fill the slice of the read objects
+func (server_EntityInfo) AppendToSlice(slice interface{}, object interface{}) interface{} {
+	if object == nil {
+		return append(slice.([]Server), Server{})
+	}
+	return append(slice.([]Server), *object.(*Server))
+}
+
+// Box provides CRUD access to Server objects
+type ServerBox struct {
+	*objectbox.Box
+}
+
+// BoxForServer opens a box of Server objects
+func BoxForServer(ob *objectbox.ObjectBox) *ServerBox {
+	return &ServerBox{
+		Box: ob.InternalBox(3),
+	}
+}
+
+// Put synchronously inserts/updates a single object.
+// In case the ID is not specified, it would be assigned automatically (auto-increment).
+// When inserting, the Server.ID property on the passed object will be assigned the new ID as well.
+func (box *ServerBox) Put(object *Server) (uint64, error) {
+	return box.Box.Put(object)
+}
+
+// Insert synchronously inserts a single object. As opposed to Put, Insert will fail if given an ID that already exists.
+// In case the ID is not specified, it would be assigned automatically (auto-increment).
+// When inserting, the Server.ID property on the passed object will be assigned the new ID as well.
+func (box *ServerBox) Insert(object *Server) (uint64, error) {
+	return box.Box.Insert(object)
+}
+
+// Update synchronously updates a single object.
+// As opposed to Put, Update will fail if an object with the same ID is not found in the database.
+func (box *ServerBox) Update(object *Server) error {
+	return box.Box.Update(object)
+}
+
+// PutAsync asynchronously inserts/updates a single object.
+// Deprecated: use box.Async().Put() instead
+func (box *ServerBox) PutAsync(object *Server) (uint64, error) {
+	return box.Box.PutAsync(object)
+}
+
+// PutMany inserts multiple objects in single transaction.
+// In case IDs are not set on the objects, they would be assigned automatically (auto-increment).
+//
+// Returns: IDs of the put objects (in the same order).
+// When inserting, the Server.ID property on the objects in the slice will be assigned the new IDs as well.
+//
+// Note: In case an error occurs during the transaction, some of the objects may already have the Server.ID assigned
+// even though the transaction has been rolled back and the objects are not stored under those IDs.
+//
+// Note: The slice may be empty or even nil; in both cases, an empty IDs slice and no error is returned.
+func (box *ServerBox) PutMany(objects []Server) ([]uint64, error) {
+	return box.Box.PutMany(objects)
+}
+
+// Get reads a single object.
+//
+// Returns nil (and no error) in case the object with the given ID doesn't exist.
+func (box *ServerBox) Get(id uint64) (*Server, error) {
+	object, err := box.Box.Get(id)
+	if err != nil {
+		return nil, err
+	} else if object == nil {
+		return nil, nil
+	}
+	return object.(*Server), nil
+}
+
+// GetMany reads multiple objects at once.
+// If any of the objects doesn't exist, its position in the return slice is an empty object
+func (box *ServerBox) GetMany(ids ...uint64) ([]Server, error) {
+	objects, err := box.Box.GetMany(ids...)
+	if err != nil {
+		return nil, err
+	}
+	return objects.([]Server), nil
+}
+
+// GetManyExisting reads multiple objects at once, skipping those that do not exist.
+func (box *ServerBox) GetManyExisting(ids ...uint64) ([]Server, error) {
+	objects, err := box.Box.GetManyExisting(ids...)
+	if err != nil {
+		return nil, err
+	}
+	return objects.([]Server), nil
+}
+
+// GetAll reads all stored objects
+func (box *ServerBox) GetAll() ([]Server, error) {
+	objects, err := box.Box.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	return objects.([]Server), nil
+}
+
+// Remove deletes a single object
+func (box *ServerBox) Remove(object *Server) error {
+	return box.Box.Remove(object)
+}
+
+// RemoveMany deletes multiple objects at once.
+// Returns the number of deleted object or error on failure.
+// Note that this method will not fail if an object is not found (e.g. already removed).
+// In case you need to strictly check whether all of the objects exist before removing them,
+// you can execute multiple box.Contains() and box.Remove() inside a single write transaction.
+func (box *ServerBox) RemoveMany(objects ...*Server) (uint64, error) {
+	var ids = make([]uint64, len(objects))
+	for k, object := range objects {
+		ids[k] = object.ID
+	}
+	return box.Box.RemoveIds(ids...)
+}
+
+// Creates a query with the given conditions. Use the fields of the Server_ struct to create conditions.
+// Keep the *ServerQuery if you intend to execute the query multiple times.
+// Note: this function panics if you try to create illegal queries; e.g. use properties of an alien type.
+// This is typically a programming error. Use QueryOrError instead if you want the explicit error check.
+func (box *ServerBox) Query(conditions ...objectbox.Condition) *ServerQuery {
+	return &ServerQuery{
+		box.Box.Query(conditions...),
+	}
+}
+
+// Creates a query with the given conditions. Use the fields of the Server_ struct to create conditions.
+// Keep the *ServerQuery if you intend to execute the query multiple times.
+func (box *ServerBox) QueryOrError(conditions ...objectbox.Condition) (*ServerQuery, error) {
+	if query, err := box.Box.QueryOrError(conditions...); err != nil {
+		return nil, err
+	} else {
+		return &ServerQuery{query}, nil
+	}
+}
+
+// Async provides access to the default Async Box for asynchronous operations. See ServerAsyncBox for more information.
+func (box *ServerBox) Async() *ServerAsyncBox {
+	return &ServerAsyncBox{AsyncBox: box.Box.Async()}
+}
+
+// ServerAsyncBox provides asynchronous operations on Server objects.
+//
+// Asynchronous operations are executed on a separate internal thread for better performance.
+//
+// There are two main use cases:
+//
+// 1) "execute & forget:" you gain faster put/remove operations as you don't have to wait for the transaction to finish.
+//
+// 2) Many small transactions: if your write load is typically a lot of individual puts that happen in parallel,
+// this will merge small transactions into bigger ones. This results in a significant gain in overall throughput.
+//
+// In situations with (extremely) high async load, an async method may be throttled (~1ms) or delayed up to 1 second.
+// In the unlikely event that the object could still not be enqueued (full queue), an error will be returned.
+//
+// Note that async methods do not give you hard durability guarantees like the synchronous Box provides.
+// There is a small time window in which the data may not have been committed durably yet.
+type ServerAsyncBox struct {
+	*objectbox.AsyncBox
+}
+
+// AsyncBoxForServer creates a new async box with the given operation timeout in case an async queue is full.
+// The returned struct must be freed explicitly using the Close() method.
+// It's usually preferable to use ServerBox::Async() which takes care of resource management and doesn't require closing.
+func AsyncBoxForServer(ob *objectbox.ObjectBox, timeoutMs uint64) *ServerAsyncBox {
+	var async, err = objectbox.NewAsyncBox(ob, 3, timeoutMs)
+	if err != nil {
+		panic("Could not create async box for entity ID 3: %s" + err.Error())
+	}
+	return &ServerAsyncBox{AsyncBox: async}
+}
+
+// Put inserts/updates a single object asynchronously.
+// When inserting a new object, the ID property on the passed object will be assigned the new ID the entity would hold
+// if the insert is ultimately successful. The newly assigned ID may not become valid if the insert fails.
+func (asyncBox *ServerAsyncBox) Put(object *Server) (uint64, error) {
+	return asyncBox.AsyncBox.Put(object)
+}
+
+// Insert a single object asynchronously.
+// The ID property on the passed object will be assigned the new ID the entity would hold if the insert is ultimately
+// successful. The newly assigned ID may not become valid if the insert fails.
+// Fails silently if an object with the same ID already exists (this error is not returned).
+func (asyncBox *ServerAsyncBox) Insert(object *Server) (id uint64, err error) {
+	return asyncBox.AsyncBox.Insert(object)
+}
+
+// Update a single object asynchronously.
+// The object must already exists or the update fails silently (without an error returned).
+func (asyncBox *ServerAsyncBox) Update(object *Server) error {
+	return asyncBox.AsyncBox.Update(object)
+}
+
+// Remove deletes a single object asynchronously.
+func (asyncBox *ServerAsyncBox) Remove(object *Server) error {
+	return asyncBox.AsyncBox.Remove(object)
+}
+
+// Query provides a way to search stored objects
+//
+// For example, you can find all Server which ID is either 42 or 47:
+//
+// box.Query(Server_.ID.In(42, 47)).Find()
+type ServerQuery struct {
+	*objectbox.Query
+}
+
+// Find returns all objects matching the query
+func (query *ServerQuery) Find() ([]Server, error) {
+	objects, err := query.Query.Find()
+	if err != nil {
+		return nil, err
+	}
+	return objects.([]Server), nil
+}
+
+// Offset defines the index of the first object to process (how many objects to skip)
+func (query *ServerQuery) Offset(offset uint64) *ServerQuery {
+	query.Query.Offset(offset)
+	return query
+}
+
+// Limit sets the number of elements to process by the query
+func (query *ServerQuery) Limit(limit uint64) *ServerQuery {
+	query.Query.Limit(limit)
+	return query
+}
+
+type setting_EntityInfo struct {
+	objectbox.Entity
+	Uid uint64
+}
+
+var SettingBinding = setting_EntityInfo{
+	Entity: objectbox.Entity{
+		Id: 4,
+	},
+	Uid: 4080594665437675410,
+}
+
+// Setting_ contains type-based Property helpers to facilitate some common operations such as Queries.
+var Setting_ = struct {
+	ID    *objectbox.PropertyUint64
+	Key   *objectbox.PropertyString
+	Value *objectbox.PropertyString
+}{
+	ID: &objectbox.PropertyUint64{
+		BaseProperty: &objectbox.BaseProperty{
+			Id:     1,
+			Entity: &SettingBinding.Entity,
+		},
+	},
+	Key: &objectbox.PropertyString{
+		BaseProperty: &objectbox.BaseProperty{
+			Id:     2,
+			Entity: &SettingBinding.Entity,
+		},
+	},
+	Value: &objectbox.PropertyString{
+		BaseProperty: &objectbox.BaseProperty{
+			Id:     3,
+			Entity: &SettingBinding.Entity,
+		},
+	},
+}
+
+// GeneratorVersion is called by ObjectBox to verify the compatibility of the generator used to generate this code
+func (setting_EntityInfo) GeneratorVersion() int {
+	return 6
+}
+
+// AddToModel is called by ObjectBox during model build
+func (setting_EntityInfo) AddToModel(model *objectbox.Model) {
+	model.Entity("Setting", 4, 4080594665437675410)
+	model.Property("ID", 6, 1, 1345634113808953804)
+	model.PropertyFlags(1)
+	model.Property("Key", 9, 2, 2672693495971221171)
+	model.PropertyFlags(2080)
+	model.PropertyIndex(4, 5060641065717217477)
+	model.Property("Value", 9, 3, 3985268304848809056)
+	model.EntityLastPropertyId(3, 3985268304848809056)
+}
+
+// GetId is called by ObjectBox during Put operations to check for existing ID on an object
+func (setting_EntityInfo) GetId(object interface{}) (uint64, error) {
+	if obj, ok := object.(*Setting); ok {
+		return obj.ID, nil
+	} else {
+		return object.(Setting).ID, nil
+	}
+}
+
+// SetId is called by ObjectBox during Put to update an ID on an object that has just been inserted
+func (setting_EntityInfo) SetId(object interface{}, id uint64) error {
+	if obj, ok := object.(*Setting); ok {
+		obj.ID = id
+		return nil
+	} else {
+		// NOTE while this can't update, it will at least behave consistently (panic in case of a wrong type)
+		_ = object.(Setting).ID
+		return nil
+	}
+}
+
+// PutRelated is called by ObjectBox to put related entities before the object itself is flattened and put
+func (setting_EntityInfo) PutRelated(ob *objectbox.ObjectBox, object interface{}, id uint64) error {
+	return nil
+}
+
+// Flatten is called by ObjectBox to transform an object to a FlatBuffer
+func (setting_EntityInfo) Flatten(object interface{}, fbb *flatbuffers.Builder, id uint64) error {
+	var obj *Setting
+	if objPtr, ok := object.(*Setting); ok {
+		obj = objPtr
+	} else {
+		objVal := object.(Setting)
+		obj = &objVal
+	}
+
+	var offsetKey = fbutils.CreateStringOffset(fbb, obj.Key)
+	var offsetValue = fbutils.CreateStringOffset(fbb, obj.Value)
+
+	// build the FlatBuffers object
+	fbb.StartObject(3)
+	fbutils.SetUint64Slot(fbb, 0, id)
+	fbutils.SetUOffsetTSlot(fbb, 1, offsetKey)
+	fbutils.SetUOffsetTSlot(fbb, 2, offsetValue)
+	return nil
+}
+
+// Load is called by ObjectBox to load an object from a FlatBuffer
+func (setting_EntityInfo) Load(ob *objectbox.ObjectBox, bytes []byte) (interface{}, error) {
+	if len(bytes) == 0 { // sanity check, should "never" happen
+		return nil, errors.New("can't deserialize an object of type 'Setting' - no data received")
+	}
+
+	var table = &flatbuffers.Table{
+		Bytes: bytes,
+		Pos:   flatbuffers.GetUOffsetT(bytes),
+	}
+
+	var propID = table.GetUint64Slot(4, 0)
+
+	return &Setting{
+		ID:    propID,
+		Key:   fbutils.GetStringSlot(table, 6),
+		Value: fbutils.GetStringSlot(table, 8),
+	}, nil
+}
+
+// MakeSlice is called by ObjectBox to construct a new slice to hold the read objects
+func (setting_EntityInfo) MakeSlice(capacity int) interface{} {
+	return make([]Setting, 0, capacity)
+}
+
+// AppendToSlice is called by ObjectBox to fill the slice of the read objects
+func (setting_EntityInfo) AppendToSlice(slice interface{}, object interface{}) interface{} {
+	if object == nil {
+		return append(slice.([]Setting), Setting{})
+	}
+	return append(slice.([]Setting), *object.(*Setting))
+}
+
+// Box provides CRUD access to Setting objects
+type SettingBox struct {
+	*objectbox.Box
+}
+
+// BoxForSetting opens a box of Setting objects
+func BoxForSetting(ob *objectbox.ObjectBox) *SettingBox {
+	return &SettingBox{
+		Box: ob.InternalBox(4),
+	}
+}
+
+// Put synchronously inserts/updates a single object.
+// In case the ID is not specified, it would be assigned automatically (auto-increment).
+// When inserting, the Setting.ID property on the passed object will be assigned the new ID as well.
+func (box *SettingBox) Put(object *Setting) (uint64, error) {
+	return box.Box.Put(object)
+}
+
+// Insert synchronously inserts a single object. As opposed to Put, Insert will fail if given an ID that already exists.
+// In case the ID is not specified, it would be assigned automatically (auto-increment).
+// When inserting, the Setting.ID property on the passed object will be assigned the new ID as well.
+func (box *SettingBox) Insert(object *Setting) (uint64, error) {
+	return box.Box.Insert(object)
+}
+
+// Update synchronously updates a single object.
+// As opposed to Put, Update will fail if an object with the same ID is not found in the database.
+func (box *SettingBox) Update(object *Setting) error {
+	return box.Box.Update(object)
+}
+
+// PutAsync asynchronously inserts/updates a single object.
+// Deprecated: use box.Async().Put() instead
+func (box *SettingBox) PutAsync(object *Setting) (uint64, error) {
+	return box.Box.PutAsync(object)
+}
+
+// PutMany inserts multiple objects in single transaction.
+// In case IDs are not set on the objects, they would be assigned automatically (auto-increment).
+//
+// Returns: IDs of the put objects (in the same order).
+// When inserting, the Setting.ID property on the objects in the slice will be assigned the new IDs as well.
+//
+// Note: In case an error occurs during the transaction, some of the objects may already have the Setting.ID assigned
+// even though the transaction has been rolled back and the objects are not stored under those IDs.
+//
+// Note: The slice may be empty or even nil; in both cases, an empty IDs slice and no error is returned.
+func (box *SettingBox) PutMany(objects []Setting) ([]uint64, error) {
+	return box.Box.PutMany(objects)
+}
+
+// Get reads a single object.
+//
+// Returns nil (and no error) in case the object with the given ID doesn't exist.
+func (box *SettingBox) Get(id uint64) (*Setting, error) {
+	object, err := box.Box.Get(id)
+	if err != nil {
+		return nil, err
+	} else if object == nil {
+		return nil, nil
+	}
+	return object.(*Setting), nil
+}
+
+// GetMany reads multiple objects at once.
+// If any of the objects doesn't exist, its position in the return slice is an empty object
+func (box *SettingBox) GetMany(ids ...uint64) ([]Setting, error) {
+	objects, err := box.Box.GetMany(ids...)
+	if err != nil {
+		return nil, err
+	}
+	return objects.([]Setting), nil
+}
+
+// GetManyExisting reads multiple objects at once, skipping those that do not exist.
+func (box *SettingBox) GetManyExisting(ids ...uint64) ([]Setting, error) {
+	objects, err := box.Box.GetManyExisting(ids...)
+	if err != nil {
+		return nil, err
+	}
+	return objects.([]Setting), nil
+}
+
+// GetAll reads all stored objects
+func (box *SettingBox) GetAll() ([]Setting, error) {
+	objects, err := box.Box.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	return objects.([]Setting), nil
+}
+
+// Remove deletes a single object
+func (box *SettingBox) Remove(object *Setting) error {
+	return box.Box.Remove(object)
+}
+
+// RemoveMany deletes multiple objects at once.
+// Returns the number of deleted object or error on failure.
+// Note that this method will not fail if an object is not found (e.g. already removed).
+// In case you need to strictly check whether all of the objects exist before removing them,
+// you can execute multiple box.Contains() and box.Remove() inside a single write transaction.
+func (box *SettingBox) RemoveMany(objects ...*Setting) (uint64, error) {
+	var ids = make([]uint64, len(objects))
+	for k, object := range objects {
+		ids[k] = object.ID
+	}
+	return box.Box.RemoveIds(ids...)
+}
+
+// Creates a query with the given conditions. Use the fields of the Setting_ struct to create conditions.
+// Keep the *SettingQuery if you intend to execute the query multiple times.
+// Note: this function panics if you try to create illegal queries; e.g. use properties of an alien type.
+// This is typically a programming error. Use QueryOrError instead if you want the explicit error check.
+func (box *SettingBox) Query(conditions ...objectbox.Condition) *SettingQuery {
+	return &SettingQuery{
+		box.Box.Query(conditions...),
+	}
+}
+
+// Creates a query with the given conditions. Use the fields of the Setting_ struct to create conditions.
+// Keep the *SettingQuery if you intend to execute the query multiple times.
+func (box *SettingBox) QueryOrError(conditions ...objectbox.Condition) (*SettingQuery, error) {
+	if query, err := box.Box.QueryOrError(conditions...); err != nil {
+		return nil, err
+	} else {
+		return &SettingQuery{query}, nil
+	}
+}
+
+// Async provides access to the default Async Box for asynchronous operations. See SettingAsyncBox for more information.
+func (box *SettingBox) Async() *SettingAsyncBox {
+	return &SettingAsyncBox{AsyncBox: box.Box.Async()}
+}
+
+// SettingAsyncBox provides asynchronous operations on Setting objects.
+//
+// Asynchronous operations are executed on a separate internal thread for better performance.
+//
+// There are two main use cases:
+//
+// 1) "execute & forget:" you gain faster put/remove operations as you don't have to wait for the transaction to finish.
+//
+// 2) Many small transactions: if your write load is typically a lot of individual puts that happen in parallel,
+// this will merge small transactions into bigger ones. This results in a significant gain in overall throughput.
+//
+// In situations with (extremely) high async load, an async method may be throttled (~1ms) or delayed up to 1 second.
+// In the unlikely event that the object could still not be enqueued (full queue), an error will be returned.
+//
+// Note that async methods do not give you hard durability guarantees like the synchronous Box provides.
+// There is a small time window in which the data may not have been committed durably yet.
+type SettingAsyncBox struct {
+	*objectbox.AsyncBox
+}
+
+// AsyncBoxForSetting creates a new async box with the given operation timeout in case an async queue is full.
+// The returned struct must be freed explicitly using the Close() method.
+// It's usually preferable to use SettingBox::Async() which takes care of resource management and doesn't require closing.
+func AsyncBoxForSetting(ob *objectbox.ObjectBox, timeoutMs uint64) *SettingAsyncBox {
+	var async, err = objectbox.NewAsyncBox(ob, 4, timeoutMs)
+	if err != nil {
+		panic("Could not create async box for entity ID 4: %s" + err.Error())
+	}
+	return &SettingAsyncBox{AsyncBox: async}
+}
+
+// Put inserts/updates a single object asynchronously.
+// When inserting a new object, the ID property on the passed object will be assigned the new ID the entity would hold
+// if the insert is ultimately successful. The newly assigned ID may not become valid if the insert fails.
+func (asyncBox *SettingAsyncBox) Put(object *Setting) (uint64, error) {
+	return asyncBox.AsyncBox.Put(object)
+}
+
+// Insert a single object asynchronously.
+// The ID property on the passed object will be assigned the new ID the entity would hold if the insert is ultimately
+// successful. The newly assigned ID may not become valid if the insert fails.
+// Fails silently if an object with the same ID already exists (this error is not returned).
+func (asyncBox *SettingAsyncBox) Insert(object *Setting) (id uint64, err error) {
+	return asyncBox.AsyncBox.Insert(object)
+}
+
+// Update a single object asynchronously.
+// The object must already exists or the update fails silently (without an error returned).
+func (asyncBox *SettingAsyncBox) Update(object *Setting) error {
+	return asyncBox.AsyncBox.Update(object)
+}
+
+// Remove deletes a single object asynchronously.
+func (asyncBox *SettingAsyncBox) Remove(object *Setting) error {
+	return asyncBox.AsyncBox.Remove(object)
+}
+
+// Query provides a way to search stored objects
+//
+// For example, you can find all Setting which ID is either 42 or 47:
+//
+// box.Query(Setting_.ID.In(42, 47)).Find()
+type SettingQuery struct {
+	*objectbox.Query
+}
+
+// Find returns all objects matching the query
+func (query *SettingQuery) Find() ([]Setting, error) {
+	objects, err := query.Query.Find()
+	if err != nil {
+		return nil, err
+	}
+	return objects.([]Setting), nil
+}
+
+// Offset defines the index of the first object to process (how many objects to skip)
+func (query *SettingQuery) Offset(offset uint64) *SettingQuery {
+	query.Query.Offset(offset)
+	return query
+}
+
+// Limit sets the number of elements to process by the query
+func (query *SettingQuery) Limit(limit uint64) *SettingQuery {
 	query.Query.Limit(limit)
 	return query
 }

@@ -4,12 +4,36 @@ option go_package = "../pb";
 
 service Service {
 
+    rpc ModifyAccount(ModifyAccountParams) returns (ModifyAccountResult);
+
+    rpc ListAccounts(ListAccountsParams) returns (ListAccountsResult);
+
     rpc ModifyServer(ModifyServerParams) returns (ModifyServerResult);
+
     rpc ListServers(ListServersParams) returns (ListServersResult);
+
     rpc ServerInfo(ServerInfoParams) returns (ServerInfoResult);
 
 }
 
+message ModifyAccountParams{
+    string address = 1;
+    optional bytes cipher = 2;
+}
+
+message ModifyAccountResult{}
+
+message ListAccountsParams{
+    bool ciphers = 1;
+}
+
+message ListAccountsResult{
+    message Account {
+        string address = 1;
+        optional bytes cipher = 2;
+    }
+    repeated Account accounts = 1;
+}
 
 message ModifyServerParams{
     string key = 1;

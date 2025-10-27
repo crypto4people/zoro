@@ -1,7 +1,6 @@
 package db
 
 import (
-	"errors"
 	"zoro/service/db/ob"
 )
 
@@ -30,9 +29,6 @@ func (db *Database) DeleteSetting(hash string) error {
 }
 
 func (db *Database) PutSetting(key string, val string) error {
-	if !validKey(key) {
-		return errors.New("invalid key")
-	}
 
 	db.mutex.Lock()
 	defer db.mutex.Unlock()

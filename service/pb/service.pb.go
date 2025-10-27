@@ -21,6 +21,182 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ModifyAccountParams struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Cipher        []byte                 `protobuf:"bytes,2,opt,name=cipher,proto3,oneof" json:"cipher,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModifyAccountParams) Reset() {
+	*x = ModifyAccountParams{}
+	mi := &file_service_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModifyAccountParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModifyAccountParams) ProtoMessage() {}
+
+func (x *ModifyAccountParams) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModifyAccountParams.ProtoReflect.Descriptor instead.
+func (*ModifyAccountParams) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ModifyAccountParams) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *ModifyAccountParams) GetCipher() []byte {
+	if x != nil {
+		return x.Cipher
+	}
+	return nil
+}
+
+type ModifyAccountResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModifyAccountResult) Reset() {
+	*x = ModifyAccountResult{}
+	mi := &file_service_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModifyAccountResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModifyAccountResult) ProtoMessage() {}
+
+func (x *ModifyAccountResult) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModifyAccountResult.ProtoReflect.Descriptor instead.
+func (*ModifyAccountResult) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{1}
+}
+
+type ListAccountsParams struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ciphers       bool                   `protobuf:"varint,1,opt,name=ciphers,proto3" json:"ciphers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAccountsParams) Reset() {
+	*x = ListAccountsParams{}
+	mi := &file_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAccountsParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAccountsParams) ProtoMessage() {}
+
+func (x *ListAccountsParams) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAccountsParams.ProtoReflect.Descriptor instead.
+func (*ListAccountsParams) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ListAccountsParams) GetCiphers() bool {
+	if x != nil {
+		return x.Ciphers
+	}
+	return false
+}
+
+type ListAccountsResult struct {
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	Accounts      []*ListAccountsResult_Account `protobuf:"bytes,1,rep,name=accounts,proto3" json:"accounts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAccountsResult) Reset() {
+	*x = ListAccountsResult{}
+	mi := &file_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAccountsResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAccountsResult) ProtoMessage() {}
+
+func (x *ListAccountsResult) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAccountsResult.ProtoReflect.Descriptor instead.
+func (*ListAccountsResult) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ListAccountsResult) GetAccounts() []*ListAccountsResult_Account {
+	if x != nil {
+		return x.Accounts
+	}
+	return nil
+}
+
 type ModifyServerParams struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
@@ -31,7 +207,7 @@ type ModifyServerParams struct {
 
 func (x *ModifyServerParams) Reset() {
 	*x = ModifyServerParams{}
-	mi := &file_service_proto_msgTypes[0]
+	mi := &file_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +219,7 @@ func (x *ModifyServerParams) String() string {
 func (*ModifyServerParams) ProtoMessage() {}
 
 func (x *ModifyServerParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[0]
+	mi := &file_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +232,7 @@ func (x *ModifyServerParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyServerParams.ProtoReflect.Descriptor instead.
 func (*ModifyServerParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{0}
+	return file_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ModifyServerParams) GetKey() string {
@@ -81,7 +257,7 @@ type ModifyServerResult struct {
 
 func (x *ModifyServerResult) Reset() {
 	*x = ModifyServerResult{}
-	mi := &file_service_proto_msgTypes[1]
+	mi := &file_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -93,7 +269,7 @@ func (x *ModifyServerResult) String() string {
 func (*ModifyServerResult) ProtoMessage() {}
 
 func (x *ModifyServerResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[1]
+	mi := &file_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -106,7 +282,7 @@ func (x *ModifyServerResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModifyServerResult.ProtoReflect.Descriptor instead.
 func (*ModifyServerResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{1}
+	return file_service_proto_rawDescGZIP(), []int{5}
 }
 
 type ListServersParams struct {
@@ -117,7 +293,7 @@ type ListServersParams struct {
 
 func (x *ListServersParams) Reset() {
 	*x = ListServersParams{}
-	mi := &file_service_proto_msgTypes[2]
+	mi := &file_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -129,7 +305,7 @@ func (x *ListServersParams) String() string {
 func (*ListServersParams) ProtoMessage() {}
 
 func (x *ListServersParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[2]
+	mi := &file_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -142,7 +318,7 @@ func (x *ListServersParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServersParams.ProtoReflect.Descriptor instead.
 func (*ListServersParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{2}
+	return file_service_proto_rawDescGZIP(), []int{6}
 }
 
 type ListServersResult struct {
@@ -154,7 +330,7 @@ type ListServersResult struct {
 
 func (x *ListServersResult) Reset() {
 	*x = ListServersResult{}
-	mi := &file_service_proto_msgTypes[3]
+	mi := &file_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -166,7 +342,7 @@ func (x *ListServersResult) String() string {
 func (*ListServersResult) ProtoMessage() {}
 
 func (x *ListServersResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[3]
+	mi := &file_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -179,7 +355,7 @@ func (x *ListServersResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServersResult.ProtoReflect.Descriptor instead.
 func (*ListServersResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{3}
+	return file_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListServersResult) GetServers() []*ListServersResult_Server {
@@ -199,7 +375,7 @@ type ServerInfoParams struct {
 
 func (x *ServerInfoParams) Reset() {
 	*x = ServerInfoParams{}
-	mi := &file_service_proto_msgTypes[4]
+	mi := &file_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -211,7 +387,7 @@ func (x *ServerInfoParams) String() string {
 func (*ServerInfoParams) ProtoMessage() {}
 
 func (x *ServerInfoParams) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[4]
+	mi := &file_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -224,7 +400,7 @@ func (x *ServerInfoParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerInfoParams.ProtoReflect.Descriptor instead.
 func (*ServerInfoParams) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{4}
+	return file_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ServerInfoParams) GetUrl() string {
@@ -260,7 +436,7 @@ type ServerInfoResult struct {
 
 func (x *ServerInfoResult) Reset() {
 	*x = ServerInfoResult{}
-	mi := &file_service_proto_msgTypes[5]
+	mi := &file_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -272,7 +448,7 @@ func (x *ServerInfoResult) String() string {
 func (*ServerInfoResult) ProtoMessage() {}
 
 func (x *ServerInfoResult) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[5]
+	mi := &file_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -285,7 +461,7 @@ func (x *ServerInfoResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerInfoResult.ProtoReflect.Descriptor instead.
 func (*ServerInfoResult) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{5}
+	return file_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ServerInfoResult) GetVersion() string {
@@ -365,6 +541,58 @@ func (x *ServerInfoResult) GetRate() *ServerInfoResult_Rate {
 	return nil
 }
 
+type ListAccountsResult_Account struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Cipher        []byte                 `protobuf:"bytes,2,opt,name=cipher,proto3,oneof" json:"cipher,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAccountsResult_Account) Reset() {
+	*x = ListAccountsResult_Account{}
+	mi := &file_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAccountsResult_Account) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAccountsResult_Account) ProtoMessage() {}
+
+func (x *ListAccountsResult_Account) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAccountsResult_Account.ProtoReflect.Descriptor instead.
+func (*ListAccountsResult_Account) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{3, 0}
+}
+
+func (x *ListAccountsResult_Account) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *ListAccountsResult_Account) GetCipher() []byte {
+	if x != nil {
+		return x.Cipher
+	}
+	return nil
+}
+
 type ListServersResult_Server struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
@@ -375,7 +603,7 @@ type ListServersResult_Server struct {
 
 func (x *ListServersResult_Server) Reset() {
 	*x = ListServersResult_Server{}
-	mi := &file_service_proto_msgTypes[6]
+	mi := &file_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -387,7 +615,7 @@ func (x *ListServersResult_Server) String() string {
 func (*ListServersResult_Server) ProtoMessage() {}
 
 func (x *ListServersResult_Server) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[6]
+	mi := &file_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -400,7 +628,7 @@ func (x *ListServersResult_Server) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServersResult_Server.ProtoReflect.Descriptor instead.
 func (*ListServersResult_Server) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{3, 0}
+	return file_service_proto_rawDescGZIP(), []int{7, 0}
 }
 
 func (x *ListServersResult_Server) GetKey() string {
@@ -429,7 +657,7 @@ type ServerInfoResult_Rate struct {
 
 func (x *ServerInfoResult_Rate) Reset() {
 	*x = ServerInfoResult_Rate{}
-	mi := &file_service_proto_msgTypes[7]
+	mi := &file_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -441,7 +669,7 @@ func (x *ServerInfoResult_Rate) String() string {
 func (*ServerInfoResult_Rate) ProtoMessage() {}
 
 func (x *ServerInfoResult_Rate) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[7]
+	mi := &file_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -454,7 +682,7 @@ func (x *ServerInfoResult_Rate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerInfoResult_Rate.ProtoReflect.Descriptor instead.
 func (*ServerInfoResult_Rate) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{5, 0}
+	return file_service_proto_rawDescGZIP(), []int{9, 0}
 }
 
 func (x *ServerInfoResult_Rate) GetSub() string {
@@ -489,7 +717,20 @@ var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
 	"\n" +
-	"\rservice.proto\"E\n" +
+	"\rservice.proto\"W\n" +
+	"\x13ModifyAccountParams\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x1b\n" +
+	"\x06cipher\x18\x02 \x01(\fH\x00R\x06cipher\x88\x01\x01B\t\n" +
+	"\a_cipher\"\x15\n" +
+	"\x13ModifyAccountResult\".\n" +
+	"\x12ListAccountsParams\x12\x18\n" +
+	"\aciphers\x18\x01 \x01(\bR\aciphers\"\x9a\x01\n" +
+	"\x12ListAccountsResult\x127\n" +
+	"\baccounts\x18\x01 \x03(\v2\x1b.ListAccountsResult.AccountR\baccounts\x1aK\n" +
+	"\aAccount\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x1b\n" +
+	"\x06cipher\x18\x02 \x01(\fH\x00R\x06cipher\x88\x01\x01B\t\n" +
+	"\a_cipher\"E\n" +
 	"\x12ModifyServerParams\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x15\n" +
 	"\x03url\x18\x02 \x01(\tH\x00R\x03url\x88\x01\x01B\x06\n" +
@@ -523,8 +764,10 @@ const file_service_proto_rawDesc = "" +
 	"\x03sub\x18\x01 \x01(\tR\x03sub\x12\x10\n" +
 	"\x03div\x18\x02 \x01(\tR\x03div\x12\x10\n" +
 	"\x03mul\x18\x03 \x01(\tR\x03mul\x12\x10\n" +
-	"\x03add\x18\x04 \x01(\tR\x03add2\xae\x01\n" +
-	"\aService\x128\n" +
+	"\x03add\x18\x04 \x01(\tR\x03add2\xa5\x02\n" +
+	"\aService\x12;\n" +
+	"\rModifyAccount\x12\x14.ModifyAccountParams\x1a\x14.ModifyAccountResult\x128\n" +
+	"\fListAccounts\x12\x13.ListAccountsParams\x1a\x13.ListAccountsResult\x128\n" +
 	"\fModifyServer\x12\x13.ModifyServerParams\x1a\x13.ModifyServerResult\x125\n" +
 	"\vListServers\x12\x12.ListServersParams\x1a\x12.ListServersResult\x122\n" +
 	"\n" +
@@ -542,31 +785,41 @@ func file_service_proto_rawDescGZIP() []byte {
 	return file_service_proto_rawDescData
 }
 
-var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_service_proto_goTypes = []any{
-	(*ModifyServerParams)(nil),       // 0: ModifyServerParams
-	(*ModifyServerResult)(nil),       // 1: ModifyServerResult
-	(*ListServersParams)(nil),        // 2: ListServersParams
-	(*ListServersResult)(nil),        // 3: ListServersResult
-	(*ServerInfoParams)(nil),         // 4: ServerInfoParams
-	(*ServerInfoResult)(nil),         // 5: ServerInfoResult
-	(*ListServersResult_Server)(nil), // 6: ListServersResult.Server
-	(*ServerInfoResult_Rate)(nil),    // 7: ServerInfoResult.Rate
+	(*ModifyAccountParams)(nil),        // 0: ModifyAccountParams
+	(*ModifyAccountResult)(nil),        // 1: ModifyAccountResult
+	(*ListAccountsParams)(nil),         // 2: ListAccountsParams
+	(*ListAccountsResult)(nil),         // 3: ListAccountsResult
+	(*ModifyServerParams)(nil),         // 4: ModifyServerParams
+	(*ModifyServerResult)(nil),         // 5: ModifyServerResult
+	(*ListServersParams)(nil),          // 6: ListServersParams
+	(*ListServersResult)(nil),          // 7: ListServersResult
+	(*ServerInfoParams)(nil),           // 8: ServerInfoParams
+	(*ServerInfoResult)(nil),           // 9: ServerInfoResult
+	(*ListAccountsResult_Account)(nil), // 10: ListAccountsResult.Account
+	(*ListServersResult_Server)(nil),   // 11: ListServersResult.Server
+	(*ServerInfoResult_Rate)(nil),      // 12: ServerInfoResult.Rate
 }
 var file_service_proto_depIdxs = []int32{
-	6, // 0: ListServersResult.servers:type_name -> ListServersResult.Server
-	7, // 1: ServerInfoResult.rate:type_name -> ServerInfoResult.Rate
-	0, // 2: Service.ModifyServer:input_type -> ModifyServerParams
-	2, // 3: Service.ListServers:input_type -> ListServersParams
-	4, // 4: Service.ServerInfo:input_type -> ServerInfoParams
-	1, // 5: Service.ModifyServer:output_type -> ModifyServerResult
-	3, // 6: Service.ListServers:output_type -> ListServersResult
-	5, // 7: Service.ServerInfo:output_type -> ServerInfoResult
-	5, // [5:8] is the sub-list for method output_type
-	2, // [2:5] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	10, // 0: ListAccountsResult.accounts:type_name -> ListAccountsResult.Account
+	11, // 1: ListServersResult.servers:type_name -> ListServersResult.Server
+	12, // 2: ServerInfoResult.rate:type_name -> ServerInfoResult.Rate
+	0,  // 3: Service.ModifyAccount:input_type -> ModifyAccountParams
+	2,  // 4: Service.ListAccounts:input_type -> ListAccountsParams
+	4,  // 5: Service.ModifyServer:input_type -> ModifyServerParams
+	6,  // 6: Service.ListServers:input_type -> ListServersParams
+	8,  // 7: Service.ServerInfo:input_type -> ServerInfoParams
+	1,  // 8: Service.ModifyAccount:output_type -> ModifyAccountResult
+	3,  // 9: Service.ListAccounts:output_type -> ListAccountsResult
+	5,  // 10: Service.ModifyServer:output_type -> ModifyServerResult
+	7,  // 11: Service.ListServers:output_type -> ListServersResult
+	9,  // 12: Service.ServerInfo:output_type -> ServerInfoResult
+	8,  // [8:13] is the sub-list for method output_type
+	3,  // [3:8] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_service_proto_init() }
@@ -576,13 +829,15 @@ func file_service_proto_init() {
 	}
 	file_service_proto_msgTypes[0].OneofWrappers = []any{}
 	file_service_proto_msgTypes[4].OneofWrappers = []any{}
+	file_service_proto_msgTypes[8].OneofWrappers = []any{}
+	file_service_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_proto_rawDesc), len(file_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
