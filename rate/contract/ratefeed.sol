@@ -13,8 +13,16 @@ contract RateFeed {
     event RateUpdated(uint256 sub, uint256 div, uint256 mul, uint256 add);
 
 
-    constructor() {        
+    constructor(
+        uint256 sub,
+        uint256 div,
+        uint256 mul,
+        uint256 add) {        
        owner = msg.sender;
+        _sub = sub;
+        _div = div;
+        _mul = mul;
+        _add = add;
     }
 
     function setOwner(address addr) external {
