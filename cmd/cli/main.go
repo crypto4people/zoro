@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"zoro/cli"
+
+	"github.com/crypto4people/zoro/cli"
 )
 
 func main() {

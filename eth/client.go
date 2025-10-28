@@ -4,7 +4,8 @@ import (
 	"context"
 	"iter"
 	"time"
-	"zoro/rate"
+
+	"github.com/crypto4people/zoro/rate"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"

@@ -1,4 +1,4 @@
-module zoro
+module github.com/crypto4people/zoro
 
 go 1.24.6
 

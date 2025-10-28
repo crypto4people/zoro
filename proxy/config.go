@@ -6,7 +6,8 @@ import (
 	"log/slog"
 	"net"
 	"time"
-	"zoro/eth"
+
+	"github.com/crypto4people/zoro/eth"
 
 	"github.com/ethereum/go-ethereum/common"
 )

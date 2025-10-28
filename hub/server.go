@@ -3,10 +3,11 @@ package hub
 import (
 	"context"
 	"time"
-	"zoro/eth"
-	"zoro/hub/indexer"
-	"zoro/hub/pb"
-	"zoro/misc"
+
+	"github.com/crypto4people/zoro/eth"
+	"github.com/crypto4people/zoro/hub/indexer"
+	"github.com/crypto4people/zoro/hub/pb"
+	"github.com/crypto4people/zoro/misc"
 
 	"github.com/ethereum/go-ethereum/common"
 	"google.golang.org/grpc/codes"

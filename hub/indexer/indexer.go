@@ -7,9 +7,10 @@ import (
 	"errors"
 	"math/big"
 	"time"
-	"zoro/eth"
-	"zoro/rate"
-	"zoro/rate/contract"
+
+	"github.com/crypto4people/zoro/eth"
+	"github.com/crypto4people/zoro/rate"
+	"github.com/crypto4people/zoro/rate/contract"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"

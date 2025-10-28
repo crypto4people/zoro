@@ -2,7 +2,8 @@ package db
 
 import (
 	"net/url"
-	"zoro/service/db/ob"
+
+	"github.com/crypto4people/zoro/service/db/ob"
 )
 
 func (db *Database) Servers() (map[string]*url.URL, error) {

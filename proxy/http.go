@@ -7,7 +7,8 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
-	"zoro/misc"
+
+	"github.com/crypto4people/zoro/misc"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/google/uuid"

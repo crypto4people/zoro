@@ -1,7 +1,7 @@
 package db
 
 import (
-	"zoro/service/db/ob"
+	"github.com/crypto4people/zoro/service/db/ob"
 )
 
 func (db *Database) Settings() (map[string]string, error) {

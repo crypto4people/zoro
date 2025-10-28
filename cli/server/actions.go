@@ -12,9 +12,10 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	"zoro/acme"
-	"zoro/eth"
-	"zoro/proxy"
+
+	"github.com/crypto4people/zoro/acme"
+	"github.com/crypto4people/zoro/eth"
+	"github.com/crypto4people/zoro/proxy"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/urfave/cli/v3"

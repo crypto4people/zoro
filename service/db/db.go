@@ -2,7 +2,8 @@ package db
 
 import (
 	"sync"
-	"zoro/service/db/ob"
+
+	"github.com/crypto4people/zoro/service/db/ob"
 
 	"github.com/objectbox/objectbox-go/objectbox"
 )

@@ -9,10 +9,11 @@ import (
 	"math/big"
 	"slices"
 	"time"
-	"zoro/eth"
-	"zoro/hub/pb"
-	"zoro/misc"
-	"zoro/rate"
+
+	"github.com/crypto4people/zoro/eth"
+	"github.com/crypto4people/zoro/hub/pb"
+	"github.com/crypto4people/zoro/misc"
+	"github.com/crypto4people/zoro/rate"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"

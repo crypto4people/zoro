@@ -3,7 +3,8 @@ package utility
 import (
 	"context"
 	"fmt"
-	"zoro/cli/misc"
+
+	"github.com/crypto4people/zoro/cli/misc"
 
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/urfave/cli/v3"

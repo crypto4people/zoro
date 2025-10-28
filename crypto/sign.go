@@ -5,7 +5,8 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 	"io"
-	"zoro/misc"
+
+	"github.com/crypto4people/zoro/misc"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"

@@ -4,7 +4,8 @@ import (
 	"crypto/ecdsa"
 	"errors"
 	"net"
-	"zoro/crypto"
+
+	"github.com/crypto4people/zoro/crypto"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gobwas/ws"

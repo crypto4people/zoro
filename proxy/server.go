@@ -9,8 +9,9 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"zoro/eth"
-	"zoro/rate"
+
+	"github.com/crypto4people/zoro/eth"
+	"github.com/crypto4people/zoro/rate"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rpc"

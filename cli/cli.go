@@ -1,9 +1,9 @@
 package cli
 
 import (
-	"zoro/cli/client"
-	"zoro/cli/server"
-	"zoro/cli/utility"
+	"github.com/crypto4people/zoro/cli/client"
+	"github.com/crypto4people/zoro/cli/server"
+	"github.com/crypto4people/zoro/cli/utility"
 
 	"github.com/urfave/cli/v3"
 )

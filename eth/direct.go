@@ -7,9 +7,10 @@ import (
 	"math/big"
 	"slices"
 	"time"
-	"zoro/misc"
-	"zoro/rate"
-	"zoro/rate/contract"
+
+	"github.com/crypto4people/zoro/misc"
+	"github.com/crypto4people/zoro/rate"
+	"github.com/crypto4people/zoro/rate/contract"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"

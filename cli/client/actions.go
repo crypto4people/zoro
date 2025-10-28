@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	cliMisc "zoro/cli/misc"
-	"zoro/misc"
-	"zoro/proxy"
+
+	cliMisc "github.com/crypto4people/zoro/cli/misc"
+	"github.com/crypto4people/zoro/misc"
+	"github.com/crypto4people/zoro/proxy"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"

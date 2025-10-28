@@ -4,9 +4,10 @@ import (
 	"context"
 	"net/http"
 	"net/url"
-	"zoro/proxy"
-	"zoro/service/db"
-	"zoro/service/pb"
+
+	"github.com/crypto4people/zoro/proxy"
+	"github.com/crypto4people/zoro/service/db"
+	"github.com/crypto4people/zoro/service/pb"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"

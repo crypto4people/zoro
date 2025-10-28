@@ -3,7 +3,8 @@ package db
 import (
 	"encoding/hex"
 	"net/url"
-	"zoro/service/db/ob"
+
+	"github.com/crypto4people/zoro/service/db/ob"
 
 	"github.com/ethereum/go-ethereum/common"
 )

@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"os"
 	"time"
-	"zoro/misc"
-	"zoro/proxy"
+
+	"github.com/crypto4people/zoro/misc"
+	"github.com/crypto4people/zoro/proxy"
 
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/holiman/uint256"
