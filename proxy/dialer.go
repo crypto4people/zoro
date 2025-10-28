@@ -33,6 +33,7 @@ func (client *Client) Dial(ctx context.Context, network, addr string) (net.Conn,
 	if err != nil {
 		return nil, err
 	}
+
 	return &Conn{conn: conn}, nil
 }
 

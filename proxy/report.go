@@ -15,7 +15,32 @@ type reporting sql.Stmt
 func (server *Server) prepareReport(ctx context.Context, account common.Address) (*reporting, error) {
 	query := "update subs set remain = remain - ?1 where id = (select id from subs where addr = '" + hex.EncodeToString(account[:]) + "' and remain > 0 and expire > unixepoch() order by expire asc limit 1)"
 	prepared, err := server.db.conn.PrepareContext(ctx, query)
-	return (*reporting)(prepared), err
+	if err != nil {
+		return nil, err
+	}
+
+	reporting := (*reporting)(prepared)
+
+	keep := false
+	defer func() {
+		if !keep {
+			_ = reporting.Close()
+		}
+
+	}()
+
+	err = reporting.Report(ctx,
+		server.proxy.reporting.timeout,
+		server.proxy.reporting.internal,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	keep = true
+
+	return reporting, nil
 }
 
 func (rep *reporting) Close() error {
