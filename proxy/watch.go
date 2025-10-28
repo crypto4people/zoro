@@ -82,7 +82,8 @@ func (server *Server) ProcessBlock(ctx context.Context, number int64) (changes i
 }
 
 func (server *Server) setLocalHeight(ctx context.Context, height int64) error {
-	_, err := server.db.conn.ExecContext(ctx, "insert into heights(chain,height) values(?1,?2) on conflict(chain) do update set height = ?2 where height < ?2", server.ethClient.Chain(), height)
+	chain := server.ethClient.Chain()
+	_, err := server.db.conn.ExecContext(ctx, "insert into heights(chain,height) values(?1,?2) on conflict(chain) do update set height = ?2 where height < ?2", chain.String(), height)
 	if err == nil {
 		server.db.height.Store(height)
 	}
@@ -93,7 +94,8 @@ func (server *Server) setLocalHeight(ctx context.Context, height int64) error {
 func (server *Server) getLocalHeight(ctx context.Context) (int64, error) {
 	var height int64
 
-	err := server.db.conn.QueryRowContext(ctx, "select height from heights where chain = ?1", server.ethClient.Chain()).Scan(&height)
+	chain := server.ethClient.Chain()
+	err := server.db.conn.QueryRowContext(ctx, "select height from heights where chain = ?1", chain.String()).Scan(&height)
 	if err == nil {
 		server.db.height.Store(height)
 	}

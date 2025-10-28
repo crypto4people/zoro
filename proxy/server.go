@@ -61,12 +61,11 @@ type Info struct {
 	Height   int64
 	RateFeed common.Address
 	Account  common.Address
-	Balance  uint256.Int
 	GasPrice uint256.Int
 	Rate     rate.Rate
 }
 
-func (server *Server) Info(ctx context.Context, user common.Address) (*Info, error) {
+func (server *Server) Info(ctx context.Context) (*Info, error) {
 
 	price, err := server.ethClient.GasPrice(ctx)
 	if err != nil {
@@ -74,11 +73,6 @@ func (server *Server) Info(ctx context.Context, user common.Address) (*Info, err
 	}
 
 	rate, err := server.ethClient.RateAt(ctx, rpc.LatestBlockNumber.Int64())
-	if err != nil {
-		return nil, err
-	}
-
-	balance, err := server.ethClient.BalanceOf(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +91,6 @@ func (server *Server) Info(ctx context.Context, user common.Address) (*Info, err
 		Height:   server.db.height.Load(),
 		RateFeed: server.ethClient.RateFeed(),
 		Rate:     *rate,
-		Balance:  *balance,
 		GasPrice: *price,
 		Chain:    server.ethClient.Chain(),
 	}

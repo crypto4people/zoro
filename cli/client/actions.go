@@ -2,14 +2,11 @@ package client
 
 import (
 	"context"
-	"crypto/ecdsa"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
-	"strings"
 	"time"
+	cliMisc "zoro/cli/misc"
 	"zoro/misc"
 	"zoro/proxy"
 
@@ -30,7 +27,12 @@ func infoAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	printServerInfo(info)
+	balance, err := client.GetBalance(ctx)
+	if err != nil {
+		return err
+	}
+
+	printServerInfo(info, balance)
 	return nil
 }
 
@@ -54,7 +56,7 @@ func subsAction(ctx context.Context, cmd *cli.Command) error {
 }
 
 func connectAction(ctx context.Context, cmd *cli.Command) error {
-	priv, err := loadPrivateKey()
+	priv, err := cliMisc.LoadPrivateKey()
 	if err != nil {
 		return err
 	}
@@ -87,7 +89,7 @@ func connectAction(ctx context.Context, cmd *cli.Command) error {
 }
 
 func applyAction(ctx context.Context, cmd *cli.Command) error {
-	priv, err := loadPrivateKey()
+	priv, err := cliMisc.LoadPrivateKey()
 	if err != nil {
 		return err
 	}
@@ -112,7 +114,7 @@ func applyAction(ctx context.Context, cmd *cli.Command) error {
 	amount := info.Rate.Unapply(dur, dur)
 	fmt.Printf("You're about to pay %s ETH for %s of service.\n", misc.WeiToEth(amount), dur)
 
-	confirmed, err := confirm("Do you agree to continue?")
+	confirmed, err := cliMisc.Confirm("Do you agree to continue?")
 	if err != nil {
 		return err
 	}
@@ -129,7 +131,7 @@ func applyAction(ctx context.Context, cmd *cli.Command) error {
 
 	signer := types.LatestSignerForChainID(info.Chain.ToBig())
 
-	tx, err := signTx(priv, nonce, info.Account, signer, amount, info.GasPrice.ToBig())
+	tx, err := cliMisc.SignTx(priv, nonce, info.Account, signer, amount, info.GasPrice.ToBig())
 	if err != nil {
 		return fmt.Errorf("sign tx: %w", err)
 	}
@@ -163,18 +165,4 @@ func checkAction(ctx context.Context, cmd *cli.Command) error {
 
 	printReceipt(tx, isPending)
 	return nil
-}
-
-func loadPrivateKey() (*ecdsa.PrivateKey, error) {
-	stat, err := os.Stdin.Stat()
-	if err != nil {
-		return nil, err
-	}
-
-	if (stat.Mode() & os.ModeCharDevice) == 0 {
-		data, _ := io.ReadAll(os.Stdin)
-		return crypto.HexToECDSA(strings.TrimSpace(string(data)))
-	}
-
-	return nil, errors.New("failed to read private key from stdin")
 }

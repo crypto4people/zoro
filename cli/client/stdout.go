@@ -8,10 +8,11 @@ import (
 	"zoro/proxy"
 
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/holiman/uint256"
 	"github.com/olekukonko/tablewriter"
 )
 
-func printServerInfo(info *proxy.Info) {
+func printServerInfo(info *proxy.Info, balance *uint256.Int) {
 	renderTable([][]string{
 		{"Version", info.Version},
 		{"Uptime", (time.Duration(info.Uptime) * time.Second).String()},
@@ -21,7 +22,7 @@ func printServerInfo(info *proxy.Info) {
 		{"Height", fmt.Sprint(info.Height)},
 		{"Contract", info.RateFeed.Hex()},
 		{"Account", info.Account.Hex()},
-		{"Balance", misc.WeiToEth(info.Balance.ToBig()) + " ETH"},
+		{"Balance", misc.WeiToEth(balance.ToBig()) + " ETH"},
 		{"Gas Price", misc.WeiToGwei(info.GasPrice.ToBig()) + " GWEI"},
 		{
 			"Rate",

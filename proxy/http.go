@@ -36,10 +36,8 @@ func (server *Server) initMux() {
 	server.httpMux.HandleFunc("PUT /info", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
 		ctx := req.Context()
 
-		user := req.URL.Query().Get("user")
-
 		server.logger.Debug("new request on /", slog.String("address", req.RemoteAddr))
-		info, err := server.Info(ctx, common.HexToAddress(user))
+		info, err := server.Info(ctx)
 		if err != nil {
 			return http.StatusInternalServerError, err
 		}

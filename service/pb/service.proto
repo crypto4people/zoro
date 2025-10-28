@@ -4,6 +4,10 @@ option go_package = "../pb";
 
 service Service {
 
+    // status
+    // connect
+    // disconnect
+    
     rpc ListPends(ListPendsParams) returns (ListPendsResult);
 
     rpc ListSubs(ListSubsParams) returns (ListSubsResult);
