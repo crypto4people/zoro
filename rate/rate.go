@@ -16,7 +16,7 @@ type Rate struct {
 
 func (rate *Rate) Apply(value *big.Int) (dur time.Duration, ttl time.Duration) {
 
-	// dur := (value - sub) / div
+	// dur := (val - sub) / div
 	// ttl := (dur * mul) + add
 
 	durBig := new(big.Int).Div(new(big.Int).Sub(value, rate.Sub.ToBig()), rate.Div.ToBig())
