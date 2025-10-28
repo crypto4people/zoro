@@ -21,17 +21,16 @@ func (server *Server) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 }
 
 func (server *Server) initMux() {
-	server.httpMux.HandleFunc("GET /wsc", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
+	server.httpMux.HandleFunc("GET /wsc", func(writer http.ResponseWriter, req *http.Request) {
 		user := req.URL.Query().Get("user")
 		logger := server.logger.With(slog.String("account", user), slog.String("log_key", uuid.NewString()))
 		logger.Debug("new request on /wsc", slog.String("address", req.RemoteAddr))
 
-		err := server.serveProxy(writer, logger, req, common.HexToAddress(user))
+		err := server.doProxy(writer, req, logger, common.HexToAddress(user))
 		if err != nil {
-			return http.StatusInternalServerError, err
+			logger.Debug("connection dropped", slog.String("error", err.Error()))
 		}
-		return 200, nil
-	}))
+	})
 
 	server.httpMux.HandleFunc("PUT /info", handlerFuncWithError(func(writer http.ResponseWriter, req *http.Request) (int, any) {
 		ctx := req.Context()

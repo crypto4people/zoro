@@ -215,7 +215,7 @@ func (server *Server) ServerInfo(ctx context.Context, params *pb.ServerInfoParam
 		Height:   info.Height,
 		RateFeed: info.RateFeed.Hex(),
 		Account:  info.Account.Hex(),
-		Balance:  info.Balance.Dec(),
+		// Balance:  info.Balance.Dec(), // todo
 		GasPrice: info.GasPrice.Dec(),
 		Rate: &pb.ServerInfoResult_Rate{
 			Sub: info.Rate.Sub.Dec(),
