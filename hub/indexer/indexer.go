@@ -158,14 +158,10 @@ func (indexer *Indexer) Receives(ctx context.Context, chain string, block int64,
 	return txs, nil
 }
 
-func (indexer *Indexer) Routine(ctx context.Context) error {
-	height, err := indexer.getLocalHeight(ctx)
-	if err != nil {
-		return err
-	}
-
+func (indexer *Indexer) Routine(ctx context.Context) (err error) {
+	height := int64(-1)
 	for {
-		err = indexer.foreachSafeBlock(ctx, height, func(ctx context.Context, number int64) error {
+		height, err = indexer.foreachSafeBlock(ctx, height, func(ctx context.Context, number int64) error {
 			blockData, err := indexer.getBlockData(ctx, number)
 			if err != nil {
 				return err
@@ -236,35 +232,43 @@ func (indexer *Indexer) getBlockData(ctx context.Context, number int64) (*getBlo
 	}, nil
 }
 
-func (indexer *Indexer) foreachSafeBlock(ctx context.Context, start int64, fn func(ctx context.Context, number int64) error) error {
+func (indexer *Indexer) foreachSafeBlock(ctx context.Context, start int64, fn func(ctx context.Context, number int64) error) (int64, error) {
+	if start == -1 {
+		height, err := indexer.getLocalHeight(ctx)
+		if err != nil {
+			return start, err
+		}
+		start = height
+	}
+
 	finalHdr, err := indexer.client.HeaderByNumber(ctx, big.NewInt(eth.FinalBlock))
 	if err != nil {
-		return err
+		return start, err
 	}
 
 	if !finalHdr.Number.IsInt64() {
-		return errors.New("block number should be an int64")
+		return start, errors.New("block number should be an int64")
 	}
 
 	target := finalHdr.Number.Int64()
 
 	if target == start {
-		return errSleep
+		return start, errSleep
 	}
 
 	if target < start {
-		return errors.New("safe block number cannot be more than start")
+		return start, errors.New("safe block number cannot be more than start")
 	}
 
 	for range target - start {
 		err := fn(ctx, start)
 		if err != nil {
-			return err
+			return start, err
 		}
 		start++
 	}
 
-	return nil
+	return start, nil
 }
 
 func (indexer *Indexer) getLastTransfer(ctx context.Context) (*transfersDoc, error) {
