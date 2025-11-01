@@ -128,8 +128,7 @@ func (server *Server) doProxy(
 		}
 	})
 
-	eg.Wait()
-	return nil
+	return eg.Wait()
 }
 
 func getParams(request *http.Request) (string, string, error) {
