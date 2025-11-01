@@ -2,9 +2,12 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	cliMisc "github.com/crypto4people/zoro/cli/misc"
@@ -28,12 +31,15 @@ func infoAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	balance, err := client.GetBalance(ctx)
-	if err != nil {
-		return err
+	if cmd.Bool("json") {
+		enc := json.NewEncoder(os.Stdout)
+		err := enc.Encode(info)
+		if err != nil {
+			return err
+		}
+	} else {
+		printServerInfo(info)
 	}
-
-	printServerInfo(info, balance)
 	return nil
 }
 
@@ -48,8 +54,12 @@ func subsAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	if len(subs) == 0 {
-		fmt.Println("No active subscription found.")
+	if cmd.Bool("json") {
+		enc := json.NewEncoder(os.Stdout)
+		err := enc.Encode(subs)
+		if err != nil {
+			return err
+		}
 	} else {
 		printSubs(subs)
 	}
@@ -75,8 +85,7 @@ func connectAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	if len(subs) == 0 {
-		fmt.Println("you got no active sub")
-		return nil
+		return errors.New("no active subscription")
 	}
 
 	box, err := connect(ctx, client.Endpoint(), client.Account().Hex(), localSocks)
@@ -90,22 +99,32 @@ func connectAction(ctx context.Context, cmd *cli.Command) error {
 }
 
 func applyAction(ctx context.Context, cmd *cli.Command) error {
-	priv, err := cliMisc.LoadPrivateKey()
-	if err != nil {
-		return err
-	}
-
+	jsonOut := cmd.Bool("json")
+	autoYes := cmd.Bool("yes")
 	server := cmd.String("server")
-	account := crypto.PubkeyToAddress(priv.PublicKey)
-	client := proxy.NewClient(http.DefaultClient, server, account)
 
-	dur, err := time.ParseDuration(cmd.String("duration"))
-	if err != nil {
-		return fmt.Errorf("parse duration: %w", err)
+	if strings.TrimSpace(server) == "" {
+		return errors.New("server is required (use --server)")
 	}
+
+	durStr := cmd.String("duration")
+	dur, err := time.ParseDuration(durStr)
+	if err != nil {
+		return fmt.Errorf("invalid --duration %q: %w", durStr, err)
+	}
+
 	if dur <= 0 {
 		return errors.New("duration must be > 0")
 	}
+
+	priv, err := cliMisc.LoadPrivateKey()
+	if err != nil {
+		return fmt.Errorf("load private key: %w", err)
+	}
+
+	account := crypto.PubkeyToAddress(priv.PublicKey)
+
+	client := proxy.NewClient(http.DefaultClient, server, account)
 
 	info, err := client.GetInfo(ctx)
 	if err != nil {
@@ -113,16 +132,22 @@ func applyAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	amount := info.Rate.Unapply(dur, dur)
-	fmt.Printf("You're about to pay %s ETH for %s of service.\n", misc.WeiToEth(amount), dur)
-
-	confirmed, err := cliMisc.Confirm("Do you agree to continue?")
-	if err != nil {
-		return err
+	if amount == nil || amount.Sign() <= 0 {
+		return fmt.Errorf("calculated amount is not positive for duration %s", dur)
 	}
 
-	if !confirmed {
-		fmt.Println("Transaction cancelled.")
-		return nil
+	if !jsonOut && !autoYes {
+		fmt.Printf(
+			"You're about to pay %s ETH for %s of service (to %s on chain %s).\n",
+			misc.WeiToEth(amount), dur, info.Account.Hex(), info.Chain.String(),
+		)
+		confirmed, err := cliMisc.Confirm("Do you agree to continue?")
+		if err != nil {
+			return fmt.Errorf("confirm: %w", err)
+		}
+		if !confirmed {
+			return errors.New("transaction cancelled")
+		}
 	}
 
 	nonce, err := client.GetNonce(ctx)
@@ -131,7 +156,6 @@ func applyAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	signer := types.LatestSignerForChainID(info.Chain.ToBig())
-
 	tx, err := cliMisc.SignTx(priv, nonce, info.Account, signer, amount, info.GasPrice.ToBig())
 	if err != nil {
 		return fmt.Errorf("sign tx: %w", err)
@@ -141,14 +165,50 @@ func applyAction(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("submit tx: %w", err)
 	}
 
-	renderTable([][]string{
-		{"Status", "Submitted"},
-		{"Hash", tx.Hash().Hex()},
-		{"To", info.Account.Hex()},
-		{"Value", fmt.Sprintf("%s ETH", misc.WeiToEth(amount))},
-		{"Nonce", fmt.Sprint(nonce)},
-		{"GasPrice", fmt.Sprintf("%s wei", info.GasPrice.Dec())},
-	})
+	type jsonResponse struct {
+		Status   string `json:"status"`
+		Hash     string `json:"hash"`
+		To       string `json:"to"`
+		ValueETH string `json:"value_eth"`
+		Nonce    uint64 `json:"nonce"`
+		GasPrice string `json:"gas_price_wei"`
+		ChainID  string `json:"chain_id"`
+		Duration string `json:"duration"`
+		Server   string `json:"server"`
+		Account  string `json:"account"`
+	}
+
+	if jsonOut {
+		out := jsonResponse{
+			Status:   "submitted",
+			Hash:     tx.Hash().Hex(),
+			To:       info.Account.Hex(),
+			ValueETH: misc.WeiToEth(amount),
+			Nonce:    nonce,
+			GasPrice: info.GasPrice.Dec(),
+			ChainID:  info.Chain.String(),
+			Duration: dur.String(),
+			Server:   server,
+			Account:  account.Hex(),
+		}
+		enc := json.NewEncoder(os.Stdout)
+		if err := enc.Encode(out); err != nil {
+			return fmt.Errorf("encode json: %w", err)
+		}
+	} else {
+		renderTable([][]string{
+			{"Status", "Submitted"},
+			{"Hash", tx.Hash().Hex()},
+			{"To", info.Account.Hex()},
+			{"Value", fmt.Sprintf("%s ETH", misc.WeiToEth(amount))},
+			{"Nonce", fmt.Sprint(nonce)},
+			{"GasPrice", fmt.Sprintf("%s wei", info.GasPrice.Dec())},
+			{"Chain", info.Chain.String()},
+			{"Duration", dur.String()},
+			{"Server", server},
+			{"From (payer)", account.Hex()},
+		})
+	}
 
 	return nil
 }
@@ -164,6 +224,19 @@ func checkAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	printReceipt(tx, isPending)
+	if cmd.Bool("json") {
+		receipt := struct {
+			Tx        *types.Transaction "json:\"tx\""
+			IsPending bool               "json:\"is_pending\""
+		}{Tx: tx, IsPending: isPending}
+
+		enc := json.NewEncoder(os.Stdout)
+		err = enc.Encode(receipt)
+		if err != nil {
+			return err
+		}
+	} else {
+		printReceipt(tx, isPending)
+	}
 	return nil
 }

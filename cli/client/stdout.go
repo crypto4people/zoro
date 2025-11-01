@@ -9,11 +9,10 @@ import (
 	"github.com/crypto4people/zoro/proxy"
 
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/holiman/uint256"
 	"github.com/olekukonko/tablewriter"
 )
 
-func printServerInfo(info *proxy.Info, balance *uint256.Int) {
+func printServerInfo(info *proxy.Info) {
 	renderTable([][]string{
 		{"Version", info.Version},
 		{"Uptime", (time.Duration(info.Uptime) * time.Second).String()},
@@ -23,7 +22,6 @@ func printServerInfo(info *proxy.Info, balance *uint256.Int) {
 		{"Height", fmt.Sprint(info.Height)},
 		{"Contract", info.RateFeed.Hex()},
 		{"Account", info.Account.Hex()},
-		{"Balance", misc.WeiToEth(balance.ToBig()) + " ETH"},
 		{"Gas Price", misc.WeiToGwei(info.GasPrice.ToBig()) + " GWEI"},
 		{
 			"Rate",
@@ -39,6 +37,11 @@ func printServerInfo(info *proxy.Info, balance *uint256.Int) {
 }
 
 func printSubs(subs []proxy.Sub) {
+	if len(subs) == 0 {
+		fmt.Println("No active subscription found.")
+		return
+	}
+
 	tblContents := [][]string{}
 
 	for idx, sub := range subs {
