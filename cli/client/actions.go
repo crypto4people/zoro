@@ -22,9 +22,8 @@ import (
 
 func infoAction(ctx context.Context, cmd *cli.Command) error {
 	server := cmd.String("server")
-	account := cmd.String("account")
 
-	client := proxy.NewClient(http.DefaultClient, server, common.HexToAddress(account))
+	client := proxy.NewClient(http.DefaultClient, server, common.HexToAddress("00"))
 
 	info, err := client.GetInfo(ctx)
 	if err != nil {
@@ -39,6 +38,31 @@ func infoAction(ctx context.Context, cmd *cli.Command) error {
 		}
 	} else {
 		printServerInfo(info)
+	}
+	return nil
+}
+
+func balanceAction(ctx context.Context, cmd *cli.Command) error {
+	server := cmd.String("server")
+	account := cmd.String("account")
+
+	client := proxy.NewClient(http.DefaultClient, server, common.HexToAddress(account))
+
+	balance, err := client.GetBalance(ctx)
+	if err != nil {
+		return err
+	}
+
+	if cmd.Bool("json") {
+		enc := json.NewEncoder(os.Stdout)
+		err := enc.Encode(struct {
+			Balance string `json:"balance"`
+		}{balance.Dec()})
+		if err != nil {
+			return err
+		}
+	} else {
+		fmt.Printf("Balance: %s ETH\n", misc.WeiToEth(balance.ToBig()))
 	}
 	return nil
 }

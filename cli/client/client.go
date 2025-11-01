@@ -12,9 +12,18 @@ var infoCmd = &cli.Command{
 	Usage: "Fetch and display server info",
 	Flags: []cli.Flag{
 		serverFlag,
-		accountFlag,
 	},
 	Action: infoAction,
+}
+
+var balanceCmd = &cli.Command{
+	Name:  "balance",
+	Usage: "Fetch and display account balance",
+	Flags: []cli.Flag{
+		serverFlag,
+		accountFlag,
+	},
+	Action: balanceAction,
 }
 
 var subsCmd = &cli.Command{
@@ -70,6 +79,7 @@ var Cmd = &cli.Command{
 	Usage: "client → Get Server Info, Watch your subs, Buy a new subscription, Connect",
 	Commands: []*cli.Command{
 		infoCmd,
+		balanceCmd,
 		subsCmd,
 		connectCmd,
 		txCmd,
