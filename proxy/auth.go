@@ -1,7 +1,6 @@
 package proxy
 
 import (
-	"crypto/ecdsa"
 	"errors"
 	"net"
 
@@ -31,18 +30,4 @@ func (server *Server) authConn(wsConn net.Conn, addr common.Address, network, ho
 	}
 
 	return nil
-}
-
-func SolveChallenge(wsConn net.Conn, private *ecdsa.PrivateKey, network, host string) error {
-	//todo check timeout
-
-	challenge, err := wsutil.ReadServerBinary(wsConn)
-	if err != nil {
-		return err
-	}
-
-	sig := crypto.SignChallenge(private, challenge, network, host)
-
-	return wsutil.WriteClientMessage(wsConn, ws.OpBinary, sig)
-
 }
