@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/crypto4people/zoro/eth"
+	"github.com/gobwas/ws"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -39,6 +40,7 @@ func NewServer(ctx context.Context, conf ServerConfig) (app *Server, err error) 
 	}
 	app.proxy.dialer.Timeout = time.Second * 3
 	app.proxy.dialer.KeepAlive = time.Second * 15
+	app.proxy.upgrader = ws.HTTPUpgrader{}
 	app.proxy.upgrader.Timeout = time.Second * 3
 	app.proxy.congestion.Init(2000, 20)
 

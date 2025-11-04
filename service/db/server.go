@@ -1,6 +1,8 @@
 package db
 
 import (
+	"errors"
+
 	"github.com/crypto4people/zoro/service/db/ob"
 	"github.com/samber/lo"
 )
@@ -63,7 +65,7 @@ func (db *Database) GetServer(name string) (string, error) {
 	}
 
 	if len(server) == 0 {
-		return "", nil
+		return "", errors.New("not found")
 	}
 
 	return server[0].URL, nil

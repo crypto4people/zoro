@@ -25,8 +25,12 @@ type Server struct {
 }
 
 // Connect implements pb.ServiceServer.
-func (server *Server) Connect(context.Context, *pb.ConnectRequest) (*pb.ConnectResult, error) {
-	panic("unimplemented")
+func (server *Server) Connect(ctx context.Context, params *pb.ConnectRequest) (*pb.ConnectResult, error) {
+	sv, err := server.database.GetServer(params.Name)
+	if err != nil {
+		return nil, err
+	}
+
 }
 
 // Disconnect implements pb.ServiceServer.

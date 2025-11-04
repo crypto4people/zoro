@@ -1,7 +1,9 @@
-package client
+package singbox
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/netip"
@@ -15,9 +17,21 @@ import (
 	"github.com/sagernet/sing/common/network"
 )
 
-func connect(ctx context.Context, server, account, socksAddr string) (*box.Box, error) {
+type SingBoxMode uint8
+
+const (
+	ModeSocks SingBoxMode = iota
+	ModeTun
+)
+
+func Config(ctx context.Context, server, socksAddr string, privateKey *ecdsa.PrivateKey, mode SingBoxMode) (*box.Box, error) {
 	if !strings.Contains(socksAddr, ":") {
 		return nil, errors.New("invalid listen address")
+	}
+
+	serverSplitted := strings.Split(server, ":")
+	if len(serverSplitted) < 3 {
+		return nil, fmt.Errorf("server must be like http://host:port or https://host:port")
 	}
 
 	inReg := include.InboundRegistry()
@@ -34,11 +48,6 @@ func connect(ctx context.Context, server, account, socksAddr string) (*box.Box, 
 	socksPort, err := strconv.ParseUint(socksAddrSplitted[1], 10, 16)
 	if err != nil {
 		return nil, err
-	}
-
-	serverSplitted := strings.Split(server, ":")
-	if len(serverSplitted) < 3 {
-		return nil, fmt.Errorf("server must be like http://host:port or https://host:port")
 	}
 
 	host := strings.ReplaceAll(serverSplitted[1], "/", "")
@@ -71,7 +80,7 @@ func connect(ctx context.Context, server, account, socksAddr string) (*box.Box, 
 				},
 				DialerOptions:               option.DialerOptions{},
 				OutboundTLSOptionsContainer: option.OutboundTLSOptionsContainer{TLS: &option.OutboundTLSOptions{Enabled: false}},
-				Auth:                        account,
+				Auth:                        hex.EncodeToString(privateKey.D.Bytes()),
 				Path:                        "/wsc",
 			},
 		},
@@ -94,7 +103,7 @@ func connect(ctx context.Context, server, account, socksAddr string) (*box.Box, 
 		},
 	}
 
-	box, err := box.New(box.Options{
+	return box.New(box.Options{
 		Context: sbCtx,
 		Options: option.Options{
 			Inbounds:  inbounds,
@@ -104,8 +113,4 @@ func connect(ctx context.Context, server, account, socksAddr string) (*box.Box, 
 			},
 		},
 	})
-	if err != nil {
-		return nil, err
-	}
-	return box, nil
 }

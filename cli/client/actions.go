@@ -13,6 +13,7 @@ import (
 	cliMisc "github.com/crypto4people/zoro/cli/misc"
 	"github.com/crypto4people/zoro/misc"
 	"github.com/crypto4people/zoro/proxy"
+	"github.com/crypto4people/zoro/singbox"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -112,7 +113,7 @@ func connectAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("no active subscription")
 	}
 
-	box, err := connect(ctx, client.Endpoint(), client.Account().Hex(), localSocks)
+	box, err := singbox.Config(ctx, client.Endpoint(), localSocks, priv, singbox.ModeSocks)
 	if err != nil {
 		return err
 	}
