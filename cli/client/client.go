@@ -4,8 +4,8 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var serverFlag = &cli.StringFlag{Name: "server", Required: true, Usage: "Server base URL (e.g. https://zoro.example.com)"}
-var accountFlag = &cli.StringFlag{Name: "account", Required: true, Usage: "Account address/string"}
+var serverFlag = &cli.StringFlag{Name: "server", Aliases: []string{"s"}, Required: true, Usage: "Server base URL (e.g. https://zoro.example.com)"}
+var accountFlag = &cli.StringFlag{Name: "account", Aliases: []string{"a"}, Required: true, Usage: "Account address/string"}
 
 var infoCmd = &cli.Command{
 	Name:  "info",
