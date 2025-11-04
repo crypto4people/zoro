@@ -6,7 +6,7 @@ var runCmd = &cli.Command{
 	Name:  "run",
 	Usage: "run zoro server",
 	Flags: []cli.Flag{
-		&cli.StringFlag{Name: "config", Required: true, Usage: "zoro.json"},
+		&cli.StringFlag{Name: "config", Aliases: []string{"c"}, Required: true, Usage: "zoro.json"},
 	},
 	Action: runAction,
 }
