@@ -21,14 +21,9 @@ type SingBoxMode uint8
 
 const (
 	ModeSocks SingBoxMode = iota
-	ModeTun
 )
 
 func Config(ctx context.Context, server, socksAddr string, privateKey *ecdsa.PrivateKey, mode SingBoxMode) (*box.Box, error) {
-	if !strings.Contains(socksAddr, ":") {
-		return nil, errors.New("invalid listen address")
-	}
-
 	serverSplitted := strings.Split(server, ":")
 	if len(serverSplitted) < 3 {
 		return nil, fmt.Errorf("server must be like http://host:port or https://host:port")
@@ -42,32 +37,51 @@ func Config(ctx context.Context, server, socksAddr string, privateKey *ecdsa.Pri
 
 	sbCtx := box.Context(ctx, inReg, outReg, endReg, dnsReg, svcReg)
 
-	socksAddrSplitted := strings.Split(socksAddr, ":")
-
-	socksListen := netip.MustParseAddr(socksAddrSplitted[0])
-	socksPort, err := strconv.ParseUint(socksAddrSplitted[1], 10, 16)
-	if err != nil {
-		return nil, err
-	}
-
 	host := strings.ReplaceAll(serverSplitted[1], "/", "")
 	serverPort, err := strconv.ParseUint(serverSplitted[2], 10, 16)
 	if err != nil {
 		return nil, err
 	}
 
-	inbounds := []option.Inbound{
-		{
+	var socksListen netip.Addr
+	var socksPort uint64
+	var inbound option.Inbound
+	if mode == ModeSocks {
+		var err error
+		if !strings.Contains(socksAddr, ":") {
+			return nil, errors.New("invalid listen address")
+		}
+
+		socksAddrSplitted := strings.Split(socksAddr, ":")
+
+		socksListen = netip.MustParseAddr(socksAddrSplitted[0])
+		socksPort, err = strconv.ParseUint(socksAddrSplitted[1], 10, 16)
+		if err != nil {
+			return nil, err
+		}
+
+		inbound = option.Inbound{
 			Type: "socks",
-			Tag:  "socks-in",
+			Tag:  "in",
 			Options: &option.SocksInboundOptions{
 				ListenOptions: option.ListenOptions{
 					Listen:     (*badoption.Addr)(&socksListen),
 					ListenPort: uint16(socksPort),
 				},
 			},
-		},
+		}
+	} else {
+		inbound = option.Inbound{
+			Type: "tun",
+			Tag:  "in",
+			Options: &option.TunInboundOptions{
+				InterfaceName: "singbox-wsc1",
+				Address:       badoption.Listable[netip.Prefix]{netip.MustParsePrefix("198.18.0.1/24")},
+			},
+		}
 	}
+
+	inbounds := []option.Inbound{inbound}
 
 	outbounds := []option.Outbound{
 		{

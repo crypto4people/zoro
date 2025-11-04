@@ -14,6 +14,7 @@ import (
 	"github.com/crypto4people/zoro/misc"
 	"github.com/crypto4people/zoro/proxy"
 	"github.com/crypto4people/zoro/singbox"
+	box "github.com/sagernet/sing-box"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -98,11 +99,9 @@ func connectAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	server := cmd.String("server")
+
 	account := crypto.PubkeyToAddress(priv.PublicKey).Hex()
-
 	client := proxy.NewClient(http.DefaultClient, server, common.HexToAddress(account))
-
-	localSocks := cmd.String("local-socks")
 
 	subs, err := client.GetSubs(ctx)
 	if err != nil {
@@ -113,7 +112,13 @@ func connectAction(ctx context.Context, cmd *cli.Command) error {
 		return errors.New("no active subscription")
 	}
 
-	box, err := singbox.Config(ctx, client.Endpoint(), localSocks, priv, singbox.ModeSocks)
+	var box *box.Box
+
+	// if cmd.Bool("enable-tun") {
+	// 	box, err = singbox.Config(ctx, client.Endpoint(), "", priv, singbox.ModeTun)
+	// } else {
+	box, err = singbox.Config(ctx, client.Endpoint(), cmd.String("local-socks"), priv, singbox.ModeSocks)
+	// }
 	if err != nil {
 		return err
 	}

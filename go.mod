@@ -5,7 +5,6 @@ go 1.24.6
 require (
 	github.com/ethereum/go-ethereum v1.16.5
 	github.com/gobwas/ws v1.4.0
-	github.com/google/flatbuffers v25.9.23+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/holiman/uint256 v1.3.2
 	github.com/itsabgr/ge v0.0.0-20241202140951-7f5c5d99dde6
@@ -13,7 +12,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.32
 	github.com/maypok86/otter/v2 v2.2.1
 	github.com/mholt/acmez/v3 v3.1.4
-	github.com/objectbox/objectbox-go v1.9.0
 	github.com/olekukonko/tablewriter v1.1.0
 	github.com/sagernet/sing v0.7.12
 	github.com/sagernet/sing-box v0.0.0-00010101000000-000000000000
@@ -96,7 +94,6 @@ require (
 	github.com/mitchellh/go-ps v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
-	github.com/objectbox/objectbox-generator/v4 v4.0.0 // indirect
 	github.com/olekukonko/errors v1.1.0 // indirect
 	github.com/olekukonko/ll v0.0.9 // indirect
 	github.com/pierrec/lz4/v4 v4.1.21 // indirect
@@ -162,4 +159,4 @@ require (
 	lukechampine.com/blake3 v1.3.0 // indirect
 )
 
-replace github.com/sagernet/sing-box => github.com/b00tkitism/sing-box v0.0.0-20251104064548-c27d677dcf43
+replace github.com/sagernet/sing-box => github.com/b00tkitism/sing-box v0.0.0-20251104074034-37f04330a30b
