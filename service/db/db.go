@@ -17,7 +17,6 @@ type Database struct {
 }
 
 func New(box *objectbox.ObjectBox) *Database {
-
 	db := &Database{
 		accounts: ob.BoxForAccount(box),
 		pends:    ob.BoxForPend(box),
@@ -26,5 +25,4 @@ func New(box *objectbox.ObjectBox) *Database {
 	}
 
 	return db
-
 }

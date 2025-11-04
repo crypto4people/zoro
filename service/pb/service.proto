@@ -3,11 +3,12 @@ syntax = "proto3";
 option go_package = "../pb";
 
 service Service {
+    rpc Connect(ConnectRequest) returns (ConnectResult);
 
-    // status
-    // connect
-    // disconnect
-    
+    rpc Disconnect(DisconnectRequest) returns (DisconnectResult);
+
+    rpc Stats(StatsRequest) returns (StatsResult);
+
     rpc ListPends(ListPendsParams) returns (ListPendsResult);
 
     rpc ListSubs(ListSubsParams) returns (ListSubsResult);
@@ -20,15 +21,38 @@ service Service {
 
     rpc ListAccounts(ListAccountsParams) returns (ListAccountsResult);
 
+    rpc GetAccount(GetAccountParams) returns (GetAccountResult);
+
     rpc ModifyServer(ModifyServerParams) returns (ModifyServerResult);
 
     rpc ListServers(ListServersParams) returns (ListServersResult);
 
     rpc ServerInfo(ServerInfoParams) returns (ServerInfoResult);
-
 }
 
 
+message ConnectRequest {
+    string name = 1;
+}
+
+message ConnectResult {
+    bool ok = 1;
+}
+
+message DisconnectRequest {}
+
+message DisconnectResult {
+    bool ok = 1;
+}
+
+message StatsRequest {}
+
+message StatsResult {
+    int64 time = 1;
+    int64 connections = 2;
+    int64 total_bytes = 3;
+    string server = 4;
+}
 
 message ListSubsParams{
     string address = 1;
@@ -79,26 +103,28 @@ message ListPendsResult{
 
 message ModifyAccountParams{
     string address = 1;
-    optional bytes cipher = 2;
+    bytes cipher = 2;
 }
 
 message ModifyAccountResult{}
 
-message ListAccountsParams{
-    bool ciphers = 1;
-}
+message ListAccountsParams{}
 
 message ListAccountsResult{
-    message Account {
-        string address = 1;
-        optional bytes cipher = 2;
-    }
-    repeated Account accounts = 1;
+    repeated string accounts = 1;
+}
+
+message GetAccountParams{
+    string account = 1;
+}
+
+message GetAccountResult{
+    bytes cipher = 1;
 }
 
 message ModifyServerParams{
     string key = 1;
-    optional string url = 2;
+    string url = 2; // optional
 }
 
 message ModifyServerResult{}
@@ -115,7 +141,7 @@ message ListServersResult{
 
 message ServerInfoParams{
     string url = 1; 
-    optional string account = 2;
+    string account = 2; // optional
 }
 
 message ServerInfoResult{
@@ -133,7 +159,14 @@ message ServerInfoResult{
     int64 height = 6;
     string rate_feed = 7;
     string account = 8;
-    string balance = 9;
-    string gas_price = 10;
-    Rate rate = 11;
+    string gas_price = 9;
+    Rate rate = 10;
+}
+
+message BalanceParams {
+    string account = 1;
+}
+
+message BalanceResult {
+    string balance = 1;
 }

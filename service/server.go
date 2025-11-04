@@ -8,11 +8,11 @@ import (
 	"github.com/crypto4people/zoro/proxy"
 	"github.com/crypto4people/zoro/service/db"
 	"github.com/crypto4people/zoro/service/pb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 var _ pb.ServiceServer = &Server{}
@@ -24,6 +24,22 @@ type Server struct {
 	pb.UnimplementedServiceServer
 }
 
+// Connect implements pb.ServiceServer.
+func (server *Server) Connect(context.Context, *pb.ConnectRequest) (*pb.ConnectResult, error) {
+	panic("unimplemented")
+}
+
+// Disconnect implements pb.ServiceServer.
+func (server *Server) Disconnect(context.Context, *pb.DisconnectRequest) (*pb.DisconnectResult, error) {
+	panic("unimplemented")
+}
+
+// Stats implements pb.ServiceServer.
+func (server *Server) Stats(context.Context, *pb.StatsRequest) (*pb.StatsResult, error) {
+	panic("unimplemented")
+}
+
+// CheckTx implements pb.ServiceServer.
 func (server *Server) CheckTx(ctx context.Context, params *pb.CheckTxParams) (*pb.CheckTxResult, error) {
 	serverURL, err := url.Parse(params.Server)
 	if err != nil {
@@ -66,10 +82,179 @@ func (server *Server) CheckTx(ctx context.Context, params *pb.CheckTxParams) (*p
 	return &pb.CheckTxResult{
 		Status: status,
 	}, nil
+}
+
+// GetAccount implements pb.ServiceServer.
+func (server *Server) GetAccount(ctx context.Context, params *pb.GetAccountParams) (*pb.GetAccountResult, error) {
+	address := common.Address{}
+	err := address.UnmarshalText([]byte(params.Account))
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "failed to parse hash")
+	}
+
+	cipher, err := server.database.LoadAccount(address)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetAccountResult{
+		Cipher: cipher,
+	}, nil
+}
+
+// ListAccounts implements pb.ServiceServer.
+func (server *Server) ListAccounts(context.Context, *pb.ListAccountsParams) (*pb.ListAccountsResult, error) {
+	accounts, err := server.database.ListAccounts()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []string
+	for _, account := range accounts {
+		result = append(result, account.Hex())
+	}
+
+	return &pb.ListAccountsResult{
+		Accounts: result,
+	}, nil
+}
+
+// ListPends implements pb.ServiceServer.
+func (server *Server) ListPends(context.Context, *pb.ListPendsParams) (*pb.ListPendsResult, error) {
+	pends, err := server.database.Pends()
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*pb.ListPendsResult_Tx, 0, len(pends))
+	for hash, serverURL := range pends {
+		result = append(result, &pb.ListPendsResult_Tx{
+			Hash:   hash.Hex(),
+			Server: serverURL.String(),
+		})
+	}
+
+	return &pb.ListPendsResult{
+		Txs: result,
+	}, nil
 
 }
 
-func (server *Server) SubmitTx(ctx context.Context, params *pb.SubmitTxParams) (_ *pb.SubmitTxResult, err error) {
+// ListServers implements pb.ServiceServer.
+func (server *Server) ListServers(context.Context, *pb.ListServersParams) (*pb.ListServersResult, error) {
+	servers, err := server.database.ListServers()
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*pb.ListServersResult_Server, 0, len(servers))
+	for name, url := range servers {
+		result = append(result, &pb.ListServersResult_Server{
+			Key: name,
+			Url: url,
+		})
+	}
+
+	return &pb.ListServersResult{
+		Servers: result,
+	}, nil
+
+}
+
+// ListSubs implements pb.ServiceServer.
+func (server *Server) ListSubs(ctx context.Context, params *pb.ListSubsParams) (*pb.ListSubsResult, error) {
+	serverURL, err := url.Parse(params.Server)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "failed to parse server url")
+	}
+
+	client := proxy.NewClient(server.httpClient, serverURL.String(), common.HexToAddress(params.Address))
+
+	subs, err := client.GetSubs(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*pb.ListSubsResult_Sub, 0, len(subs))
+	for _, sub := range subs {
+		result = append(result, &pb.ListSubsResult_Sub{
+			Tx:     sub.Tx.Hex(),
+			Expire: sub.Expire,
+			Remain: sub.Remain,
+		})
+	}
+
+	return &pb.ListSubsResult{
+		Subs: result,
+	}, nil
+}
+
+// ModifyAccount implements pb.ServiceServer.
+func (server *Server) ModifyAccount(ctx context.Context, params *pb.ModifyAccountParams) (*pb.ModifyAccountResult, error) {
+	address := common.Address{}
+	err := address.UnmarshalText([]byte(params.Address))
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "failed to parse hash")
+	}
+
+	err = server.database.SaveAccount(address, params.Cipher)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ModifyAccountResult{}, nil
+}
+
+// ModifyServer implements pb.ServiceServer.
+func (server *Server) ModifyServer(ctx context.Context, params *pb.ModifyServerParams) (*pb.ModifyServerResult, error) {
+	serverURL, err := url.Parse(params.Url)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "failed to parse server url")
+	}
+
+	err = server.database.SaveServer(params.Key, serverURL.String())
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ModifyServerResult{}, nil
+}
+
+// ServerInfo implements pb.ServiceServer.
+func (server *Server) ServerInfo(ctx context.Context, params *pb.ServerInfoParams) (*pb.ServerInfoResult, error) {
+	serverURL, err := url.Parse(params.Url)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "failed to parse server url")
+	}
+
+	client := proxy.NewClient(server.httpClient, serverURL.String(), common.HexToAddress(params.Account))
+
+	info, err := client.GetInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ServerInfoResult{
+		Version:  info.Version,
+		Uptime:   info.Uptime,
+		Conns:    info.Conns,
+		Subs:     info.Subs,
+		Chain:    info.Chain.Dec(),
+		Height:   info.Height,
+		RateFeed: info.RateFeed.Hex(),
+		Account:  info.Account.Hex(),
+		GasPrice: info.GasPrice.Dec(),
+		Rate: &pb.ServerInfoResult_Rate{
+			Sub: info.Rate.Sub.Dec(),
+			Div: info.Rate.Div.Dec(),
+			Mul: info.Rate.Mul.Dec(),
+			Add: info.Rate.Add.Dec(),
+		},
+	}, nil
+}
+
+// SubmitTx implements pb.ServiceServer.
+func (server *Server) SubmitTx(ctx context.Context, params *pb.SubmitTxParams) (*pb.SubmitTxResult, error) {
 	serverURL, err := url.Parse(params.Server)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "failed to parse server url")
@@ -101,157 +286,4 @@ func (server *Server) SubmitTx(ctx context.Context, params *pb.SubmitTxParams) (
 	}
 
 	return &pb.SubmitTxResult{}, err
-}
-
-func (server *Server) ListPends(ctx context.Context, params *pb.ListPendsParams) (*pb.ListPendsResult, error) {
-	pends, err := server.database.Pends()
-	if err != nil {
-		return nil, err
-	}
-
-	result := &pb.ListPendsResult{
-		Txs: make([]*pb.ListPendsResult_Tx, 0, len(pends)),
-	}
-
-	for hash, server := range pends {
-		result.Txs = append(result.Txs, &pb.ListPendsResult_Tx{
-			Hash:   hash.String(),
-			Server: server.String(),
-		})
-	}
-
-	return result, nil
-}
-
-func (server *Server) ListAccounts(ctx context.Context, params *pb.ListAccountsParams) (_ *pb.ListAccountsResult, err error) {
-	accounts, err := server.database.Accounts()
-	if err != nil {
-		return nil, err
-	}
-
-	result := &pb.ListAccountsResult{
-		Accounts: make([]*pb.ListAccountsResult_Account, 0, len(accounts)),
-	}
-
-	for addr, cipher := range accounts {
-		if !params.Ciphers {
-			cipher = nil
-		}
-		result.Accounts = append(result.Accounts, &pb.ListAccountsResult_Account{
-			Address: addr.String(),
-			Cipher:  cipher,
-		})
-	}
-
-	return result, nil
-}
-
-func (server *Server) ModifyAccount(ctx context.Context, params *pb.ModifyAccountParams) (_ *pb.ModifyAccountResult, err error) {
-	var addr common.Address
-	err = addr.UnmarshalText([]byte(params.Address))
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "failed to parse address")
-	}
-
-	err = server.database.PutAccount(addr, params.Cipher)
-
-	return &pb.ModifyAccountResult{}, err
-}
-
-func (server *Server) ListServers(ctx context.Context, params *pb.ListServersParams) (*pb.ListServersResult, error) {
-	servers, err := server.database.Servers()
-	if err != nil {
-		return nil, err
-	}
-
-	result := &pb.ListServersResult{
-		Servers: make([]*pb.ListServersResult_Server, 0, len(servers)),
-	}
-
-	for key, url := range servers {
-		result.Servers = append(result.Servers, &pb.ListServersResult_Server{
-			Key: key,
-			Url: url.String(),
-		})
-	}
-
-	return result, nil
-
-}
-
-func (server *Server) ModifyServer(ctx context.Context, params *pb.ModifyServerParams) (_ *pb.ModifyServerResult, err error) {
-	if params.Url == nil {
-		err = server.database.PutServer(params.Key, nil)
-	} else {
-		var purl *url.URL
-		purl, err = url.Parse(*params.Url)
-		if err != nil {
-			return nil, status.Error(codes.InvalidArgument, "failed to parse url")
-		}
-		err = server.database.PutServer(params.Key, purl)
-	}
-	return &pb.ModifyServerResult{}, err
-}
-
-func (server *Server) ServerInfo(ctx context.Context, params *pb.ServerInfoParams) (_ *pb.ServerInfoResult, err error) {
-	account := common.Address{}
-	if params.Account != nil {
-		err = account.UnmarshalText([]byte(*params.Account))
-		if err != nil {
-			return nil, status.Error(codes.InvalidArgument, "failed to parse account")
-		}
-	}
-
-	info, err := proxy.NewClient(server.httpClient, params.Url, account).GetInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return &pb.ServerInfoResult{
-		Version:  info.Version,
-		Uptime:   info.Uptime,
-		Conns:    info.Conns,
-		Subs:     info.Subs,
-		Chain:    info.Chain.Dec(),
-		Height:   info.Height,
-		RateFeed: info.RateFeed.Hex(),
-		Account:  info.Account.Hex(),
-		// Balance:  info.Balance.Dec(), // todo
-		GasPrice: info.GasPrice.Dec(),
-		Rate: &pb.ServerInfoResult_Rate{
-			Sub: info.Rate.Sub.Dec(),
-			Div: info.Rate.Div.Dec(),
-			Mul: info.Rate.Mul.Dec(),
-			Add: info.Rate.Add.Dec(),
-		},
-	}, nil
-
-}
-
-func (server *Server) ListSubs(ctx context.Context, params *pb.ListSubsParams) (_ *pb.ListSubsResult, err error) {
-	address := common.Address{}
-	err = address.UnmarshalText([]byte(params.Address))
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "failed to parse address")
-	}
-
-	subs, err := proxy.NewClient(server.httpClient, params.Server, address).GetSubs(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	result := &pb.ListSubsResult{
-		Subs: make([]*pb.ListSubsResult_Sub, len(subs)),
-	}
-
-	for idx, sub := range subs {
-		result.Subs[idx] = &pb.ListSubsResult_Sub{
-			Tx:     sub.Tx.Hex(),
-			Expire: sub.Expire,
-			Remain: sub.Remain,
-		}
-	}
-
-	return result, nil
-
 }
