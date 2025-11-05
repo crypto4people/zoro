@@ -21,9 +21,15 @@ type SingBoxMode uint8
 
 const (
 	ModeSocks SingBoxMode = iota
+	ModeTun
 )
 
-func Config(ctx context.Context, server, socksAddr string, privateKey *ecdsa.PrivateKey, mode SingBoxMode) (*box.Box, error) {
+type Settings struct {
+	SocksAddr *string
+	TunAddr   *string
+}
+
+func Config(ctx context.Context, server string, privateKey *ecdsa.PrivateKey, settings *Settings, mode SingBoxMode) (*box.Box, error) {
 	serverSplitted := strings.Split(server, ":")
 	if len(serverSplitted) < 3 {
 		return nil, fmt.Errorf("server must be like http://host:port or https://host:port")
@@ -47,6 +53,11 @@ func Config(ctx context.Context, server, socksAddr string, privateKey *ecdsa.Pri
 	var socksPort uint64
 	var inbound option.Inbound
 	if mode == ModeSocks {
+		if settings.SocksAddr == nil {
+			return nil, errors.New("socks address is required in socks mode")
+		}
+
+		socksAddr := *settings.SocksAddr
 		var err error
 		if !strings.Contains(socksAddr, ":") {
 			return nil, errors.New("invalid listen address")
@@ -71,12 +82,23 @@ func Config(ctx context.Context, server, socksAddr string, privateKey *ecdsa.Pri
 			},
 		}
 	} else {
+		if settings.TunAddr == nil {
+			return nil, errors.New("tun address is required in tun mode")
+		}
+
+		tunAddr := *settings.TunAddr
+		if !strings.Contains(tunAddr, "/") {
+			return nil, errors.New("invalid tun address")
+		}
+
 		inbound = option.Inbound{
 			Type: "tun",
 			Tag:  "in",
 			Options: &option.TunInboundOptions{
 				InterfaceName: "singbox-wsc1",
-				Address:       badoption.Listable[netip.Prefix]{netip.MustParsePrefix("198.18.0.1/24")},
+				Address:       badoption.Listable[netip.Prefix]{netip.MustParsePrefix(tunAddr)},
+				AutoRoute:     true,
+				AutoRedirect:  true,
 			},
 		}
 	}
