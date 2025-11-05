@@ -29,19 +29,11 @@ type Settings struct {
 	TunAddr   *string
 }
 
-func Config(ctx context.Context, server string, privateKey *ecdsa.PrivateKey, settings *Settings, mode SingBoxMode) (*box.Box, error) {
+func Config(ctx context.Context, server string, privateKey *ecdsa.PrivateKey, settings *Settings, mode SingBoxMode) (*option.Options, error) {
 	serverSplitted := strings.Split(server, ":")
 	if len(serverSplitted) < 3 {
 		return nil, fmt.Errorf("server must be like http://host:port or https://host:port")
 	}
-
-	inReg := include.InboundRegistry()
-	outReg := include.OutboundRegistry()
-	endReg := include.EndpointRegistry()
-	svcReg := include.ServiceRegistry()
-	dnsReg := include.DNSTransportRegistry()
-
-	sbCtx := box.Context(ctx, inReg, outReg, endReg, dnsReg, svcReg)
 
 	host := strings.ReplaceAll(serverSplitted[1], "/", "")
 	serverPort, err := strconv.ParseUint(serverSplitted[2], 10, 16)
@@ -139,14 +131,31 @@ func Config(ctx context.Context, server string, privateKey *ecdsa.PrivateKey, se
 		},
 	}
 
+	return &option.Options{
+		Inbounds:  inbounds,
+		Outbounds: outbounds,
+		Route: &option.RouteOptions{
+			Rules: rules,
+		},
+	}, nil
+}
+
+func NewBox(ctx context.Context, server string, privateKey *ecdsa.PrivateKey, settings *Settings, mode SingBoxMode) (*box.Box, error) {
+	opts, err := Config(ctx, server, privateKey, settings, mode)
+	if err != nil {
+		return nil, err
+	}
+
+	inReg := include.InboundRegistry()
+	outReg := include.OutboundRegistry()
+	endReg := include.EndpointRegistry()
+	svcReg := include.ServiceRegistry()
+	dnsReg := include.DNSTransportRegistry()
+
+	sbCtx := box.Context(ctx, inReg, outReg, endReg, dnsReg, svcReg)
+
 	return box.New(box.Options{
 		Context: sbCtx,
-		Options: option.Options{
-			Inbounds:  inbounds,
-			Outbounds: outbounds,
-			Route: &option.RouteOptions{
-				Rules: rules,
-			},
-		},
+		Options: *opts,
 	})
 }
