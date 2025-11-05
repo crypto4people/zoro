@@ -114,14 +114,16 @@ func connectAction(ctx context.Context, cmd *cli.Command) error {
 
 	var box *box.Box
 
-	// if cmd.Bool("enable-tun") {
 	// 	box, err = singbox.Config(ctx, client.Endpoint(), "", priv, singbox.ModeTun)
-	// } else {
 	socksAddr := cmd.String("local-socks")
-	box, err = singbox.NewBox(ctx, client.Endpoint(), priv, &singbox.Settings{
+	builder, err := singbox.New(client.Endpoint(), priv, singbox.Settings{
 		SocksAddr: &socksAddr,
 	}, singbox.ModeSocks)
-	// }
+	if err != nil {
+		return err
+	}
+
+	box, err = builder.NewBox(ctx)
 	if err != nil {
 		return err
 	}

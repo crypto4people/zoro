@@ -3,124 +3,109 @@ package singbox
 import (
 	"context"
 	"crypto/ecdsa"
-	"encoding/hex"
-	"errors"
+	"encoding/json"
 	"fmt"
-	"net/netip"
+	"net/url"
 	"strconv"
-	"strings"
 
 	box "github.com/sagernet/sing-box"
+	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/include"
 	"github.com/sagernet/sing-box/option"
-	"github.com/sagernet/sing/common/json/badoption"
 	"github.com/sagernet/sing/common/network"
 )
 
-type SingBoxMode uint8
+type Mode uint8
 
 const (
-	ModeSocks SingBoxMode = iota
+	ModeSocks Mode = iota
 	ModeTun
 )
 
 type Settings struct {
 	SocksAddr *string
-	TunAddr   *string
+
+	TunAddr *string
+
+	WSCPath string // default: "/wsc"
+	UseTLS  bool   // default: false
 }
 
-func Config(ctx context.Context, server string, privateKey *ecdsa.PrivateKey, settings *Settings, mode SingBoxMode) (*option.Options, error) {
-	serverSplitted := strings.Split(server, ":")
-	if len(serverSplitted) < 3 {
-		return nil, fmt.Errorf("server must be like http://host:port or https://host:port")
+func New(server string, priv *ecdsa.PrivateKey, set Settings, mode Mode) (*Builder, error) {
+	uri, err := url.Parse(server)
+	if err != nil {
+		return nil, fmt.Errorf("parse server: %w", err)
 	}
 
-	host := strings.ReplaceAll(serverSplitted[1], "/", "")
-	serverPort, err := strconv.ParseUint(serverSplitted[2], 10, 16)
+	if uri.Scheme != "http" && uri.Scheme != "https" {
+		return nil, fmt.Errorf("server must start with http:// or https://")
+	}
+
+	host := uri.Hostname()
+	if host == "" {
+		return nil, fmt.Errorf("missing host in server")
+	}
+
+	portStr := uri.Port()
+	if portStr == "" {
+		if uri.Scheme == "https" {
+			portStr = "443"
+		} else {
+			portStr = "80"
+		}
+	}
+
+	p64, err := strconv.ParseUint(portStr, 10, 16)
+	if err != nil {
+		return nil, fmt.Errorf("invalid port: %w", err)
+	}
+
+	if set.WSCPath == "" {
+		set.WSCPath = "/wsc"
+	}
+
+	return &Builder{
+		serverURL:  uri,
+		serverHost: host,
+		serverPort: uint16(p64),
+		priv:       priv,
+		mode:       mode,
+		set:        set,
+	}, nil
+}
+
+func (builder *Builder) NewBox(ctx context.Context) (*box.Box, error) {
+	opts, err := builder.Options()
+	if err != nil {
+		return nil, err
+	}
+	inReg := include.InboundRegistry()
+	outReg := include.OutboundRegistry()
+	endReg := include.EndpointRegistry()
+	svcReg := include.ServiceRegistry()
+	dnsReg := include.DNSTransportRegistry()
+	sbCtx := box.Context(ctx, inReg, outReg, endReg, dnsReg, svcReg)
+
+	return box.New(box.Options{
+		Context: sbCtx,
+		Options: *opts,
+	})
+}
+
+func (builder *Builder) Options() (*option.Options, error) {
+	inb, err := builder.buildInbound()
 	if err != nil {
 		return nil, err
 	}
 
-	var socksListen netip.Addr
-	var socksPort uint64
-	var inbound option.Inbound
-	if mode == ModeSocks {
-		if settings.SocksAddr == nil {
-			return nil, errors.New("socks address is required in socks mode")
-		}
-
-		socksAddr := *settings.SocksAddr
-		var err error
-		if !strings.Contains(socksAddr, ":") {
-			return nil, errors.New("invalid listen address")
-		}
-
-		socksAddrSplitted := strings.Split(socksAddr, ":")
-
-		socksListen = netip.MustParseAddr(socksAddrSplitted[0])
-		socksPort, err = strconv.ParseUint(socksAddrSplitted[1], 10, 16)
-		if err != nil {
-			return nil, err
-		}
-
-		inbound = option.Inbound{
-			Type: "socks",
-			Tag:  "in",
-			Options: &option.SocksInboundOptions{
-				ListenOptions: option.ListenOptions{
-					Listen:     (*badoption.Addr)(&socksListen),
-					ListenPort: uint16(socksPort),
-				},
-			},
-		}
-	} else {
-		if settings.TunAddr == nil {
-			return nil, errors.New("tun address is required in tun mode")
-		}
-
-		tunAddr := *settings.TunAddr
-		if !strings.Contains(tunAddr, "/") {
-			return nil, errors.New("invalid tun address")
-		}
-
-		inbound = option.Inbound{
-			Type: "tun",
-			Tag:  "in",
-			Options: &option.TunInboundOptions{
-				InterfaceName: "singbox-wsc1",
-				Address:       badoption.Listable[netip.Prefix]{netip.MustParsePrefix(tunAddr)},
-				AutoRoute:     true,
-				AutoRedirect:  true,
-			},
-		}
-	}
-
-	inbounds := []option.Inbound{inbound}
-
-	outbounds := []option.Outbound{
-		{
-			Type: "wsc",
-			Tag:  "wsc-out",
-			Options: &option.WSCOutboundOptions{
-				ServerOptions: option.ServerOptions{
-					Server:     host,
-					ServerPort: uint16(serverPort),
-				},
-				DialerOptions:               option.DialerOptions{},
-				OutboundTLSOptionsContainer: option.OutboundTLSOptionsContainer{TLS: &option.OutboundTLSOptions{Enabled: false}},
-				Auth:                        hex.EncodeToString(privateKey.D.Bytes()),
-				Path:                        "/wsc",
-			},
-		},
-		{Type: "direct", Tag: "direct"},
-		{Type: "block", Tag: "block"},
-	}
+	outb := builder.buildOutbounds()
 
 	rules := []option.Rule{
 		{
+			Type: C.RuleTypeDefault,
 			DefaultOptions: option.DefaultRule{
 				RawDefaultRule: option.RawDefaultRule{
-					Protocol: []string{network.NetworkUDP},
+					Network: []string{network.NetworkUDP},
 				},
 				RuleAction: option.RuleAction{
 					RouteOptions: option.RouteActionOptions{
@@ -132,30 +117,30 @@ func Config(ctx context.Context, server string, privateKey *ecdsa.PrivateKey, se
 	}
 
 	return &option.Options{
-		Inbounds:  inbounds,
-		Outbounds: outbounds,
+		Inbounds:  []option.Inbound{inb},
+		Outbounds: outb,
 		Route: &option.RouteOptions{
 			Rules: rules,
 		},
 	}, nil
 }
 
-func NewBox(ctx context.Context, server string, privateKey *ecdsa.PrivateKey, settings *Settings, mode SingBoxMode) (*box.Box, error) {
-	opts, err := Config(ctx, server, privateKey, settings, mode)
+func (builder *Builder) JSON() ([]byte, error) {
+	inbJSON, err := builder.buildInboundJSON()
 	if err != nil {
 		return nil, err
 	}
+	outbJSON := builder.buildOutboundsJSON()
 
-	inReg := include.InboundRegistry()
-	outReg := include.OutboundRegistry()
-	endReg := include.EndpointRegistry()
-	svcReg := include.ServiceRegistry()
-	dnsReg := include.DNSTransportRegistry()
+	cfg := map[string]any{
+		"inbounds":  []any{inbJSON},
+		"outbounds": outbJSON,
+		"route": map[string]any{
+			"rules": []any{
+				map[string]any{"type": "default", "outbound": "wsc-out"},
+			},
+		},
+	}
 
-	sbCtx := box.Context(ctx, inReg, outReg, endReg, dnsReg, svcReg)
-
-	return box.New(box.Options{
-		Context: sbCtx,
-		Options: *opts,
-	})
+	return json.MarshalIndent(cfg, "", "  ")
 }
