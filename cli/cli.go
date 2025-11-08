@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/crypto4people/zoro/cli/client"
+	"github.com/crypto4people/zoro/cli/indexer"
 	"github.com/crypto4people/zoro/cli/server"
 	"github.com/crypto4people/zoro/cli/utility"
 
@@ -16,6 +17,7 @@ func App() *cli.Command {
 		Commands: []*cli.Command{
 			client.Cmd,
 			server.Cmd,
+			indexer.Cmd,
 			utility.Cmd,
 		},
 		HideHelpCommand: false,

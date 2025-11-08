@@ -6,13 +6,11 @@ import (
 	"net"
 	"os"
 
+	"github.com/crypto4people/zoro/cli/constants"
 	"github.com/ethereum/go-ethereum/common"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/urfave/cli/v3"
 )
-
-const DEFAULT_ETH_RPC = "https://ethereum-rpc.publicnode.com"
-const DEFAULT_RATEFEED_CONTRACT_ADDRESS = "0x2dAD6cBd1B21F99d74409CA24ef53dB6F9789d5E"
 
 type config struct {
 	Listen        string           `json:"listen,omitempty"`
@@ -45,11 +43,11 @@ func parseFromFile(configFile string) (config, error) {
 	}
 
 	if cfg.EthNode == "" {
-		cfg.EthNode = DEFAULT_ETH_RPC
+		cfg.EthNode = constants.DEFAULT_ETH_RPC
 	}
 
 	if cfg.Contract == (common.Address{}) {
-		cfg.Contract = common.HexToAddress(DEFAULT_RATEFEED_CONTRACT_ADDRESS)
+		cfg.Contract = common.HexToAddress(constants.DEFAULT_RATEFEED_CONTRACT_ADDRESS)
 	}
 
 	if cfg.DataDir == "" {
@@ -60,6 +58,5 @@ func parseFromFile(configFile string) (config, error) {
 }
 
 func parseFromCmd(cmd *cli.Command) (config, error) {
-	var cfg config
-	return cfg, nil
+	panic("unimplemented")
 }

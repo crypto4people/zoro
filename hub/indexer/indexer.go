@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"errors"
+	"log/slog"
 	"math/big"
 	"time"
 
@@ -34,12 +35,25 @@ type IndexerInfo struct {
 }
 
 type Indexer struct {
+	logger    *slog.Logger
 	client    *ethclient.Client
 	db        *mongo.Database
 	chain     string
-	ratefeed  common.Address
 	start     time.Time
+	ratefeed  common.Address
 	blockTime time.Duration
+}
+
+func NewIndexer(logger *slog.Logger, client *ethclient.Client, db *mongo.Database, chain string, ratefeed common.Address, blockTime time.Duration) *Indexer {
+	return &Indexer{
+		logger:    logger,
+		client:    client,
+		db:        db,
+		chain:     chain,
+		start:     time.Now(),
+		ratefeed:  ratefeed,
+		blockTime: blockTime,
+	}
 }
 
 type transfersDoc struct {
@@ -67,12 +81,17 @@ func (indexer *Indexer) Info(ctx context.Context) (*IndexerInfo, error) {
 		return nil, err
 	}
 
+	height := int64(0)
+	if transfer != nil {
+		height = transfer.Block
+	}
+
 	return &IndexerInfo{
 		Uptime:    time.Since(indexer.start),
 		Version:   "v1",
 		Ratefeed:  indexer.ratefeed,
 		Chain:     indexer.chain,
-		Height:    transfer.Block,
+		Height:    height,
 		BlockTime: indexer.blockTime,
 	}, nil
 }
@@ -109,6 +128,7 @@ func (indexer *Indexer) GetTx(ctx context.Context, hash common.Hash) ([]byte, er
 
 	filter := bson.D{
 		{Key: "hash", Value: hash},
+		{Key: "chain", Value: indexer.chain},
 	}
 
 	err := indexer.db.Collection("transfers").FindOne(ctx, filter).Decode(&transfer)
@@ -169,7 +189,11 @@ func (indexer *Indexer) Routine(ctx context.Context) (err error) {
 
 			for _, tx := range blockData.Txs {
 				if err := indexer.appendTransfer(ctx, number, tx); err != nil {
-					// todo log
+					indexer.logger.Info(
+						"failed to append transfer",
+						slog.String("hash", tx.Hash().Hex()),
+						slog.String("error", err.Error()),
+					)
 					return err
 				}
 			}
@@ -187,7 +211,14 @@ func (indexer *Indexer) Routine(ctx context.Context) (err error) {
 				rate.Add.SetFromBig(rateUpdatedEvent.Add)
 
 				if err := indexer.appendRate(ctx, number, rate); err != nil {
-					// todo log
+					indexer.logger.Info(
+						"failed to append rate",
+						slog.String("sub", rate.Sub.Dec()),
+						slog.String("div", rate.Div.Dec()),
+						slog.String("mul", rate.Mul.Dec()),
+						slog.String("add", rate.Add.Dec()),
+						slog.String("error", err.Error()),
+					)
 					return err
 				}
 			}
@@ -331,6 +362,7 @@ func (indexer *Indexer) appendTransfer(ctx context.Context, block int64, tx *typ
 
 	filter := bson.D{
 		{Key: "hash", Value: tx.Hash()},
+		{Key: "chain", Value: indexer.chain},
 	}
 	opts := options.Replace().SetUpsert(true)
 
