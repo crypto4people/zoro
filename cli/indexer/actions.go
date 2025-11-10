@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/crypto4people/zoro/hub/indexer"
+	"github.com/crypto4people/zoro/indexer"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/urfave/cli/v3"
 	"go.mongodb.org/mongo-driver/mongo"

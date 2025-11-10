@@ -5,6 +5,7 @@ go 1.24.6
 require (
 	github.com/ethereum/go-ethereum v1.16.5
 	github.com/gobwas/ws v1.4.0
+	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
 	github.com/holiman/uint256 v1.3.2
 	github.com/itsabgr/ge v0.0.0-20241202140951-7f5c5d99dde6

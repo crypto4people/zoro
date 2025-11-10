@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option go_package = "../pb";
+
+service Registry {
+    rpc Info(google.protobuf.Empty) returns (InfoResult);
+    rpc List(ListParams) returns (ListResult);
+    rpc Vote(VoteParams) returns (google.protobuf.Empty);
+}
+
+message InfoResult {
+    bytes public_key = 1;
+}
+
+message ListParams {
+    bytes public_key = 1;
+    int64 timestamp = 2;
+}
+
+message ListResult {
+    repeated string servers = 1;
+}
+
+message VoteParams {
+    bytes public_key = 1;
+    string server = 2;
+    bool vote = 3;
+}

@@ -39,7 +39,7 @@ type Server struct {
 
 	proxy struct {
 		reporting struct {
-			internal time.Duration
+			interval time.Duration
 			timeout  time.Duration
 		}
 		dialer     net.Dialer

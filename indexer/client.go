@@ -1,4 +1,4 @@
-package hub
+package indexer
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/crypto4people/zoro/eth"
-	"github.com/crypto4people/zoro/hub/pb"
+	"github.com/crypto4people/zoro/indexer/pb"
 	"github.com/crypto4people/zoro/misc"
 	"github.com/crypto4people/zoro/rate"
 

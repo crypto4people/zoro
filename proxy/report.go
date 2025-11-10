@@ -31,7 +31,7 @@ func (server *Server) prepareReport(ctx context.Context, account common.Address)
 
 	err = reporting.Report(ctx,
 		server.proxy.reporting.timeout,
-		server.proxy.reporting.internal,
+		server.proxy.reporting.interval,
 	)
 
 	if err != nil {

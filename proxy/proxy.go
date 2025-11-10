@@ -106,7 +106,7 @@ func (server *Server) doProxy(
 	}
 
 	eg.Go(func() error {
-		ticker := time.NewTicker(server.proxy.reporting.internal)
+		ticker := time.NewTicker(server.proxy.reporting.interval)
 		defer ticker.Stop()
 		defer closeAll()
 
@@ -118,7 +118,7 @@ func (server *Server) doProxy(
 				if err := reporting.Report(
 					egCtx,
 					server.proxy.reporting.timeout,
-					server.proxy.reporting.internal,
+					server.proxy.reporting.interval,
 				); err != nil {
 					logger.Debug("connection dropped due to failure on Report", slog.String("error", err.Error()))
 					return err

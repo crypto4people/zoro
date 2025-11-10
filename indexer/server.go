@@ -1,12 +1,11 @@
-package hub
+package indexer
 
 import (
 	"context"
 	"time"
 
 	"github.com/crypto4people/zoro/eth"
-	"github.com/crypto4people/zoro/hub/indexer"
-	"github.com/crypto4people/zoro/hub/pb"
+	"github.com/crypto4people/zoro/indexer/pb"
 	"github.com/crypto4people/zoro/misc"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -23,11 +22,11 @@ var _ pb.HubServer = &server{}
 type server struct {
 	uptime  time.Time
 	client  eth.Client
-	indexer *indexer.Indexer
+	indexer *Indexer
 	pb.UnimplementedHubServer
 }
 
-func NewServer(client eth.Client, indexer *indexer.Indexer) pb.HubServer {
+func NewServer(client eth.Client, indexer *Indexer) pb.HubServer {
 	return &server{
 		uptime:  time.Now(),
 		client:  client,

@@ -32,7 +32,7 @@ func NewServer(ctx context.Context, conf ServerConfig) (app *Server, err error) 
 	app.ethClient = conf.Client
 	app.ethStartingBlock = conf.StartingBlock
 
-	app.proxy.reporting.internal = time.Second * 10
+	app.proxy.reporting.interval = time.Second * 10
 	app.proxy.reporting.timeout = time.Second * 5
 	app.proxy.dialer.LocalAddr = &net.TCPAddr{
 		IP:   conf.LocalAddr,
